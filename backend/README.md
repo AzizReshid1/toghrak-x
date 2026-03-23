@@ -1,46 +1,54 @@
-# Backend Documentation
+# Spring Boot Backend Documentation
+
+## Overview
+This document provides comprehensive information about the Spring Boot backend for the Toghrak-X project.
+
+## Table of Contents
+1. [Getting Started](#getting-started)
+2. [Project Structure](#project-structure)
+3. [Configuration](#configuration)
+4. [Running the Application](#running-the-application)
+5. [Endpoints](#endpoints)
+
+## Getting Started
+To get started with the Spring Boot backend, follow the steps below:
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/AzizTuprak/toghrak-x.git
+   cd toghrak-x/backend
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   ./mvnw install
+   ```
+
+3. **Run the application**:
+   ```bash
+   ./mvnw spring-boot:run
+   ```
 
 ## Project Structure
-
-- `src/`: Contains the main source code of the application.
-- `config/`: Configuration files and environment settings.
-- `tests/`: Automated tests for the backend functionality.
-- `scripts/`: Useful scripts for development and deployment.
-
-## Quick Start
-
-To start the backend server:
-1. Clone the repository: `git clone https://github.com/AzizTuprak/toghrak-x.git`
-2. Navigate to the backend directory: `cd toghrak-x/backend`
-3. Install dependencies: `npm install` or `yarn`
-4. Run the server: `npm start` or `yarn start`
+- **src/main/java**  - Contains the Java source files.
+- **src/main/resources** - Contains application properties and static resources.
 
 ## Configuration
+The application can be configured using the `application.properties` file located in the `src/main/resources` directory.
 
-The application can be configured using environment variables defined in the `.env` file. Refer to the `config/` directory for default settings and options.
-
-## API Documentation
-
-### Endpoints:
-- **GET** `/api/example`
-  - Description: Fetch example data.
-  - Parameters: `id` (optional)
-  - Response: 200 OK with data or 404 Not Found.
-
-### Example Request:
+## Running the Application
+To run the application, use the following command:
 ```bash
-curl -X GET http://localhost:3000/api/example
+./mvnw spring-boot:run
 ```
 
-## Development Commands
-- **Run Tests**: `npm test` or `yarn test`
-- **Lint Code**: `npm run lint`
-- **Format Code**: `npm run format`
+## Endpoints
+Here is a list of available endpoints:
+- `GET /api/items` - Retrieves all items.
+- `POST /api/items` - Creates a new item.
+- `GET /api/items/{id}` - Retrieves an item by ID.
+- `PUT /api/items/{id}` - Updates an existing item.
+- `DELETE /api/items/{id}` - Deletes an item by ID.
 
-## Folder Organization
-
-- `controllers/`: Business logic and request handlers.
-- `models/`: Database models and schemas.
-- `routes/`: API route definitions and middleware.
-- `middlewares/`: Custom middleware functions for request handling.
-
+## Conclusion
+This documentation serves as a guide to understanding and working with the Spring Boot backend of Toghrak-X. For any questions, please refer to the project's GitHub repository or contact the maintainers.

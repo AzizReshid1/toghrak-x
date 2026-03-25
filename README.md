@@ -1,69 +1,271 @@
 # Toghrak X
 
-Full-stack publishing platform with categories, posts, pages, footer links, and admin workflows.
-Stack: Angular (frontend) + Spring Boot (backend) + PostgreSQL + JWT.
+A full-stack publishing platform with categories, posts, pages, footer links, and admin workflows.
+
+**Stack:** Angular (frontend) + Spring Boot (backend) + PostgreSQL + JWT  
+**Live Features:** Post browsing, admin content management, role-based access control, gallery support, and API documentation.
+
+---
+
+## 📋 Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+  - [Backend Setup](#backend-setup)
+  - [Frontend Setup](#frontend-setup)
+- [Running Locally](#running-locally)
+- [Deployment](#deployment)
+- [Scripts & Testing](#scripts--testing)
+- [Troubleshooting](#troubleshooting)
+
+---
+
+## Overview
+
+Toghrak X is a modern, full-stack publishing platform designed for content creators and site administrators. It provides a responsive public interface for readers to discover content while offering a powerful admin panel for managing posts, pages, categories, and user roles.
+
+Whether you're building a blog, news site, or content hub, Toghrak X gives you the tools to publish, organize, and moderate content at scale with built-in security and performance considerations.
+
+---
 
 ## Features
 
-- Public: browse posts by recency/popularity/category, view post detail with images, static pages (About/Contact/FAQ/Terms/Privacy) with galleries, footer links & social links, responsive UI.
-- Auth: JWT login.
-- Admin: manage posts (with images/categories), categories (CRUD + navbar updates), static pages (CRUD + gallery images), footer links, social links, users/roles.
-- REST API design and clear separation of concerns for maintainability
-- Authentication and authorization (JWT + role-based access) to support Admin/Editor flows
-- Developer experience and operability, including API documentation (OpenAPI/Swagger)
-  
-## Tech
+### 👥 Public Features
+- **Browse posts** by recency, popularity, or category
+- **View post details** with embedded images and metadata
+- **Static pages** (About, Contact, FAQ, Terms, Privacy) with image galleries
+- **Footer links & social media integration**
+- **Fully responsive UI** optimized for all devices
 
-- Frontend: Angular, RxJS, Angular Router, Bootstrap styles, custom CSS/SCSS.
-- Backend: Spring Boot 3, Spring Security (JWT), Spring Data JPA, Hibernate, PostgreSQL.
-- Extras: Simple rate limiter on public endpoints, server-side HTML escaping for page content, image upload endpoint for galleries.
+### 🔐 Authentication & Authorization
+- **JWT-based login** for secure user authentication
+- **Role-based access control** (Admin/Editor/Viewer roles)
+- **Secure session management** with configurable token expiration
+
+### ⚙️ Admin Features
+- **Post management**: Create, edit, delete posts with images and category assignments
+- **Category management**: Full CRUD operations with navbar integration
+- **Page management**: Manage static pages with gallery images
+- **User & role management**: Assign roles and control permissions
+- **Footer & social links**: Customize footer branding and social profiles
+- **API documentation**: Interactive OpenAPI/Swagger documentation
+
+### 🏗️ Architecture
+- **REST API design** with clear separation of concerns for maintainability
+- **Rate limiting** on public endpoints to prevent abuse
+- **Server-side HTML escaping** for safe page content rendering
+- **Image upload endpoint** with gallery support
+
+---
+
+## Tech Stack
+
+### Frontend
+- **Angular 14+** with modern best practices
+- **RxJS** for reactive programming
+- **Angular Router** for client-side navigation
+- **Bootstrap** for styling framework
+- **Custom CSS/SCSS** for unique design elements
+
+### Backend
+- **Spring Boot 3** microservices-ready framework
+- **Spring Security** with JWT token support
+- **Spring Data JPA** for database abstraction
+- **Hibernate** as ORM
+- **PostgreSQL 14+** as primary data store
+
+### Extras
+- **Rate limiter** for public API protection
+- **Server-side rendering safety** with HTML escaping
+- **Image upload handling** for gallery management
+- **OpenAPI/Swagger** for API documentation
+
+---
 
 ## Prerequisites
 
-- Node 18+ / npm, Angular CLI
-- Java 21, Maven 3.9+
-- PostgreSQL 14+ (or compatible)
+Before you begin, ensure you have the following installed on your system:
 
-## Backend setup
+- **Node.js** 18+ and npm
+- **Angular CLI** (latest or 14.2.3+)
+- **Java** 21 (JDK)
+- **Maven** 3.9+
+- **PostgreSQL** 14+ (or compatible)
 
-1. Create a PostgreSQL DB/user.
-2. Set `backend/src/main/resources/application.properties`:
+---
 
-spring.datasource.url=jdbc:postgresql://localhost:5432/blogdb
-spring.datasource.username=YOUR_DB_USER
-spring.datasource.password=YOUR_DB_PASS
-app.jwt.secret=CHANGE_ME
-app.jwt.expiration=3600000
+## Installation
 
-3. Run: `cd backend && mvn clean package -DskipTests && mvn spring-boot:run`
-4. Swagger: http://localhost:8081/swagger-ui/index.html
+### Backend Setup
 
-## Frontend setup
+1. **Create a PostgreSQL database and user:**
+   ```bash
+   createdb blogdb
+   createuser YOUR_DB_USER -P  # You'll be prompted for password
+   ```
 
-1. `cd frontend && npm install`
-2. Dev: `ng serve --open` (expects backend at http://localhost:8081; change in `src/environments/environment.ts` if needed)
-3. Prod build: `ng build`
+2. **Configure the application:**
+   Edit `backend/src/main/resources/application.properties`:
+   ```properties
+   spring.datasource.url=jdbc:postgresql://localhost:5432/blogdb
+   spring.datasource.username=YOUR_DB_USER
+   spring.datasource.password=YOUR_DB_PASS
+   app.jwt.secret=CHANGE_ME_TO_STRONG_SECRET_KEY
+   app.jwt.expiration=3600000
+   ```
 
-## Local run
+   ⚠️ **Security Note:** In production, use strong, randomly generated values for `app.jwt.secret`.
 
-- Backend: `mvn spring-boot:run` (8081)
-- Frontend: `ng serve` (4200)
+3. **Build and run the backend:**
+   ```bash
+   cd backend
+   mvn clean package -DskipTests
+   mvn spring-boot:run
+   ```
 
-## Deployment notes
+4. **Verify the backend:**
+   - API should be running at `http://localhost:8081`
+   - Swagger UI: `http://localhost:8081/swagger-ui/index.html`
 
-- Set `app.jwt.secret` securely.
-- Adjust CORS in SecurityConfig if hosting frontend separately.
-- Configure image storage/CDN for uploads.
-- Frontend build output is `frontend/dist/toghrak-x/browser` with the application builder; deploy that folder.
-- Consider adding Flyway/Liquibase migrations in production.
+### Frontend Setup
 
-## Scripts
+1. **Install dependencies:**
+   ```bash
+   cd frontend
+   npm install
+   ```
 
-- Backend tests: `mvn test`
-- Frontend lint: `ng lint`
-- Frontend tests: `ng test`
+2. **Start development server:**
+   ```bash
+   ng serve --open
+   ```
+   - App will open at `http://localhost:4200`
+   - Backend is expected at `http://localhost:8081`
+   - To change backend URL, edit `src/environments/environment.ts`
+
+3. **Build for production:**
+   ```bash
+   ng build
+   ```
+   - Output: `frontend/dist/toghrak-x/browser`
+
+---
+
+## Running Locally
+
+Once both backend and frontend are set up, run them in separate terminal sessions:
+
+**Terminal 1 - Backend:**
+```bash
+cd backend
+mvn spring-boot:run
+```
+Running on: `http://localhost:8081`
+
+**Terminal 2 - Frontend:**
+```bash
+cd frontend
+ng serve
+```
+Running on: `http://localhost:4200`
+
+Both services should automatically reload on file changes during development.
+
+---
+
+## Deployment
+
+### Backend Deployment
+- **Set `app.jwt.secret`** to a strong, randomly-generated value (use a secrets manager in production)
+- **Configure CORS** in `SecurityConfig` if frontend is hosted on a different domain
+- **Set up image storage**: Configure cloud storage (AWS S3, Azure Blob, etc.) or persistent file system
+- **Database migrations**: Consider using Flyway or Liquibase for schema versioning
+- **Environment variables**: Use Spring profiles or environment variables for sensitive config
+
+### Frontend Deployment
+- Build output directory: `frontend/dist/toghrak-x/browser`
+- Deploy this folder to your web server (Nginx, Apache) or CDN (Vercel, Netlify, AWS S3)
+- Update `src/environments/environment.prod.ts` with production API endpoint
+- Ensure CORS policy allows requests from your frontend domain
+
+### Example Deployment Stack
+- **Frontend**: Nginx reverse proxy + CDN (Cloudflare, AWS CloudFront)
+- **Backend**: Docker container on Kubernetes or traditional app server
+- **Database**: Managed PostgreSQL (AWS RDS, Azure Database, DigitalOcean)
+- **Storage**: Cloud storage for images (AWS S3, Azure Blob Storage)
+
+---
+
+## Scripts & Testing
+
+### Backend
+```bash
+# Run tests
+mvn test
+
+# Run with specific profile (dev, staging, prod)
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
+```
+
+### Frontend
+```bash
+# Lint code
+ng lint
+
+# Run unit tests
+ng test
+
+# Run e2e tests (requires setup)
+g ng e2e
+
+# Build for production
+ng build --configuration production
+```
+
+---
 
 ## Troubleshooting
 
-- “Unused file” warnings in Angular are cosmetic; exclude in tsconfig if desired.
-- If you see schema errors, add DB migrations or align DB with JPA entities.
+### "Unused file" warnings in Angular
+- This is cosmetic and doesn't affect functionality
+- To silence warnings, exclude in `tsconfig.json`:
+  ```json
+  "exclude": ["src/**/*.spec.ts"]
+  ```
+
+### Database schema errors
+- **Issue**: JPA entity mismatch with database schema
+- **Solution**: 
+  - Auto-generate schema: Set `spring.jpa.hibernate.ddl-auto=update` (dev only)
+  - For production: Use Flyway/Liquibase migrations
+  - Manual: Run SQL migrations in `backend/src/main/resources/db/migration/`
+
+### Backend connection issues
+- Verify PostgreSQL is running: `psql -U YOUR_DB_USER -d blogdb`
+- Check port 8081 is available: `lsof -i :8081`
+- Review logs for connection errors
+
+### Frontend can't reach backend
+- Verify backend is running on `http://localhost:8081`
+- Check `src/environments/environment.ts` has correct API URL
+- Check browser console for CORS errors
+- Verify `SecurityConfig` CORS settings match frontend origin
+
+### Build failures
+- Clear Maven cache: `mvn clean`
+- Clear npm cache: `npm cache clean --force && rm -rf node_modules`
+- Check Java version: `java -version` (should be 21+)
+- Check Node version: `node -v` (should be 18+)
+
+---
+
+## License & Contributing
+
+For more information on contributing or licensing, please see the repository root directory.
+
+---
+
+**Happy Publishing! 🚀**

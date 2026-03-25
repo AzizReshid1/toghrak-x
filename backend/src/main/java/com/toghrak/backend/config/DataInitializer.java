@@ -18,10 +18,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Configuration
 @Slf4j
 public class DataInitializer {
+
+    // Basic email format check — must contain a local part, @, and a domain with a dot.
+    private static final Pattern EMAIL_PATTERN =
+            Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
 
         @Value("${default.admin.username:}")
         private String adminUsername;
@@ -50,26 +55,28 @@ public class DataInitializer {
 
                         // Seed a default admin user if none exists
                         if (userRepo.findByRole_Name("ADMIN").isEmpty()) {
-                                // Ensure the injected admin credentials are present
+                                // Ensure the injected admin credentials are present before attempting to create
                                 if (adminUsername == null || adminUsername.isBlank() ||
+                                                adminEmail == null || adminEmail.isBlank() ||
                                                 adminPassword == null || adminPassword.isBlank()) {
-                                        log.warn("Default admin credentials not configured; skipping admin seed.");
-                                        return;
+                                        log.warn("Default admin credentials not fully configured (username/email/password); skipping admin seed.");
+                                } else if (!EMAIL_PATTERN.matcher(adminEmail).matches()) {
+                                        log.warn("Default admin email '{}' is not a valid email address; skipping admin seed.", adminEmail);
+                                } else {
+                                        Role adminRole = roleRepo.findByName("ADMIN")
+                                                        .orElseThrow(() -> new ResourceNotFoundException(
+                                                                        "Admin role not found"));
+
+                                        User admin = User.builder()
+                                                        .username(adminUsername)
+                                                        .email(adminEmail)
+                                                        .password(passwordEncoder.encode(adminPassword))
+                                                        .role(adminRole)
+                                                        .build();
+
+                                        userRepo.save(admin);
+                                        log.info("DataInitializer: Default admin user seeded successfully.");
                                 }
-
-                                Role adminRole = roleRepo.findByName("ADMIN")
-                                                .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Admin role not found"));
-
-                                User admin = User.builder()
-                                                .username(adminUsername)
-                                                .email(adminEmail)
-                                                .password(passwordEncoder.encode(adminPassword))
-                                                .role(adminRole)
-                                                .build();
-
-                                userRepo.save(admin);
-                                log.info("DataInitializer: Default admin user seeded successfully.");
                         }
 
                         // Seed default pages if missing
@@ -98,7 +105,7 @@ public class DataInitializer {
                         }
 
                         if (socialLinkRepository.count() == 0) {
-                                socialLinkRepository.saveAll(List.of(
+                                socialLinkRepository.saveAll(List.<SocialLink>of(
                                                 SocialLink.builder().label("Twitter")
                                                                 .url("https://twitter.com/toghrakplatform").icon("x")
                                                                 .build(),

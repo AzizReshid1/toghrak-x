@@ -38,7 +38,8 @@ public class SearchService {
             SearchResultItem item = new SearchResultItem();
             item.setType("POST");
             item.setTitle(p.getTitle());
-            item.setUrl("/posts/" + p.getId());
+            // Use slug (not ID) — slugs are stable, human-readable, and SEO-friendly.
+            item.setUrl("/posts/" + p.getSlug());
             item.setSnippet(snippet(p.getContent(), term));
             results.add(item);
         });
@@ -48,7 +49,8 @@ public class SearchService {
             SearchResultItem item = new SearchResultItem();
             item.setType("PAGE");
             item.setTitle(p.getTitle());
-            item.setUrl("/page/" + p.getSlug());
+            // Use /pages/ (plural) to match the API and frontend route convention.
+            item.setUrl("/pages/" + p.getSlug());
             item.setSnippet(snippet(p.getContent(), term));
             results.add(item);
         });

@@ -7,6 +7,7 @@ import com.toghrak.backend.repository.RefreshTokenRepository;
 import com.toghrak.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,10 +84,12 @@ public class RefreshTokenService {
 
     private void validate(RefreshToken token) {
         if (token.isRevoked()) {
-            throw new ResourceNotFoundException("Refresh token revoked");
+            // Token was explicitly revoked (e.g. logout or rotation) — treat as auth failure, not 404.
+            throw new BadCredentialsException("Refresh token has been revoked.");
         }
         if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ResourceNotFoundException("Refresh token expired");
+            // Expired tokens are an auth failure — client must re-authenticate.
+            throw new BadCredentialsException("Refresh token has expired.");
         }
     }
 

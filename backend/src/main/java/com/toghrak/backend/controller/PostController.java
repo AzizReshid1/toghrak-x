@@ -10,6 +10,7 @@ import com.toghrak.backend.service.PostService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class PostController {
             @Valid @RequestBody CreatePostRequest request,
             @AuthenticationPrincipal UserPrincipal currentUser) {
         Post newPost = postService.createPost(currentUser.getId(), request);
-        return ResponseEntity.ok(toPostResponse(newPost));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toPostResponse(newPost));
     }
 
     // paginated GET /api/posts

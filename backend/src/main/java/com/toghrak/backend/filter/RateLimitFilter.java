@@ -17,16 +17,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final long WINDOW_MS = 60_000;
+    /** Sweep stale entries from the counters map every N processed requests. */
+    private static final int SWEEP_EVERY = 500;
 
     private record Limit(int maxRequests) {
     }
 
     private static class Counter {
         AtomicInteger count = new AtomicInteger(0);
-        long windowStart = System.currentTimeMillis();
+        volatile long windowStart = System.currentTimeMillis();
     }
 
     private final ConcurrentHashMap<String, Counter> counters = new ConcurrentHashMap<>();
+    private final AtomicInteger sweepTick = new AtomicInteger(0);
     private final Map<String, Limit> limits = Map.of(
             "/api/search", new Limit(30),
             "/api/posts/popular", new Limit(30),
@@ -60,11 +63,25 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 return;
             }
         }
+        // Periodically evict entries whose window has already expired.
+        // Without this, every unique IP adds a permanent entry — a slow memory leak.
+        if (sweepTick.incrementAndGet() % SWEEP_EVERY == 0) {
+            long cutoff = System.currentTimeMillis() - WINDOW_MS;
+            counters.entrySet().removeIf(e -> e.getValue().windowStart < cutoff);
+        }
+
         filterChain.doFilter(request, response);
     }
 
     private String resolveKey(HttpServletRequest request) {
-        String ip = request.getRemoteAddr();
-        return ip == null ? "unknown" : ip;
+        // X-Forwarded-For is set by reverse proxies (Nginx, AWS ALB, Cloudflare, etc.).
+        // It can be a comma-separated chain; the first value is the original client IP.
+        // Fall back to getRemoteAddr() for direct connections (local dev, no proxy).
+        String forwarded = request.getHeader("X-Forwarded-For");
+        String ip = (forwarded != null && !forwarded.isBlank())
+                ? forwarded.split(",")[0].trim()
+                : request.getRemoteAddr();
+        String path = request.getRequestURI();
+        return (ip == null ? "unknown" : ip) + ":" + path;
     }
 }

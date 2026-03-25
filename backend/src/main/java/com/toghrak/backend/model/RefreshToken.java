@@ -26,7 +26,7 @@ public class RefreshToken {
     private String token;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(nullable = false)
@@ -42,7 +42,9 @@ public class RefreshToken {
     @PrePersist
     public void onCreate() {
         if (expiresAt == null) {
-            expiresAt = LocalDateTime.now();
+            throw new IllegalStateException(
+                    "RefreshToken.expiresAt must be set before persisting; " +
+                    "the caller is responsible for providing a valid expiry time.");
         }
     }
 }

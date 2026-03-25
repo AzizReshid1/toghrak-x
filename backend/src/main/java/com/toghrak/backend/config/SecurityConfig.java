@@ -31,12 +31,18 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final boolean swaggerPublic;
+    private final List<String> allowedOrigins;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-            AppUserDetailsService userDetailsService,
-            @org.springframework.beans.factory.annotation.Value("${app.security.swagger-public:true}") boolean swaggerPublic) {
+            @org.springframework.beans.factory.annotation.Value("${app.security.swagger-public:true}") boolean swaggerPublic,
+            @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins:http://localhost:4200}") String allowedOriginsRaw) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.swaggerPublic = swaggerPublic;
+        // Support comma-separated list from env var (e.g. "https://a.com,https://b.com")
+        this.allowedOrigins = java.util.Arrays.stream(allowedOriginsRaw.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
     }
 
     private static final String[] SWAGGER_ENDPOINTS = {
@@ -81,11 +87,12 @@ public class SecurityConfig {
                         // Authentication endpoints
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // Categories
+                        // Categories — GET is public; write operations require authentication.
+                        // Role enforcement (ADMIN only) is handled by @PreAuthorize in CategoryController.
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/categories/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/categories/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").authenticated()
 
                         // Posts
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
@@ -121,9 +128,12 @@ public class SecurityConfig {
                         // Image upload
                         .requestMatchers(HttpMethod.POST, "/api/images/**").hasAnyRole("EDITOR", "ADMIN")
 
-                        // Admin
-                        .requestMatchers("/api/users").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // User management — role enforcement (ADMIN only) is handled
+                        // by @PreAuthorize in UserController; SecurityConfig ensures auth is required.
+                        .requestMatchers("/api/users").authenticated()
+                        // Admin dashboard — role enforcement is handled by @PreAuthorize
+                        // in AdminDashboardController; SecurityConfig ensures auth is required.
+                        .requestMatchers("/api/admin/**").authenticated()
 
                         // Anything else requires auth
                         .anyRequest().authenticated())
@@ -150,7 +160,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         var config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:8081"));
+        // Origins are driven by the app.cors.allowed-origins property (see application.properties).
+        // Set CORS_ALLOWED_ORIGINS env var in production instead of changing code here.
+        config.setAllowedOrigins(allowedOrigins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
         config.setAllowCredentials(true);

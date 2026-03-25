@@ -13,9 +13,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.dao.DataIntegrityViolationException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -119,8 +117,7 @@ public class UserService {
             }
         }
 
-        // Update the timestamp and save
-        user.setUpdatedAt(LocalDateTime.now());
+        // updatedAt is set automatically by @PreUpdate on User — no manual assignment needed.
         return userRepository.save(user);
     }
 
@@ -128,16 +125,19 @@ public class UserService {
     public void deleteUser(Long userId) {
         User user = getUser(userId);
 
-        // Ensure there is at least one admin remaining
+        // Ensure there is at least one admin remaining.
+        // This is a business-integrity rule, not an authorisation failure — use
+        // IllegalStateException so the global handler returns 409 Conflict, not 403 Forbidden.
         if ("ADMIN".equals(user.getRole().getName()) &&
                 userRepository.countByRole_Name("ADMIN") <= 1) {
-            throw new AccessDeniedException("Cannot delete the last admin.");
+            throw new IllegalStateException("Cannot delete the last admin account.");
         }
 
-        // block if the user owns posts
+        // Block deletion if the user still owns posts — this is a deliberate business rule,
+        // not a DB constraint violation. IllegalStateException maps to 409 Conflict via the handler.
         if (postRepository.existsByAuthorId(userId)) {
             long n = postRepository.countByAuthorId(userId);
-            throw new DataIntegrityViolationException(
+            throw new IllegalStateException(
                     "Cannot delete user: they still own " + n + " post(s). " +
                             "Delete or transfer their posts first.");
         }

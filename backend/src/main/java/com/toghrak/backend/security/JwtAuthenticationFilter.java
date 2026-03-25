@@ -6,9 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,11 +18,9 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenService jwtTokenService;
-    private final AppUserDetailsService userDetailsService;
 
-    public JwtAuthenticationFilter(JwtTokenService jwtTokenService, AppUserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtTokenService jwtTokenService) {
         this.jwtTokenService = jwtTokenService;
-        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -36,17 +33,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             if (jwtTokenService.validateToken(token)) {
-                Long userId = jwtTokenService.getUserIdFromToken(token);
                 try {
-                    UserDetails userDetails = userDetailsService.loadUserById(userId);
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
+                    // Role is embedded in the token — no database query needed on every request.
+                    Long userId = jwtTokenService.getUserIdFromToken(token);
+                    String role = jwtTokenService.getRoleFromToken(token);
+                    UserPrincipal principal = UserPrincipal.fromToken(userId, role);
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } catch (Exception ex) {
                     log.error("Failed to set user authentication: {}", ex.getMessage());
                 }
             } else {
-                log.warn("Invalid JWT token: {}", token);
+                log.warn("Invalid or expired JWT token received.");
             }
         }
 

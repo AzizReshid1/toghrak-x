@@ -90,6 +90,14 @@
 			<version>2.8.13</version>
 		</dependency>
 
+		<!-- HTML allowlist sanitizer for user-generated content (posts, pages).
+		     Replaces Spring's HtmlUtils.htmlEscape() which destroys rich-text formatting. -->
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.18.1</version>
+		</dependency>
+
 
 	</dependencies>
 

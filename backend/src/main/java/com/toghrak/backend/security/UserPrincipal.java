@@ -34,6 +34,16 @@ public class UserPrincipal implements UserDetails {
                 authorities);
     }
 
+    /**
+     * Builds a lightweight principal from JWT claims — no database lookup required.
+     * Username is set to the string form of the userId as a placeholder; controllers
+     * that need the real username already call the user service by ID directly.
+     */
+    public static UserPrincipal fromToken(Long userId, String roleName) {
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + roleName));
+        return new UserPrincipal(userId, String.valueOf(userId), null, null, authorities);
+    }
+
     public Long getId() {
         return id;
     }

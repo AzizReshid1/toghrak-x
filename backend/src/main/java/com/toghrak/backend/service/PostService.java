@@ -17,7 +17,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,8 +56,7 @@ public class PostService {
                 .author(author)
                 .category(category)
                 .coverImage(request.getCoverImage())
-                .createdAt(LocalDateTime.now())
-                .build();
+                .build(); // createdAt is set by @PrePersist on Post
 
         setImages(post, request.getImageUrls());
 
@@ -67,7 +65,6 @@ public class PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found: " + saved.getId()));
     }
 
-    // 1️⃣ Create a new post
     // 2️⃣ Update an existing post
     public Post updatePost(Long postId, Long requestUserId, boolean requestUserAdmin, UpdatePostRequest request) {
         Post post = postRepository.findById(postId)
@@ -107,7 +104,7 @@ public class PostService {
             setImages(post, imageUrls);
         }
 
-        post.setUpdatedAt(LocalDateTime.now());
+        // updatedAt is set automatically by @PreUpdate on Post — no manual assignment needed.
         Post saved = postRepository.save(post);
         return postRepository.findWithImagesById(saved.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found: " + saved.getId()));
@@ -117,20 +114,18 @@ public class PostService {
     // Clean-architecture overload: authorization decided at controller/security
     // layer.
     public void deletePost(Long postId, Long requestUserId, boolean requestUserAdmin) {
-        if (requestUserAdmin) {
-            postRepository.deleteById(postId);
-            return;
-        }
-
+        // Always verify the post exists first — consistent 404 for both admin and non-admin paths.
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cannot delete. Post not found: " + postId));
 
-        User author = post.getAuthor();
-        if (author == null) {
-            throw new ResourceNotFoundException("Post author missing for post: " + postId);
-        }
-        if (!author.getId().equals(requestUserId)) {
-            throw new AccessDeniedException("You can only delete your own posts!");
+        if (!requestUserAdmin) {
+            User author = post.getAuthor();
+            if (author == null) {
+                throw new ResourceNotFoundException("Post author missing for post: " + postId);
+            }
+            if (!author.getId().equals(requestUserId)) {
+                throw new AccessDeniedException("You can only delete your own posts!");
+            }
         }
 
         postRepository.deleteById(postId);

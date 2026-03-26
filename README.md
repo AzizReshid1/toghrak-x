@@ -2,12 +2,12 @@
 
 A full-stack publishing platform with categories, posts, pages, footer links, and admin workflows.
 
-**Stack:** Angular (frontend) + Spring Boot (backend) + PostgreSQL + JWT  
-**Live Features:** Post browsing, admin content management, role-based access control, gallery support, and API documentation.
+**Stack:** Angular 21 (frontend) + Spring Boot 3.5.9 (backend) + PostgreSQL + JWT
+**Live Features:** Post browsing, global search, admin content management, role-based access control, gallery support, and API documentation.
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
@@ -33,30 +33,36 @@ Whether you're building a blog, news site, or content hub, Toghrak X gives you t
 
 ## Features
 
-### 👥 Public Features
+### Public Features
 - **Browse posts** by recency, popularity, or category
+- **Global search** across posts and content
 - **View post details** with embedded images and metadata
 - **Static pages** (About, Contact, FAQ, Terms, Privacy) with image galleries
 - **Footer links & social media integration**
-- **Fully responsive UI** optimized for all devices
+- **Fully responsive UI** with professional design, optimized for all devices
 
-### 🔐 Authentication & Authorization
+### Authentication & Authorization
 - **JWT-based login** for secure user authentication
+- **Refresh token support** for seamless session continuity
 - **Role-based access control** (Admin/Editor/Viewer roles)
+- **Route guards** for client-side access protection
 - **Secure session management** with configurable token expiration
 
-### ⚙️ Admin Features
+### Admin Features
 - **Post management**: Create, edit, delete posts with images and category assignments
 - **Category management**: Full CRUD operations with navbar integration
 - **Page management**: Manage static pages with gallery images
 - **User & role management**: Assign roles and control permissions
+- **Site settings & branding**: Customize site-wide configuration and branding
 - **Footer & social links**: Customize footer branding and social profiles
 - **API documentation**: Interactive OpenAPI/Swagger documentation
 
-### 🏗️ Architecture
-- **REST API design** with clear separation of concerns for maintainability
+### Architecture & Security
+- **REST API design** with clear separation of concerns
+- **HTML sanitization** using jsoup to prevent XSS attacks
 - **Rate limiting** on public endpoints to prevent abuse
-- **Server-side HTML escaping** for safe page content rendering
+- **Database connection pooling** via HikariCP for performance
+- **Batch fetching** for optimized database queries
 - **Image upload endpoint** with gallery support
 
 ---
@@ -64,24 +70,27 @@ Whether you're building a blog, news site, or content hub, Toghrak X gives you t
 ## Tech Stack
 
 ### Frontend
-- **Angular 14+** with modern best practices
-- **RxJS** for reactive programming
-- **Angular Router** for client-side navigation
+- **Angular 21** with modern best practices
+- **TypeScript 5.9**
+- **RxJS 7.8** for reactive programming
+- **Angular Router** for client-side navigation with lazy loading
 - **Bootstrap** for styling framework
 - **Custom CSS/SCSS** for unique design elements
 
 ### Backend
-- **Spring Boot 3** microservices-ready framework
-- **Spring Security** with JWT token support
-- **Spring Data JPA** for database abstraction
-- **Hibernate** as ORM
+- **Spring Boot 3.5.9**
+- **Java 21** (LTS)
+- **Spring Security** with JWT token support (JJWT 0.11.5)
+- **Spring Data JPA** with Hibernate ORM
 - **PostgreSQL 14+** as primary data store
+- **jsoup 1.18** for server-side HTML sanitization
+- **Lombok** for reduced boilerplate
 
 ### Extras
+- **HikariCP** connection pooling (5–15 connections)
 - **Rate limiter** for public API protection
-- **Server-side rendering safety** with HTML escaping
-- **Image upload handling** for gallery management
-- **OpenAPI/Swagger** for API documentation
+- **Multipart upload** (10 MB max file size)
+- **OpenAPI/Swagger** (Springdoc 2.8) for API documentation
 
 ---
 
@@ -90,7 +99,7 @@ Whether you're building a blog, news site, or content hub, Toghrak X gives you t
 Before you begin, ensure you have the following installed on your system:
 
 - **Node.js** 18+ and npm
-- **Angular CLI** (latest or 14.2.3+)
+- **Angular CLI** 21+
 - **Java** 21 (JDK)
 - **Maven** 3.9+
 - **PostgreSQL** 14+ (or compatible)
@@ -117,7 +126,7 @@ Before you begin, ensure you have the following installed on your system:
    app.jwt.expiration=3600000
    ```
 
-   ⚠️ **Security Note:** In production, use strong, randomly generated values for `app.jwt.secret`.
+   > **Security Note:** In production, use strong, randomly generated values for `app.jwt.secret` and manage secrets via environment variables or a secrets manager.
 
 3. **Build and run the backend:**
    ```bash
@@ -127,7 +136,7 @@ Before you begin, ensure you have the following installed on your system:
    ```
 
 4. **Verify the backend:**
-   - API should be running at `http://localhost:8081`
+   - API running at `http://localhost:8081`
    - Swagger UI: `http://localhost:8081/swagger-ui/index.html`
 
 ### Frontend Setup
@@ -172,7 +181,7 @@ ng serve
 ```
 Running on: `http://localhost:4200`
 
-Both services should automatically reload on file changes during development.
+Both services automatically reload on file changes during development.
 
 ---
 
@@ -219,7 +228,7 @@ ng lint
 ng test
 
 # Run e2e tests (requires setup)
-g ng e2e
+ng e2e
 
 # Build for production
 ng build --configuration production
@@ -238,7 +247,7 @@ ng build --configuration production
 
 ### Database schema errors
 - **Issue**: JPA entity mismatch with database schema
-- **Solution**: 
+- **Solution**:
   - Auto-generate schema: Set `spring.jpa.hibernate.ddl-auto=update` (dev only)
   - For production: Use Flyway/Liquibase migrations
   - Manual: Run SQL migrations in `backend/src/main/resources/db/migration/`
@@ -268,4 +277,4 @@ For more information on contributing or licensing, please see the repository roo
 
 ---
 
-**Happy Publishing! 🚀**
+**Happy Publishing!**

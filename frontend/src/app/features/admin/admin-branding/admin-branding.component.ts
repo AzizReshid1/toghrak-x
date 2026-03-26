@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, skip, takeUntil } from 'rxjs';
 import { SiteSettingsService } from '../../../services/site-settings.service';
 import { ImagesService } from '../../../services/images.service';
 import { SiteSettings } from '../../../models/site-settings';
@@ -30,14 +30,21 @@ export class AdminBrandingComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loading = true;
-    this.settings.settings$.pipe(takeUntil(this.destroy$)).subscribe((s) => {
-      if (s) {
-        this.form.title = s.title || 'Toghrak X';
-        this.form.logoUrl = s.logoUrl || '';
-        this.form.slogan = s.slogan || '';
-      }
-      this.loading = false;
-    });
+    // skip(1) skips the BehaviorSubject's initial null so loading stays true
+    // until the HTTP response (or error) actually arrives.
+    this.settings.settings$
+      .pipe(skip(1), takeUntil(this.destroy$))
+      .subscribe((s) => {
+        if (s) {
+          this.form.title = s.title || 'Toghrak X';
+          this.form.logoUrl = s.logoUrl || '';
+          this.form.slogan = s.slogan || '';
+          this.error = undefined;
+        } else {
+          this.error = 'Failed to load branding settings.';
+        }
+        this.loading = false;
+      });
     this.settings.load();
   }
 

@@ -1,29 +1,35 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   App Header — professional news-outlet style
+   Primary bar: #0b4bb3 blue · Tagline strip: #093d96 · White text throughout
+   Mobile drawer at ≤900 px with colours reversed back to light.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ── Shell ─────────────────────────────────────────────────────────────── */
 .app-header {
-  padding: 12px 16px;
   position: sticky;
   top: 0;
   z-index: 30;
+  background: #0b4bb3;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
 
+/* ── Global banner (info / error above the bar) ────────────────────────── */
 .global-banner {
   width: 100%;
-  max-width: 980px;
-  margin: 0 auto 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  background: #eef4ff;
-  color: #0b2a55;
+  padding: 8px 20px;
+  background: #dbeafe;
+  color: #1e3a5f;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  font-size: 14px;
 }
 
 .global-banner.error {
-  background: #fff1f1;
+  background: #fee2e2;
   color: #7a1616;
-  border-color: rgba(122, 22, 22, 0.25);
 }
 
 .global-banner .close {
@@ -34,110 +40,176 @@
   cursor: pointer;
   padding: 2px 6px;
   color: inherit;
+  flex: 0 0 auto;
+  border-radius: 4px;
 }
 
 .global-banner .close:focus {
   outline: 2px solid currentColor;
   outline-offset: 2px;
-  border-radius: 6px;
 }
 
-.menu-toggle {
-  display: none;
-  margin: 8px auto;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #f8f9fb;
-  font-weight: 700;
-  gap: 6px;
-  align-items: center;
-  justify-content: center;
-}
-
-.menu-icon {
-  display: inline-block;
-  width: 18px;
-  height: 12px;
-  flex: 0 0 auto;
-  background:
-    linear-gradient(#111, #111) 0 0 / 100% 2px no-repeat,
-    linear-gradient(#111, #111) 0 50% / 100% 2px no-repeat,
-    linear-gradient(#111, #111) 0 100% / 100% 2px no-repeat;
-}
-
-.menu-label {
-  display: inline-block;
-}
-
-.brand-block {
+/* ── Primary bar ───────────────────────────────────────────────────────── */
+.header-bar {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 58px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  align-items: stretch;
+  gap: 0;
 }
 
+/* ── Brand / logo ──────────────────────────────────────────────────────── */
 .brand-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   text-decoration: none;
+  color: #fff;
   font-weight: 800;
-  color: #111;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  flex: 0 0 auto;
+  padding-right: 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
+  margin-right: 4px;
+  white-space: nowrap;
 }
 
 .brand-logo {
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 2px;
+  flex: 0 0 auto;
 }
 
+.brand-name {
+  /* inherits from brand-link */
+}
+
+/* ── Nav (desktop: flex row inside header-bar) ─────────────────────────── */
 .menu {
+  flex: 1;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  position: relative;
+  align-items: stretch;
+  min-width: 0;
 }
 
 .menu-surface {
-  display: contents;
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
 }
 
-.menu-surface-header {
-  display: none;
+/* Mobile-only header inside drawer — hidden on desktop */
+.menu-surface-header { display: none; }
+
+/* ── Nav links ─────────────────────────────────────────────────────────── */
+.menu-links {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  overflow: hidden;       /* prevent wrapping that breaks the bar */
+  min-width: 0;
+  padding-left: 4px;
 }
 
-.menu-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  z-index: 40;
+.menu-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  border-top: 3px solid transparent;  /* balances the bottom border visually */
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
-.header-search {
+.menu-item:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item.active {
+  color: #fff;
+  border-bottom-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.menu-item:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.75);
+  outline-offset: -3px;
+  border-radius: 2px;
+}
+
+/* ── Actions: search + account ─────────────────────────────────────────── */
+.menu-actions {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 0;
+  flex: 0 0 auto;
+  padding-left: 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  margin-left: 4px;
+}
+
+/* Search — semi-transparent on blue background */
+.header-search {
+  display: flex;
+  align-items: center;
 }
 
 .header-search input {
-  width: min(420px, 72vw);
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  background: #fff;
+  width: 180px;
+  padding: 7px 10px;
+  border-radius: 6px 0 0 6px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-right: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.header-search input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.header-search input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .header-search button {
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  background: #f8f9fb;
+  padding: 7px 12px;
+  border-radius: 0 6px 6px 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
   font-weight: 600;
+  font-size: 13px;
   cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+  font-family: inherit;
 }
 
+.header-search button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Account menu */
 .account-menu {
   position: relative;
 }
@@ -146,42 +218,50 @@
   list-style: none;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  background: #fff;
+  gap: 7px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
   cursor: pointer;
   user-select: none;
+  transition: background 0.15s ease;
 }
 
-.account-trigger::-webkit-details-marker {
-  display: none;
+.account-trigger::-webkit-details-marker { display: none; }
+
+.account-trigger:hover {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .account-name {
-  max-width: 180px;
+  max-width: 130px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 700;
+  font-size: 13px;
+  color: #fff;
 }
 
 .account-caret {
-  font-size: 16px;
-  opacity: 0.75;
+  font-size: 14px;
+  opacity: 0.8;
+  color: #fff;
   line-height: 1;
 }
 
+/* Account dropdown panel — always white regardless of theme */
 .account-panel {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   right: 0;
-  min-width: 240px;
+  min-width: 220px;
   background: #fff;
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.12);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
   padding: 8px;
   z-index: 60;
 }
@@ -191,217 +271,267 @@
   display: block;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: 8px;
   text-decoration: none;
   color: #111;
   background: transparent;
   border: none;
   cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
 }
 
 .account-item:hover {
-  background: rgba(15, 23, 42, 0.06);
+  background: rgba(11, 75, 179, 0.07);
 }
 
 .account-group {
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .account-group-title {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.6);
-  padding: 4px 10px;
+  color: rgba(0, 0, 0, 0.45);
+  padding: 4px 10px 6px;
 }
 
 .account-logout {
   color: #7a1616;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.menu-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 14px;
-  justify-content: center;
+/* ── Tagline strip ─────────────────────────────────────────────────────── */
+.header-tagline {
+  background: #093d96;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.menu-item {
-  text-decoration: none;
-  color: #111;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 8px;
+.tagline-inner {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 5px 16px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.68);
+  letter-spacing: 0.02em;
 }
 
-.menu-item.active {
-  color: #0b4bb3;
-  background: rgba(91, 141, 239, 0.14);
-}
-
-.menu-item:focus-visible {
-  outline: 2px solid rgba(11, 75, 179, 0.65);
-  outline-offset: 2px;
-}
-
-.menu-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
+/* ── Mobile hamburger (hidden on desktop) ──────────────────────────────── */
+.menu-toggle {
+  display: none;
+  margin-left: auto;
+  padding: 0 10px;
+  align-self: stretch;
   align-items: center;
+  gap: 7px;
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-footer .footer-shell {
-  padding: 18px 20px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 16px 32px;
-  align-items: start;
+.menu-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-footer .footer-left {
-  min-width: 0;
+.menu-icon {
+  display: inline-block;
+  width: 18px;
+  height: 13px;
+  flex: 0 0 auto;
+  background:
+    linear-gradient(#fff, #fff) 0 0   / 100% 2px no-repeat,
+    linear-gradient(#fff, #fff) 0 50% / 100% 2px no-repeat,
+    linear-gradient(#fff, #fff) 0 100%/ 100% 2px no-repeat;
 }
 
-footer .footer-links {
-  min-width: 0;
-  justify-self: end;
-  align-self: start;
-  width: 100%;
-  columns: 2;
-  column-gap: 32px;
+.menu-label {
+  font-size: 13px;
+  font-weight: 700;
 }
 
-footer .footer-links a {
-  display: block;
-  padding: 4px 0;
-  break-inside: avoid;
+/* Backdrop when mobile drawer is open */
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 18, 36, 0.55);
+  z-index: 40;
 }
 
-@media (max-width: 768px) {
+/* ── RESPONSIVE ────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Show hamburger */
   .menu-toggle {
     display: inline-flex;
   }
+
+  /* Nav becomes hidden off-screen drawer */
   .menu {
+    display: none;
     position: fixed;
     inset: 0;
     padding: 12px;
     z-index: 50;
-    display: none;
     align-items: flex-start;
     justify-content: center;
+    flex: none;            /* override the desktop flex:1 */
   }
+
   .menu.open {
     display: flex;
   }
+
+  /* Drawer card */
   .menu-surface {
     display: block;
-    width: min(520px, 100%);
+    width: min(440px, 100%);
     background: #fff;
     border-radius: 16px;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
-    padding: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    padding: 14px;
     max-height: calc(100vh - 24px);
-    overflow: auto;
+    overflow-y: auto;
   }
+
   .menu-surface-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 2px 4px 10px;
+    padding: 0 4px 12px;
     margin-bottom: 8px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   }
+
   .menu-surface-title {
     font-weight: 800;
+    font-size: 16px;
+    color: #111;
   }
+
   .menu-close {
     border: none;
     background: transparent;
-    font-size: 20px;
+    font-size: 22px;
     line-height: 1;
     cursor: pointer;
     padding: 2px 6px;
+    color: #111;
+    border-radius: 4px;
   }
-  .menu-links,
+
+  .menu-close:hover { background: rgba(0, 0, 0, 0.06); }
+
+  /* Nav links — vertical, dark text in drawer */
+  .menu-links {
+    flex-direction: column;
+    align-items: stretch;
+    overflow: visible;
+    padding-left: 0;
+    gap: 2px;
+    margin-bottom: 12px;
+  }
+
+  .menu-item {
+    height: auto;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: none;
+    color: #111;
+    font-size: 15px;
+  }
+
+  .menu-item:hover {
+    background: rgba(11, 75, 179, 0.07);
+    color: #0b4bb3;
+  }
+
+  .menu-item.active {
+    color: #0b4bb3;
+    background: rgba(11, 75, 179, 0.1);
+    border: none;
+  }
+
+  /* Actions — stacked in drawer */
   .menu-actions {
     flex-direction: column;
     align-items: stretch;
-    width: 100%;
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    padding-top: 12px;
+    margin-left: 0;
+    gap: 8px;
   }
-  .menu-links {
-    align-items: center;
-  }
+
+  /* Search — light style in white drawer */
   .header-search {
     width: 100%;
   }
+
   .header-search input {
+    flex: 1;
     width: 100%;
+    background: #f3f4f6;
+    color: #111;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
   }
-  .account-menu,
+
+  .header-search input::placeholder { color: #9ca3af; }
+
+  .header-search input:focus {
+    background: #fff;
+    border-color: #0b4bb3;
+  }
+
+  .header-search button {
+    background: #0b4bb3;
+    color: #fff;
+    border: 1px solid #0b4bb3;
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .header-search button:hover { background: #093d96; }
+
+  /* Account trigger — light style */
+  .account-menu { width: 100%; }
+
   .account-trigger {
     width: 100%;
+    background: #f3f4f6;
+    color: #111;
+    border-color: rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    justify-content: space-between;
   }
+
+  .account-trigger:hover { background: #e9eaec; }
+  .account-name { color: #111; }
+  .account-caret { color: #374151; }
+
   .account-panel {
     position: static;
-    min-width: 0;
     box-shadow: none;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    margin-top: 10px;
-  }
-  .menu-actions .btn {
-    width: 100%;
-    text-align: center;
-  }
-  .brand-logo {
-    width: 40px;
-    height: 40px;
-  }
-  .menu-links {
-    gap: 8px 10px;
-  }
-  .menu-actions {
-    gap: 6px;
-  }
-  .menu-actions .btn {
-    padding: 4px 10px;
-    font-size: 13px;
+    border-color: rgba(0, 0, 0, 0.1);
+    margin-top: 6px;
+    border-radius: 8px;
   }
 }
 
-@media (max-width: 540px) {
-  .app-header {
-    padding: 10px 12px;
-  }
-  .brand-link {
-    gap: 6px;
-  }
-  .brand-logo {
-    width: 36px;
-    height: 36px;
-  }
-  .brand-block .brand-tagline {
-    font-size: 13px;
-    text-align: center;
-  }
-  .menu-links {
-    gap: 6px 8px;
-  }
-  .menu-actions {
-    gap: 6px;
-  }
-  footer .footer-shell {
-    padding: 14px;
-    grid-template-columns: 1fr;
-  }
-  footer .footer-links {
-    justify-self: start;
-    columns: 1;
-    column-gap: 0;
-  }
+@media (max-width: 480px) {
+  .header-bar { height: 52px; }
+  .brand-logo  { width: 28px; height: 28px; }
+  .brand-name  { font-size: 16px; }
+  .tagline-inner { font-size: 11px; padding: 4px 12px; }
 }

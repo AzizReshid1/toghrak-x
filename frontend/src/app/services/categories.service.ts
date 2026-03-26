@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, finalize } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Category } from '../models/category';
 
@@ -9,6 +9,7 @@ export class CategoriesService {
   private base = `${environment.apiBaseUrl}/categories`;
   private categoriesSubject = new BehaviorSubject<Category[]>([]);
   categories$ = this.categoriesSubject.asObservable();
+  private refreshing = false;
 
   constructor(private http: HttpClient) {}
 
@@ -25,9 +26,13 @@ export class CategoriesService {
   }
 
   refresh(): void {
-    this.list().subscribe({
-      error: () => this.categoriesSubject.next([]),
-    });
+    if (this.refreshing) return;
+    this.refreshing = true;
+    this.list()
+      .pipe(finalize(() => (this.refreshing = false)))
+      .subscribe({
+        error: () => this.categoriesSubject.next([]),
+      });
   }
 
   create(payload: { name: string; description?: string | null }): Observable<Category> {

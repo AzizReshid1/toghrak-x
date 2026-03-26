@@ -17,7 +17,7 @@
     <div class="alert alert-danger">{{ error }}</div>
   }
 
-  @if (!loading && !error && !results.length) {
+  @if (hasSearched && !loading && !error && !results.length) {
     <div class="text-muted">No results.</div>
   }
 
@@ -34,7 +34,7 @@
             <h6 class="mb-1">{{ r.title }}</h6>
             <span class="badge bg-secondary">{{ r.type }}</span>
           </div>
-          <small class="text-muted">{{ r.url }}</small>
+          <small class="text-muted result-url">{{ r.url }}</small>
           @if (r.snippet) {
             <p class="mb-1">{{ r.snippet }}</p>
           }

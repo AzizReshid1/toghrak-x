@@ -6,13 +6,12 @@ import {
   HttpRequest,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, catchError, throwError, switchMap, shareReplay, tap } from 'rxjs';
+import { Observable, catchError, throwError, switchMap, shareReplay } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  private handling401 = false;
   private refresh$?: Observable<any>;
 
   constructor(private auth: AuthService, private router: Router) {}
@@ -32,7 +31,7 @@ export class AuthInterceptor implements HttpInterceptor {
       ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
       : req;
 
-    const pipeline = next.handle(authReq).pipe(
+    return next.handle(authReq).pipe(
       catchError((err: HttpErrorResponse) => {
         if (!isAuthEndpoint && err.status === 401) {
           return this.handle401(authReq, next);
@@ -45,17 +44,14 @@ export class AuthInterceptor implements HttpInterceptor {
         return throwError(() => err);
       })
     );
-
-    return pipeline;
   }
 
   private handle401(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (!this.refresh$) {
+      // shareReplay(1) ensures concurrent 401s share a single refresh call.
       this.refresh$ = this.auth.refresh().pipe(
-        tap(() => (this.handling401 = false)),
         catchError((refreshErr) => {
           this.refresh$ = undefined;
-          this.handling401 = false;
           this.auth.logout();
           this.router.navigateByUrl('/login');
           return throwError(() => refreshErr);
@@ -65,7 +61,7 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     return this.refresh$.pipe(
-      switchMap((res) => {
+      switchMap(() => {
         this.refresh$ = undefined;
         const newToken = this.auth.getToken();
         const retryReq = newToken

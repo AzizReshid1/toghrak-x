@@ -27,6 +27,10 @@ export class PostsService {
     return this.http.get<PostResponse>(`${this.base}/${id}`);
   }
 
+  getBySlug(slug: string): Observable<PostResponse> {
+    return this.http.get<PostResponse>(`${this.base}/slug/${slug}`);
+  }
+
   popular(limit = 6): Observable<PostResponse[]> {
     const params = new HttpParams().set('limit', limit);
     return this.http.get<PostResponse[]>(`${this.base}/popular`, { params });

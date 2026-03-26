@@ -31,7 +31,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.session.user$
       .pipe(
         take(1),
-        switchMap((u) => (u ? of(u) : this.session.refreshUser()))
+        switchMap((u) => (u ? of(u) : this.session.refreshUser())),
+        takeUntil(this.destroy$)
       )
       .subscribe({
         next: (u) => {

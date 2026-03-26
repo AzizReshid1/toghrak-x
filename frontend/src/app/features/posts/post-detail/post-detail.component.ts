@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { PostsService } from '../../../services/posts.service';
 import { PostResponse } from '../../../models/post';
 import { Subject, takeUntil } from 'rxjs';
@@ -26,25 +27,25 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private location: Location,
     private posts: PostsService,
     private session: SessionService,
     private navHighlight: NavHighlightService
   ) {}
 
   ngOnInit(): void {
-    // Load current user to decide if edit/delete actions should show
     this.session.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
       this.currentUser = user ?? undefined;
       this.isAdmin = user?.roleName === 'ADMIN';
       this.updateOwnershipFlag();
     });
 
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (isNaN(id)) {
+    const slug = this.route.snapshot.paramMap.get('slug');
+    if (!slug) {
       this.router.navigateByUrl('/');
       return;
     }
-    this.fetch(id);
+    this.fetch(slug);
   }
 
   ngOnDestroy(): void {
@@ -53,10 +54,14 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  fetch(id: number) {
+  goBack(): void {
+    this.location.back();
+  }
+
+  fetch(slug: string): void {
     this.loading = true;
     this.error = null;
-    this.posts.get(id).subscribe({
+    this.posts.getBySlug(slug).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.post = res;
         this.loading = false;
@@ -73,11 +78,12 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       },
     });
   }
-  deletePost() {
+
+  deletePost(): void {
     if (!this.post || this.deleting) return;
     if (!confirm('Delete this post?')) return;
     this.deleting = true;
-    this.posts.delete(this.post.id).subscribe({
+    this.posts.delete(this.post.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => this.router.navigateByUrl('/'),
       error: () => {
         this.error = 'Failed to delete post.';
@@ -86,7 +92,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  private updateOwnershipFlag() {
+  private updateOwnershipFlag(): void {
     if (!this.post || !this.currentUser) {
       this.isOwner = false;
       return;

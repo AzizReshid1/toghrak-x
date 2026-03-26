@@ -6,13 +6,13 @@
   @if (info) {
     <div class="alert alert-success">{{ info }}</div>
   }
-  <table class="table table-sm align-middle">
+  <table class="social-table table table-sm align-middle">
     <thead>
       <tr>
-        <th style="width: 25%">Label</th>
+        <th class="col-label">Label</th>
         <th>URL</th>
-        <th style="width: 120px">Icon</th>
-        <th style="width: 90px"></th>
+        <th class="col-icon">Icon</th>
+        <th class="col-actions"></th>
       </tr>
     </thead>
     <tbody>
@@ -21,10 +21,17 @@
           <td><input class="form-control form-control-sm" [(ngModel)]="link.label" /></td>
           <td><input class="form-control form-control-sm" [(ngModel)]="link.url" /></td>
           <td><input class="form-control form-control-sm" [(ngModel)]="link.icon" placeholder="Optional" /></td>
-          <td class="d-flex gap-1">
-            <button class="btn btn-success btn-sm" type="button" (click)="save(link)" [disabled]="saving">Save</button>
-            <button class="btn btn-outline-danger btn-sm" type="button" (click)="remove(link)">Delete</button>
+          <td>
+            <div class="d-flex gap-1">
+              <button class="btn btn-success btn-sm" type="button" (click)="save(link)" [disabled]="saving">Save</button>
+              <button class="btn btn-outline-danger btn-sm" type="button" (click)="remove(link)">Delete</button>
+            </div>
           </td>
+        </tr>
+      }
+      @if (!links.length) {
+        <tr>
+          <td colspan="4" class="text-muted text-center">No links added yet.</td>
         </tr>
       }
     </tbody>

@@ -1,4 +1,5 @@
 <header class="app-header">
+
   @if (uiMessage$ | async; as msg) {
     <div class="global-banner" [class.error]="msg.kind === 'error'">
       <span>{{ msg.text }}</span>
@@ -6,108 +7,113 @@
     </div>
   }
 
-  <div class="brand-block text-center">
+  <!-- ── Primary bar: logo · nav · actions ──────────────────────────── -->
+  <div class="header-bar">
+
     <a class="brand-link" routerLink="/">
       <img [src]="brandLogo" [alt]="brandTitle" class="brand-logo" />
-      {{ brandTitle }}
+      <span class="brand-name">{{ brandTitle }}</span>
     </a>
-    <p class="brand-tagline">{{ brandTagline }}</p>
-  </div>
 
-  <button
-    class="menu-toggle"
-    type="button"
-    (click)="toggleMenu()"
-    aria-label="Toggle navigation"
-    [attr.aria-expanded]="isMenuOpen ? 'true' : 'false'"
-    aria-controls="primary-nav"
-    >
-    <span class="menu-icon" aria-hidden="true"></span>
-    <span class="menu-label">Menu</span>
-  </button>
+    <button
+      class="menu-toggle"
+      type="button"
+      (click)="toggleMenu()"
+      aria-label="Toggle navigation"
+      [attr.aria-expanded]="isMenuOpen ? 'true' : 'false'"
+      aria-controls="primary-nav">
+      <span class="menu-icon" aria-hidden="true"></span>
+      <span class="menu-label">Menu</span>
+    </button>
 
-  @if (isMenuOpen) {
-    <div class="menu-backdrop" (click)="closeMenu()" aria-hidden="true"></div>
-  }
+    @if (isMenuOpen) {
+      <div class="menu-backdrop" (click)="closeMenu()" aria-hidden="true"></div>
+    }
 
-  <nav id="primary-nav" class="menu" [class.open]="isMenuOpen">
-    <div class="menu-surface">
-      <div class="menu-surface-header">
-        <div class="menu-surface-title">Menu</div>
-        <button type="button" class="menu-close" aria-label="Close menu" (click)="closeMenu()">×</button>
-      </div>
+    <nav id="primary-nav" class="menu" [class.open]="isMenuOpen">
+      <div class="menu-surface">
 
-      <div class="menu-links" aria-label="Primary navigation">
-        <a
-          class="menu-item"
-          [class.active]="isHomeActive"
-          [attr.aria-current]="isHomeActive ? 'page' : null"
-          [routerLink]="['/']"
-          [queryParams]="{ page: 0 }"
-          (click)="closeAllMenus()"
-          >
-          Home
-        </a>
-        @for (c of categories; track c) {
+        <div class="menu-surface-header">
+          <div class="menu-surface-title">Menu</div>
+          <button type="button" class="menu-close" aria-label="Close menu" (click)="closeMenu()">×</button>
+        </div>
+
+        <div class="menu-links" aria-label="Primary navigation">
           <a
             class="menu-item"
-            [class.active]="activeCategorySlug === c.slug"
-            [attr.aria-current]="activeCategorySlug === c.slug ? 'page' : null"
-            [routerLink]="['/', c.slug]"
+            [class.active]="isHomeActive"
+            [attr.aria-current]="isHomeActive ? 'page' : null"
+            [routerLink]="['/']"
             [queryParams]="{ page: 0 }"
-            (click)="closeAllMenus()"
-            >
-            {{ c.name }}
+            (click)="closeAllMenus()">
+            Home
           </a>
-        }
-      </div>
+          @for (c of categories; track c) {
+            <a
+              class="menu-item"
+              [class.active]="activeCategorySlug === c.slug"
+              [attr.aria-current]="activeCategorySlug === c.slug ? 'page' : null"
+              [routerLink]="['/', c.slug]"
+              [queryParams]="{ page: 0 }"
+              (click)="closeAllMenus()">
+              {{ c.name }}
+            </a>
+          }
+        </div>
 
-      <div class="menu-actions">
-        <form class="header-search" role="search" (submit)="onHeaderSearchSubmit($event)">
-          <input
-            type="search"
-            name="headerSearch"
-            aria-label="Search articles"
-            placeholder="Search"
-            [(ngModel)]="headerSearch"
+        <div class="menu-actions">
+          <form class="header-search" role="search" (submit)="onHeaderSearchSubmit($event)">
+            <input
+              type="search"
+              name="headerSearch"
+              aria-label="Search articles"
+              placeholder="Search…"
+              [(ngModel)]="headerSearch"
             />
-          <button type="submit" aria-label="Run search">Search</button>
-        </form>
+            <button type="submit" aria-label="Run search">Search</button>
+          </form>
 
-        @if (isLoggedIn$ | async) {
-          <details class="account-menu" [open]="isAccountMenuOpen" (toggle)="onAccountMenuToggle($event)">
-            <summary class="account-trigger" aria-label="Account menu">
-              <span class="account-name">{{ currentUser?.username || 'Account' }}</span>
-              <span class="account-caret" aria-hidden="true">⚙</span>
-            </summary>
-            <div class="account-panel">
-              <a class="account-item" routerLink="/profile" (click)="closeAllMenus()">Profile</a>
-              <a class="account-item" routerLink="/posts/new" (click)="closeAllMenus()">New Post</a>
-              @if (isAdmin) {
-                <div class="account-group">
-                  <div class="account-group-title">Admin</div>
-                  <a class="account-item" routerLink="/admin/users" (click)="closeAllMenus()">Users</a>
-                  <a class="account-item" routerLink="/admin/categories" (click)="closeAllMenus()">Categories</a>
-                  <a class="account-item" routerLink="/admin/pages" (click)="closeAllMenus()">Pages</a>
-                  <a class="account-item" routerLink="/admin/social-links" (click)="closeAllMenus()">Social Links</a>
-                  <a class="account-item" routerLink="/admin/branding" (click)="closeAllMenus()">Branding</a>
-                </div>
-              }
-              <button type="button" class="account-item account-logout" (click)="logout()">Logout</button>
-            </div>
-          </details>
-        } @else {
-          <!-- Login available via direct URL (/login); hidden from public header -->
-        }
+          @if (isLoggedIn$ | async) {
+            <details class="account-menu" [open]="isAccountMenuOpen" (toggle)="onAccountMenuToggle($event)">
+              <summary class="account-trigger" aria-label="Account menu">
+                <span class="account-name">{{ currentUser?.username || 'Account' }}</span>
+                <span class="account-caret" aria-hidden="true">⚙</span>
+              </summary>
+              <div class="account-panel">
+                <a class="account-item" routerLink="/profile" (click)="closeAllMenus()">Profile</a>
+                <a class="account-item" routerLink="/posts/new" (click)="closeAllMenus()">New Post</a>
+                @if (isAdmin) {
+                  <div class="account-group">
+                    <div class="account-group-title">Admin</div>
+                    <a class="account-item" routerLink="/admin/users" (click)="closeAllMenus()">Users</a>
+                    <a class="account-item" routerLink="/admin/categories" (click)="closeAllMenus()">Categories</a>
+                    <a class="account-item" routerLink="/admin/pages" (click)="closeAllMenus()">Pages</a>
+                    <a class="account-item" routerLink="/admin/social-links" (click)="closeAllMenus()">Social Links</a>
+                    <a class="account-item" routerLink="/admin/branding" (click)="closeAllMenus()">Branding</a>
+                  </div>
+                }
+                <button type="button" class="account-item account-logout" (click)="logout()">Logout</button>
+              </div>
+            </details>
+          }
+        </div>
 
       </div>
+    </nav>
+  </div>
+
+  <!-- ── Tagline strip ───────────────────────────────────────────────── -->
+  @if (brandTagline) {
+    <div class="header-tagline">
+      <div class="tagline-inner">{{ brandTagline }}</div>
     </div>
-  </nav>
+  }
+
 </header>
 
 <router-outlet></router-outlet>
 
-<footer class="mt-3">
+<footer>
   <div class="footer-shell">
     <div class="footer-left">
       <div class="footer-brand">
@@ -118,7 +124,7 @@
         <input
           type="text"
           aria-label="Search topics"
-          placeholder="Search topics you want"
+          placeholder="Search articles..."
           (keyup.enter)="goToSearch(footerSearch)"
           [(ngModel)]="footerSearch"
           />

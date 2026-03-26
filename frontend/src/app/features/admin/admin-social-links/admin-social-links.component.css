@@ -2,6 +2,18 @@
   width: 100%;
 }
 
+.social-table .col-label {
+  width: 25%;
+}
+
+.social-table .col-icon {
+  width: 120px;
+}
+
+.social-table .col-actions {
+  width: 90px;
+}
+
 @media (max-width: 768px) {
   .social-table {
     display: block;

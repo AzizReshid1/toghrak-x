@@ -1,7 +1,7 @@
 @if (post) {
   <div class="post-shell">
     <div class="post-header">
-      <button class="btn btn-outline-secondary btn-sm" routerLink="/" aria-label="Back to home">Back</button>
+      <button class="btn btn-outline-secondary btn-sm" (click)="goBack()" aria-label="Go back">Back</button>
       @if (isAdmin || isOwner) {
         <div class="post-actions">
           <a class="btn btn-outline-primary btn-sm" [routerLink]="['/posts', post.id, 'edit']" aria-label="Edit post">Edit</a>
@@ -21,9 +21,9 @@
         }
       </div>
       @if (post.coverImage) {
-        <figure class="post-cover">
-          <img [src]="post.coverImage" alt="Cover image" loading="lazy" />
-        </figure>
+        <div class="post-cover">
+          <img [src]="post.coverImage" [alt]="post.title" loading="lazy" />
+        </div>
       }
       <div class="post-body">
         <p class="post-content">{{ post.content }}</p>

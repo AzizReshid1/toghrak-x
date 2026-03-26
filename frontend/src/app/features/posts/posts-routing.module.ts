@@ -8,7 +8,7 @@ const routes: Routes = [
   { path: '', redirectTo: '/', pathMatch: 'full' },
   { path: 'new', component: PostFormComponent, canActivate: [AuthGuard] },
   { path: ':id/edit', component: PostFormComponent, canActivate: [AuthGuard] },
-  { path: ':id', component: PostDetailComponent },
+  { path: ':slug', component: PostDetailComponent },
 ];
 
 @NgModule({

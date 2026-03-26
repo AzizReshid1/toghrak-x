@@ -3,8 +3,9 @@
   gap: 10px;
 }
 
-@media (max-width: 768px) {
-  .admin-pages-grid .row {
-    margin: 0;
-  }
+.admin-page-thumb {
+  width: 120px;
+  height: 90px;
+  object-fit: cover;
 }
+

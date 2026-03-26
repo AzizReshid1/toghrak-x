@@ -1,4 +1,4 @@
-<div class="container mt-4" style="max-width: 720px">
+<div class="container mt-4 page-medium">
   <h4 class="mb-3">{{ isEdit ? "Edit Post" : "New Post" }}</h4>
 
   @if (loading) {
@@ -10,8 +10,8 @@
 
   <form (ngSubmit)="submit()" [formGroup]="form">
     <div class="mb-3">
-      <label class="form-label">Title</label>
-      <input class="form-control" formControlName="title" />
+      <label class="form-label" for="post-title">Title</label>
+      <input id="post-title" class="form-control" formControlName="title" />
       @if (form.controls.title.invalid && form.controls.title.touched) {
         <div class="text-danger small">
           Title is required.
@@ -19,8 +19,8 @@
       }
     </div>
     <div class="mb-3">
-      <label class="form-label">Content</label>
-      <textarea class="form-control" rows="8" formControlName="content"></textarea>
+      <label class="form-label" for="post-content">Content</label>
+      <textarea id="post-content" class="form-control" rows="8" formControlName="content"></textarea>
       @if (form.controls.content.invalid && form.controls.content.touched) {
         <div class="text-danger small">
           Content is required.
@@ -28,8 +28,8 @@
       }
     </div>
     <div class="mb-3">
-      <label class="form-label">Category</label>
-      <select class="form-select" formControlName="categoryId">
+      <label class="form-label" for="post-category">Category</label>
+      <select id="post-category" class="form-select" formControlName="categoryId">
         <option [ngValue]="null">Select a category</option>
         @for (c of categories; track c) {
           <option [ngValue]="c.id">
@@ -44,9 +44,11 @@
       }
     </div>
     <div class="mb-3">
-      <label class="form-label">Cover Image URL</label>
-      <input class="form-control" formControlName="coverImage" />
-      <div class="form-text">Or upload a file:</div>
+      <label class="form-label" for="post-cover">Cover Image URL</label>
+      <input id="post-cover" class="form-control" formControlName="coverImage" />
+      <div class="cover-divider">
+        <span>or upload a file</span>
+      </div>
       <input type="file" class="form-control" (change)="onCoverSelected($event)" />
       @if (uploadError) {
         <div class="text-danger small">{{ uploadError }}</div>

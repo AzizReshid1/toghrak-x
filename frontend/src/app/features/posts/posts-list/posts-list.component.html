@@ -1,132 +1,198 @@
-<div class="bbc-container">
+<div class="news-wrap">
+
   @if (currentCategoryId) {
-    <div class="mb-2">
-      <span class="badge bg-secondary">Filtered by category</span>
-      <button class="btn btn-link btn-sm" (click)="clearCategory()">Clear</button>
+    <div class="filter-bar">
+      <span class="filter-label">Filtered by category</span>
+      <button class="filter-clear" type="button" (click)="clearCategory()">Clear ×</button>
     </div>
   }
 
   @if (loading) {
-    <div class="alert alert-info">Loading...</div>
+    <div class="alert alert-info">Loading articles…</div>
   }
   @if (error) {
     <div class="alert alert-danger">{{ error }}</div>
   }
 
   @if (posts.length) {
-    <div class="bbc-layout" [class.has-sidebar]="popular.length">
-      <div class="main-col">
-        <div class="bbc-hero no-side">
-          @if (posts[0]; as main) {
-            <div class="hero-left" (click)="router.navigate(['/posts', main.id])">
-              @if (main.coverImage) {
-                <img [src]="main.coverImage" alt="cover" loading="lazy" />
+    <div class="news-layout" [class.has-sidebar]="popular.length">
+
+      <main class="news-main">
+
+        <!-- ── HERO ──────────────────────────────────────────────── -->
+        <section class="hero-section">
+
+          @if (posts[0]; as lead) {
+            <a class="lead-story" [routerLink]="['/posts', lead.slug]" aria-label="{{ lead.title }}">
+              @if (lead.coverImage) {
+                <div class="lead-img-wrap">
+                  <img [src]="lead.coverImage" [alt]="lead.title" loading="eager" />
+                </div>
               }
-              <h2>{{ main.title }}</h2>
-              <p class="hero-meta">{{ main.authorUsername }}</p>
-              <p class="hero-desc">
-                {{ main.content | slice : 0 : 140 }}{{ main.content.length > 140 ? '...' : '' }}
-              </p>
-            </div>
-          }
-          <div class="hero-center">
-            @if (posts[1]; as sec) {
-              <div class="hero-tile" (click)="router.navigate(['/posts', sec.id])">
-                @if (sec.coverImage) {
-                  <img [src]="sec.coverImage" alt="cover" loading="lazy" />
+              <div class="lead-body">
+                <span class="featured-tag">Featured</span>
+                @if (lead.categoryName) {
+                  <span class="cat-label">{{ lead.categoryName }}</span>
                 }
-                <h4>{{ sec.title }}</h4>
-              </div>
-            }
-            @if (posts[2]; as third) {
-              <div class="hero-tile" (click)="router.navigate(['/posts', third.id])">
-                @if (third.coverImage) {
-                  <img [src]="third.coverImage" alt="cover" loading="lazy" />
-                }
-                <h4>{{ third.title }}</h4>
-              </div>
-            }
-          </div>
-        </div>
-        @if (posts.length > 3) {
-          <div class="bbc-list">
-            @for (p of posts.slice(3, 9); track p) {
-              <div class="list-card">
-                @if (p.coverImage) {
-                  <div class="list-thumb">
-                    <img [src]="p.coverImage" alt="cover" loading="lazy" />
-                  </div>
-                }
-                <div class="list-body">
-                  <h5>{{ p.title }}</h5>
-                  <p class="list-meta">
-                    {{ p.categoryName }}
-                    <span class="dot"></span>
-                    {{ p.authorUsername }}
-                  </p>
-                  <p class="list-desc">
-                    {{ p.content | slice : 0 : 120 }}{{ p.content.length > 120 ? '...' : '' }}
-                  </p>
-                  <div class="list-actions">
-                    <a class="btn btn-sm btn-outline-primary" [routerLink]="['/posts', p.id]">Read</a>
-                    @if (canEdit(p)) {
-                      <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/posts', p.id, 'edit']">
-                        Edit
-                      </a>
-                    }
-                  </div>
+                <h1 class="lead-title">{{ lead.title }}</h1>
+                <p class="lead-excerpt">
+                  {{ lead.content | slice:0:200 }}{{ lead.content.length > 200 ? '…' : '' }}
+                </p>
+                <div class="story-meta">
+                  <span class="meta-author">{{ lead.authorUsername }}</span>
+                  <span class="meta-dot">·</span>
+                  <span class="meta-date">{{ lead.createdAt | date:'MMM d, y' }}</span>
                 </div>
               </div>
+            </a>
+          }
+
+          <div class="secondary-col">
+            @if (posts[1]; as s) {
+              <a class="secondary-story" [routerLink]="['/posts', s.slug]" aria-label="{{ s.title }}">
+                @if (s.coverImage) {
+                  <img class="secondary-img" [src]="s.coverImage" [alt]="s.title" loading="lazy" />
+                }
+                <div class="secondary-body">
+                  @if (s.categoryName) {
+                    <span class="cat-label cat-label--sm">{{ s.categoryName }}</span>
+                  }
+                  <h3 class="secondary-title">{{ s.title }}</h3>
+                  <div class="story-meta">
+                    <span class="meta-author">{{ s.authorUsername }}</span>
+                    <span class="meta-dot">·</span>
+                    <span class="meta-date">{{ s.createdAt | date:'MMM d, y' }}</span>
+                  </div>
+                </div>
+              </a>
+            }
+            @if (posts[2]; as s) {
+              <a class="secondary-story secondary-story--border" [routerLink]="['/posts', s.slug]" aria-label="{{ s.title }}">
+                @if (s.coverImage) {
+                  <img class="secondary-img" [src]="s.coverImage" [alt]="s.title" loading="lazy" />
+                }
+                <div class="secondary-body">
+                  @if (s.categoryName) {
+                    <span class="cat-label cat-label--sm">{{ s.categoryName }}</span>
+                  }
+                  <h3 class="secondary-title">{{ s.title }}</h3>
+                  <div class="story-meta">
+                    <span class="meta-author">{{ s.authorUsername }}</span>
+                    <span class="meta-dot">·</span>
+                    <span class="meta-date">{{ s.createdAt | date:'MMM d, y' }}</span>
+                  </div>
+                </div>
+              </a>
             }
           </div>
+        </section>
+
+        <!-- ── LATEST ────────────────────────────────────────────── -->
+        @if (posts.length > 3) {
+          <section class="latest-section">
+            <div class="section-header">
+              <h2 class="section-title">Latest</h2>
+              <div class="section-rule"></div>
+            </div>
+            <div class="latest-grid">
+              @for (p of posts.slice(3, 9); track p) {
+                <div class="story-card">
+                  <a class="story-card-link" [routerLink]="['/posts', p.slug]" aria-label="{{ p.title }}">
+                    @if (p.coverImage) {
+                      <div class="story-card-img">
+                        <img [src]="p.coverImage" [alt]="p.title" loading="lazy" />
+                      </div>
+                    }
+                    <div class="story-card-body">
+                      @if (p.categoryName) {
+                        <span class="cat-label cat-label--sm">{{ p.categoryName }}</span>
+                      }
+                      <h3 class="story-card-title">{{ p.title }}</h3>
+                      <p class="story-card-excerpt">
+                        {{ p.content | slice:0:110 }}{{ p.content.length > 110 ? '…' : '' }}
+                      </p>
+                      <div class="story-meta">
+                        <span class="meta-author">{{ p.authorUsername }}</span>
+                        <span class="meta-dot">·</span>
+                        <span class="meta-date">{{ p.createdAt | date:'MMM d, y' }}</span>
+                      </div>
+                    </div>
+                  </a>
+                  @if (canEdit(p)) {
+                    <div class="story-card-actions">
+                      <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/posts', p.id, 'edit']">Edit</a>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </section>
         }
-        @if (page) {
-          <nav class="mt-3">
+
+        <!-- ── PAGINATION ─────────────────────────────────────────── -->
+        @if (page && page.totalPages > 1) {
+          <nav class="pagination-nav" aria-label="Article pagination">
             <ul class="pagination">
               <li class="page-item" [class.disabled]="page.first">
-                <button class="page-link" aria-label="Previous page" (click)="goToPage(page.number - 1)" [disabled]="page.first">
-                  Prev
+                <button class="page-link" aria-label="Previous page"
+                  (click)="goToPage(page.number - 1)" [disabled]="page.first">
+                  ← Previous
                 </button>
               </li>
               <li class="page-item disabled">
                 <span class="page-link">Page {{ page.number + 1 }} of {{ page.totalPages }}</span>
               </li>
               <li class="page-item" [class.disabled]="page.last">
-                <button class="page-link" aria-label="Next page" (click)="goToPage(page.number + 1)" [disabled]="page.last">
-                  Next
+                <button class="page-link" aria-label="Next page"
+                  (click)="goToPage(page.number + 1)" [disabled]="page.last">
+                  Next →
                 </button>
               </li>
             </ul>
           </nav>
         }
-      </div>
+
+      </main>
+
+      <!-- ── SIDEBAR ────────────────────────────────────────────── -->
       @if (popular.length) {
-        <aside class="sidebar">
-          <div class="popular-rail">
-            <div class="popular-header">
-              <h5>Most read</h5>
+        <aside class="news-sidebar" aria-label="Most read articles">
+          <div class="most-read">
+            <div class="most-read-header">
+              <h2 class="most-read-heading">Most Read</h2>
               @if (popularLoading) {
-                <span class="text-muted small">Loading...</span>
+                <span class="sidebar-loading" aria-label="Loading">···</span>
               }
             </div>
-            @for (p of popular; track p) {
-              <div class="popular-item" [routerLink]="['/posts', p.id]">
-                @if (p.coverImage) {
-                  <div class="popular-thumb">
-                    <img [src]="p.coverImage" alt="cover" loading="lazy" />
-                  </div>
-                }
-                <div class="popular-body">
-                  <div class="popular-title">{{ p.title }}</div>
-                  <div class="popular-meta">
-                    {{ p.categoryName }} <span class="dot"></span> {{ p.viewCount || 0 }} views
-                  </div>
-                </div>
-              </div>
-            }
+            <ol class="most-read-list">
+              @for (p of popular; track p; let i = $index) {
+                <li class="most-read-item">
+                  <a [routerLink]="['/posts', p.slug]">
+                    <span class="rank" aria-hidden="true">{{ i + 1 }}</span>
+                    <div class="most-read-body">
+                      @if (p.categoryName) {
+                        <span class="cat-label cat-label--xs">{{ p.categoryName }}</span>
+                      }
+                      <div class="most-read-title">{{ p.title }}</div>
+                      @if (p.viewCount) {
+                        <div class="most-read-views">{{ p.viewCount }} views</div>
+                      }
+                    </div>
+                  </a>
+                </li>
+              }
+            </ol>
           </div>
         </aside>
       }
+
     </div>
   }
+
+  @if (!posts.length && !loading && !error) {
+    <div class="empty-state">
+      <p>No articles yet. Check back soon.</p>
+    </div>
+  }
+
 </div>

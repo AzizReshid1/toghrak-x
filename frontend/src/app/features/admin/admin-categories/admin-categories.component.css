@@ -3,6 +3,10 @@
   overflow-x: auto;
 }
 
+.col-actions {
+  width: 140px;
+}
+
 @media (max-width: 768px) {
   .admin-table-wrap table {
     min-width: 520px;

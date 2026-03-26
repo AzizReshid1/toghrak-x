@@ -87,16 +87,18 @@ export class PostsListComponent implements OnInit, OnDestroy {
     this.currentPage = page;
     this.loading = true;
     this.error = null;
-    this.postsService.list(page, 10, categoryId).subscribe({
-      next: (res: Page<PostResponse>) => {
-        this.page = res;
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Failed to load posts.';
-        this.loading = false;
-      },
-    });
+    this.postsService.list(page, 10, categoryId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res: Page<PostResponse>) => {
+          this.page = res;
+          this.loading = false;
+        },
+        error: () => {
+          this.error = 'Failed to load posts.';
+          this.loading = false;
+        },
+      });
   }
 
   clearCategory() {
@@ -119,20 +121,24 @@ export class PostsListComponent implements OnInit, OnDestroy {
 
   private loadPopular() {
     this.popularLoading = true;
-    this.postsService.popular(6).subscribe({
-      next: (res) => {
-        this.popular = res;
-        this.popularLoading = false;
-      },
-      error: () => {
-        this.popular = [];
-        this.popularLoading = false;
-      },
-    });
+    this.postsService.popular(6)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.popular = res;
+          this.popularLoading = false;
+        },
+        error: () => {
+          this.popular = [];
+          this.popularLoading = false;
+        },
+      });
   }
 
   private resolveCategoryBySlug(slug: string, pageNum: number) {
-    this.categoriesService.getBySlug(slug).subscribe({
+    this.categoriesService.getBySlug(slug)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (cat: Category) => {
         this.currentCategoryId = cat.id;
         this.currentPage = pageNum;

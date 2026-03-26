@@ -27,7 +27,7 @@
 .accent {
   width: 64px;
   height: 4px;
-  background: #e75b2f;
+  background: #0b4bb3;
   border-radius: 999px;
   margin-bottom: 14px;
 }
@@ -36,7 +36,7 @@
   margin: 0 0 10px;
   font-size: 36px;
   font-weight: 700;
-  color: #0b3c4c;
+  color: #111;
   line-height: 1.2;
 }
 
@@ -59,7 +59,7 @@
 
 .gallery-header {
   font-weight: 600;
-  color: #0b3c4c;
+  color: #111;
   margin-bottom: 12px;
   font-size: 16px;
   letter-spacing: 0.2px;

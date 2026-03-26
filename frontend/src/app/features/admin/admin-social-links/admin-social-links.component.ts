@@ -44,7 +44,7 @@ export class AdminSocialLinksComponent implements OnInit, OnDestroy {
     const req$ = link.id
       ? this.socialLinks.update(link.id, link)
       : this.socialLinks.create(link);
-    req$.subscribe({
+    req$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.saving = false;
         this.info = 'Link saved.';
@@ -64,7 +64,7 @@ export class AdminSocialLinksComponent implements OnInit, OnDestroy {
       this.links = this.links.filter((l) => l !== link);
       return;
     }
-    this.socialLinks.delete(link.id).subscribe({
+    this.socialLinks.delete(link.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => (this.info = 'Link deleted.'),
       error: () => (this.error = 'Failed to delete link.'),
     });

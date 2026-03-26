@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { CategoriesService } from '../../../services/categories.service';
 import { PostsService } from '../../../services/posts.service';
 import { ImagesService } from '../../../services/images.service';
@@ -14,9 +15,10 @@ import {
 @Component({
     selector: 'app-post-form',
     templateUrl: './post-form.component.html',
+    styleUrls: ['./post-form.component.css'],
     standalone: false
 })
-export class PostFormComponent implements OnInit {
+export class PostFormComponent implements OnInit, OnDestroy {
   isEdit = false;
   postId?: number;
   categories: Category[] = [];
@@ -33,6 +35,8 @@ export class PostFormComponent implements OnInit {
     categoryId: [null as number | null, Validators.required],
     coverImage: [''],
   });
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -53,34 +57,43 @@ export class PostFormComponent implements OnInit {
     }
   }
 
-  loadCategories() {
-    this.categoriesService.list().subscribe({
-      next: (cats) => (this.categories = cats),
-      error: () => (this.error = 'Failed to load categories.'),
-    });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  loadPost(id: number) {
+  loadCategories(): void {
+    this.categoriesService.list()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (cats) => (this.categories = cats),
+        error: () => (this.error = 'Failed to load categories.'),
+      });
+  }
+
+  loadPost(id: number): void {
     this.loading = true;
-    this.postsService.get(id).subscribe({
-      next: (p: PostResponse) => {
-        this.form.patchValue({
-          title: p.title,
-          content: p.content,
-          categoryId: p.categoryId ?? null,
-          coverImage: p.coverImage || '',
-        });
-        this.imageUrls = [...(p.imageUrls || [])];
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Failed to load post.';
-        this.loading = false;
-      },
-    });
+    this.postsService.get(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (p: PostResponse) => {
+          this.form.patchValue({
+            title: p.title,
+            content: p.content,
+            categoryId: p.categoryId ?? null,
+            coverImage: p.coverImage || '',
+          });
+          this.imageUrls = [...(p.imageUrls || [])];
+          this.loading = false;
+        },
+        error: () => {
+          this.error = 'Failed to load post.';
+          this.loading = false;
+        },
+      });
   }
 
-  submit() {
+  submit(): void {
     if (this.saving) return;
     this.error = null;
     if (this.form.invalid) {
@@ -90,16 +103,23 @@ export class PostFormComponent implements OnInit {
     }
     this.saving = true;
 
-    const payload = {
-      ...(this.form.value as any),
+    // getRawValue() returns typed values and includes disabled controls,
+    // avoiding the unsafe `as any` cast on form.value.
+    const raw = this.form.getRawValue();
+    const payload: CreatePostRequest | UpdatePostRequest = {
+      title: raw.title ?? '',
+      content: raw.content ?? '',
+      categoryId: raw.categoryId as number,
+      coverImage: raw.coverImage || null,
       imageUrls: this.imageUrls,
-    } as CreatePostRequest | UpdatePostRequest;
+    };
+
     const request$ =
       this.isEdit && this.postId
         ? this.postsService.update(this.postId, payload as UpdatePostRequest)
         : this.postsService.create(payload as CreatePostRequest);
 
-    request$.subscribe({
+    request$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => this.router.navigate(['/posts', res.id]),
       error: () => {
         this.error = 'Failed to save post.';
@@ -108,38 +128,43 @@ export class PostFormComponent implements OnInit {
     });
   }
 
-  onCoverSelected(event: Event) {
+  onCoverSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
     this.uploadError = null;
-    this.imagesService.upload(file).subscribe({
-      next: (resp) => this.form.patchValue({ coverImage: resp.imageUrl }),
-      error: () => (this.uploadError = 'Upload failed.'),
-    });
+    this.imagesService.upload(file)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (resp) => this.form.patchValue({ coverImage: resp.imageUrl }),
+        error: () => (this.uploadError = 'Upload failed.'),
+      });
   }
 
-  onGallerySelected(event: Event) {
+  onGallerySelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
     const files = Array.from(input.files);
     this.uploadingGallery = true;
-    let remaining = files.length;
-    files.forEach((file) => {
-      this.imagesService.upload(file).subscribe({
-        next: (resp) => this.imageUrls.push(resp.imageUrl),
-        error: () => (this.uploadError = 'One or more gallery uploads failed.'),
-        complete: () => {
-          remaining -= 1;
-          if (remaining === 0) {
-            this.uploadingGallery = false;
-          }
+    this.uploadError = null;
+
+    // forkJoin runs all uploads in parallel and emits once all complete,
+    // or errors immediately if any single upload fails — no counter race condition.
+    forkJoin(files.map((file) => this.imagesService.upload(file)))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (responses) => {
+          this.imageUrls = [...this.imageUrls, ...responses.map((r) => r.imageUrl)];
+          this.uploadingGallery = false;
+        },
+        error: () => {
+          this.uploadError = 'One or more gallery uploads failed.';
+          this.uploadingGallery = false;
         },
       });
-    });
   }
 
-  removeGalleryImage(url: string) {
+  removeGalleryImage(url: string): void {
     this.imageUrls = this.imageUrls.filter((u) => u !== url);
   }
 }

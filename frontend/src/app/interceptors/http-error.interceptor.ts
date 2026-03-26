@@ -21,6 +21,8 @@ export class HttpErrorInterceptor implements HttpInterceptor {
             kind: 'error',
             text: 'Cannot reach the server. Check your connection and that the backend is running.',
           });
+        } else if (err.status === 404) {
+          this.ui.show({ kind: 'error', text: 'The requested resource was not found.' });
         } else if (err.status >= 500) {
           this.ui.show({
             kind: 'error',

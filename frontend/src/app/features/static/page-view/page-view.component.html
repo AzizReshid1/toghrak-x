@@ -9,9 +9,11 @@
   @if (page && !loading) {
     <section class="page-hero">
       @if (page.images; as imgs) {
-        <div class="hero-image" [class.hidden]="imgs.length === 0">
-          <img [src]="imgs[0]" alt="Page hero image" loading="lazy" />
-        </div>
+        @if (imgs.length > 0) {
+          <div class="hero-image">
+            <img [src]="imgs[0]" alt="Page hero image" loading="lazy" />
+          </div>
+        }
       }
       <div class="hero-copy">
         <div class="accent"></div>

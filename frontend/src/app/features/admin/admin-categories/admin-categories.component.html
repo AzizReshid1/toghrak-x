@@ -48,7 +48,7 @@
         <tr>
           <th>Name</th>
           <th>Description</th>
-          <th style="width: 140px"></th>
+          <th class="col-actions"></th>
         </tr>
       </thead>
       <tbody>
@@ -62,6 +62,11 @@
                 <button class="btn btn-outline-danger btn-sm" (click)="remove(c.id)">Delete</button>
               </div>
             </td>
+          </tr>
+        }
+        @if (!loading && !categories.length) {
+          <tr>
+            <td colspan="3" class="text-muted text-center">No categories yet.</td>
           </tr>
         }
       </tbody>

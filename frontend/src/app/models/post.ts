@@ -1,5 +1,6 @@
 export interface PostResponse {
   id: number;
+  slug: string;
   title: string;
   content: string;
   coverImage?: string | null;

@@ -1,0 +1,16 @@
+.cover-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 8px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.cover-divider::before,
+.cover-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e5e7eb;
+}

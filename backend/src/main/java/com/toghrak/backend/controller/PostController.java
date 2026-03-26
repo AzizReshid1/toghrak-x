@@ -60,7 +60,15 @@ public class PostController {
         return ResponseEntity.ok(popular);
     }
 
-    // 3) GET single post by ID
+    // 3a) GET single post by slug — used by the public-facing frontend (SEO-friendly URLs)
+    // Must be declared before /{id} so Spring MVC matches the literal "slug" segment first.
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<PostResponse> getPostBySlug(@PathVariable String slug) {
+        Post post = postService.getPostBySlug(slug);
+        return ResponseEntity.ok(toPostResponse(post));
+    }
+
+    // 3b) GET single post by numeric ID — kept for internal use (edit form, admin)
     @GetMapping("/{id}")
     public ResponseEntity<PostResponse> getPost(@PathVariable Long id) {
         Post post = postService.getPost(id);

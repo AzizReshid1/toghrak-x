@@ -44,6 +44,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         @EntityGraph(attributePaths = { "category", "author", "images" })
         List<Post> findTop6ByOrderByViewCountDescUpdatedAtDescCreatedAtDesc();
 
+        // Returns only the numeric ID for a given slug — avoids loading the full entity
+        // just to resolve the slug before incrementing view count.
+        @Query("select p.id from Post p where p.slug = :slug")
+        Optional<Long> findIdBySlug(@Param("slug") String slug);
+
         boolean existsBySlug(String slug);
 
         boolean existsBySlugAndIdNot(String slug, Long id);
@@ -63,12 +68,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
         long countByCategoryId(Long categoryId);
 
-        @org.springframework.data.jpa.repository.Query(value = """
-                        SELECT * FROM posts p
-                        WHERE lower(p.title) LIKE lower(concat('%', :term, '%'))
-                           OR lower(p.content) LIKE lower(concat('%', :term, '%'))
-                        ORDER BY p.created_at DESC
-                        LIMIT 10
-                        """, nativeQuery = true)
-        List<Post> searchTop10(@org.springframework.data.repository.query.Param("term") String term);
+        // Native SQL: PostgreSQL lower() works on TEXT columns without the CLOB
+        // restriction that Hibernate 6 imposes on @Lob fields in JPQL.
+        @Query(value = """
+                SELECT * FROM posts p
+                WHERE lower(p.title) LIKE lower(concat('%', :term, '%'))
+                   OR lower(p.content) LIKE lower(concat('%', :term, '%'))
+                ORDER BY p.created_at DESC
+                LIMIT :limit
+                """, nativeQuery = true)
+        List<Post> searchByWord(@Param("term") String term, @Param("limit") int limit);
 }

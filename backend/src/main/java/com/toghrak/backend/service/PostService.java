@@ -131,7 +131,16 @@ public class PostService {
         postRepository.deleteById(postId);
     }
 
-    // 4️⃣ Retrieve a single post
+    // 4️⃣ Retrieve a single post by slug (SEO-friendly URL)
+    public Post getPostBySlug(String slug) {
+        // Resolve slug → ID with a lightweight single-column query,
+        // then delegate to getPost() so view count increment logic stays in one place.
+        Long id = postRepository.findIdBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found: " + slug));
+        return getPost(id);
+    }
+
+    // Retrieve a single post by numeric ID
     public Post getPost(Long postId) {
         int updated = postRepository.incrementViewCount(postId);
         if (updated == 0) {

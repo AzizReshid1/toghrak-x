@@ -18,12 +18,14 @@ public interface PageRepository extends JpaRepository<Page, Long> {
     @EntityGraph(attributePaths = "images")
     List<Page> findAllByOrderByUpdatedAtDesc();
 
+    // Native SQL: PostgreSQL lower() works on TEXT columns without the CLOB
+    // restriction that Hibernate 6 imposes on @Lob fields in JPQL.
     @Query(value = """
             SELECT * FROM pages p
             WHERE lower(p.title) LIKE lower(concat('%', :term, '%'))
                OR lower(p.content) LIKE lower(concat('%', :term, '%'))
             ORDER BY p.updated_at DESC
-            LIMIT 10
+            LIMIT :limit
             """, nativeQuery = true)
-    List<Page> searchTop10(@Param("term") String term);
+    List<Page> searchByWord(@Param("term") String term, @Param("limit") int limit);
 }

@@ -270,11 +270,3 @@ ng build --configuration production
 - Check Node version: `node -v` (should be 18+)
 
 ---
-
-## License & Contributing
-
-For more information on contributing or licensing, please see the repository root directory.
-
----
-
-**Happy Publishing!**

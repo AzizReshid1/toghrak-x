@@ -105,7 +105,7 @@ public class DataInitializer {
                         }
 
                         if (socialLinkRepository.count() == 0) {
-                                socialLinkRepository.saveAll(List.<SocialLink>of(
+                                socialLinkRepository.saveAll(List.of(
                                                 SocialLink.builder().label("Twitter")
                                                                 .url("https://twitter.com/toghrakplatform").icon("x")
                                                                 .build(),

@@ -33,7 +33,9 @@ public class Post {
     @Column(nullable = false, unique = true, length = 255)
     private String slug;
 
-    @Lob
+    // columnDefinition = "TEXT" ensures PostgreSQL uses the TEXT type.
+    // @Lob is intentionally omitted — it maps to CLOB in Hibernate 6, which
+    // breaks JPQL functions like lower() and is unnecessary for PostgreSQL TEXT.
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 

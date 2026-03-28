@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "pages", indexes = {
@@ -27,7 +29,8 @@ public class Page {
     @Column(nullable = false, length = 200)
     private String title;
 
-    @Lob
+    // columnDefinition = "TEXT" ensures PostgreSQL uses the TEXT type.
+    // @Lob is intentionally omitted — see Post.java for the full explanation.
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
@@ -37,7 +40,7 @@ public class Page {
     })
     @Column(name = "image_url")
     @Builder.Default
-    private java.util.List<String> images = new java.util.ArrayList<>();
+    private List<String> images = new ArrayList<>();
 
     private LocalDateTime updatedAt;
 

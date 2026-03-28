@@ -1,10 +1,10 @@
 package com.toghrak.backend.config;
 
 import com.toghrak.backend.security.JwtAuthenticationFilter;
-import com.toghrak.backend.security.AppUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // <-- Important for requestMatchers with methods
+import org.springframework.http.HttpMethod;
+import java.util.Arrays;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
@@ -39,7 +39,7 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.swaggerPublic = swaggerPublic;
         // Support comma-separated list from env var (e.g. "https://a.com,https://b.com")
-        this.allowedOrigins = java.util.Arrays.stream(allowedOriginsRaw.split(","))
+        this.allowedOrigins = Arrays.stream(allowedOriginsRaw.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isBlank())
                 .toList();

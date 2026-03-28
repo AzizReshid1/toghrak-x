@@ -24,7 +24,6 @@ public class PageService {
         this.sanitizer = sanitizer;
     }
 
-    @Transactional
     public Page create(String slug, String title, String content, List<String> images) {
         String normalizedSlug = normalizeSlug(slug);
         if (pageRepository.existsBySlug(normalizedSlug)) {
@@ -42,7 +41,6 @@ public class PageService {
                 .orElseThrow(() -> new ResourceNotFoundException("Page not found: " + normalizedSlug));
     }
 
-    @Transactional
     public Page update(String slug, String newSlug, String title, String content, List<String> images) {
         Page existing = pageRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Page not found: " + slug));
@@ -60,7 +58,6 @@ public class PageService {
                 .orElseThrow(() -> new ResourceNotFoundException("Page not found: " + normalizedSlug));
     }
 
-    @Transactional
     public void delete(String slug) {
         Page existing = pageRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Page not found: " + slug));

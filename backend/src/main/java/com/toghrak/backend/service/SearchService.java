@@ -2,7 +2,6 @@ package com.toghrak.backend.service;
 
 import com.toghrak.backend.model.Page;
 import com.toghrak.backend.model.Post;
-import com.toghrak.backend.model.SocialLink;
 import com.toghrak.backend.dto.SearchResultItem;
 import com.toghrak.backend.repository.PageRepository;
 import com.toghrak.backend.repository.PostRepository;
@@ -37,7 +36,8 @@ public class SearchService {
     }
 
     // readOnly = true: all three DB calls share one read-only transaction,
-    // preventing the Hibernate session from closing between calls (safe lazy access).
+    // preventing the Hibernate session from closing between calls (safe lazy
+    // access).
     @Transactional(readOnly = true)
     public List<SearchResultItem> search(String q) {
         if (q == null || q.isBlank() || q.trim().length() < MIN_QUERY_LENGTH) {
@@ -61,7 +61,8 @@ public class SearchService {
 
     private List<SearchResultItem> searchPosts(String fullTerm, String[] words) {
         // Use a LinkedHashMap keyed by post ID to deduplicate while preserving order.
-        // Full-phrase results come first (highest relevance), then individual-word hits.
+        // Full-phrase results come first (highest relevance), then individual-word
+        // hits.
         Map<Long, Post> seen = new LinkedHashMap<>();
 
         collectPosts(fullTerm, seen);
@@ -145,7 +146,8 @@ public class SearchService {
     // ── Snippet helper ────────────────────────────────────────────────────────
 
     private String snippet(String content, String term) {
-        if (content == null) return "";
+        if (content == null)
+            return "";
         String lower = content.toLowerCase();
         int idx = lower.indexOf(term.toLowerCase());
         if (idx < 0) {
@@ -155,8 +157,10 @@ public class SearchService {
         int start = Math.max(0, idx - 40);
         int end = Math.min(content.length(), idx + term.length() + 60);
         String snip = content.substring(start, end);
-        if (start > 0) snip = "..." + snip;
-        if (end < content.length()) snip = snip + "...";
+        if (start > 0)
+            snip = "..." + snip;
+        if (end < content.length())
+            snip = snip + "...";
         return snip;
     }
 }

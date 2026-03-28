@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -50,10 +51,10 @@ public class UserController {
 
     // 3️⃣ Get user profile (Only authenticated user can see their own info)
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserPrincipal currentUser) {
+    public ResponseEntity<Object> getCurrentUser(@AuthenticationPrincipal UserPrincipal currentUser) {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(java.util.Map.of("error", "unauthorized"));
+                    .body(Map.of("error", "unauthorized"));
         }
         User user = userService.getUser(currentUser.getId());
         if (isAdmin(currentUser)) {
@@ -73,7 +74,7 @@ public class UserController {
     // 5️⃣ Update user (Users can update their own profile, Admins can update any
     // user)
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(
+    public ResponseEntity<Object> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request,
             @AuthenticationPrincipal UserPrincipal currentUser) {

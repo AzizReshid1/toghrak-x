@@ -10,6 +10,7 @@ import com.toghrak.backend.service.PostService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -52,7 +53,7 @@ public class PostController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<java.util.List<PostResponse>> getPopular(
+    public ResponseEntity<List<PostResponse>> getPopular(
             @RequestParam(value = "limit", defaultValue = "6") int limit) {
         var popular = postService.getPopular(limit).stream()
                 .map(this::toPostResponse)

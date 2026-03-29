@@ -1,11 +1,11 @@
 @if (post) {
   <div class="post-shell">
     <div class="post-header">
-      <button class="btn btn-outline-secondary btn-sm" (click)="goBack()" aria-label="Go back">Back</button>
+      <button class="btn btn-outline btn-sm" (click)="goBack()" aria-label="Go back">Back</button>
       @if (isAdmin || isOwner) {
         <div class="post-actions">
-          <a class="btn btn-outline-primary btn-sm" [routerLink]="['/posts', post.id, 'edit']" aria-label="Edit post">Edit</a>
-          <button class="btn btn-outline-danger btn-sm" (click)="deletePost()" [disabled]="deleting" aria-label="Delete post">
+          <a class="btn btn-ghost btn-sm" [routerLink]="['/posts', post.id, 'edit']" aria-label="Edit post">Edit</a>
+          <button class="btn btn-danger btn-sm" (click)="deletePost()" [disabled]="deleting" aria-label="Delete post">
             {{ deleting ? 'Deleting...' : 'Delete' }}
           </button>
         </div>
@@ -14,7 +14,7 @@
     <article class="post-card">
       <h1>{{ post.title }}</h1>
       <div class="post-meta">
-        <span class="badge bg-light text-gray-900">{{ post.categoryName }}</span>
+        <span class="tag tag-light">{{ post.categoryName }}</span>
         <span>By {{ post.authorUsername }}</span>
         @if (post.createdAt) {
           <span>{{ post.createdAt | date: 'mediumDate' }}</span>
@@ -41,11 +41,10 @@
 } @else {
   <div class="container mt-6">
     @if (error) {
-      <div class="alert alert-danger">{{ error }}</div>
+      <div class="alert alert-error">{{ error }}</div>
     }
     @if (!error) {
       <div class="alert alert-info">Loading...</div>
     }
   </div>
 }
-

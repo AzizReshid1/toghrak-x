@@ -7,13 +7,13 @@
       </p>
       <form #f="ngForm" (ngSubmit)="save(f)">
         <div class="card">
-          <div class="card-body form-grid">
-            <div class="form-group">
-              <label for="title">Site name</label>
+          <div class="card-body grid gap-4">
+            <div class="grid gap-1">
+              <label class="field-label" for="title">Site name</label>
               <input
                 id="title"
                 name="title"
-                class="form-control"
+                class="input"
                 [(ngModel)]="form.title"
                 required
                 maxlength="120"
@@ -21,8 +21,8 @@
                 />
               <small class="text-gray-500">Shown next to the logo.</small>
             </div>
-            <div class="form-group">
-              <div class="form-label">Logo</div>
+            <div class="grid gap-1">
+              <div class="field-label">Logo</div>
               <div class="logo-preview" aria-label="Logo preview">
                 @if (form.logoUrl) {
                   <img [src]="form.logoUrl" alt="Logo preview" />
@@ -32,7 +32,7 @@
                 }
               </div>
               <div class="btn-row">
-                <label for="logo-file-input" class="form-label">Upload file</label>
+                <label class="field-label" for="logo-file-input">Upload file</label>
                 <input
                   id="logo-file-input"
                   type="file"
@@ -43,18 +43,18 @@
               <small class="text-gray-500">Or paste a URL below.</small>
               <input
                 id="logoUrl"
-                class="form-control mt-2"
+                class="input mt-2"
                 name="logoUrl"
                 [(ngModel)]="form.logoUrl"
                 placeholder="https://example.com/logo.png"
                 />
             </div>
-            <div class="form-group">
-              <label for="slogan">Tagline</label>
+            <div class="grid gap-1">
+              <label class="field-label" for="slogan">Tagline</label>
               <textarea
                 id="slogan"
                 name="slogan"
-                class="form-control"
+                class="input resize-y"
                 [(ngModel)]="form.slogan"
                 required
                 maxlength="200"
@@ -64,9 +64,9 @@
               <small class="text-gray-500">Displayed under the logo.</small>
             </div>
           </div>
-          <div class="card-footer gap-2">
+          <div class="card-footer">
             <button
-              class="btn btn-primary"
+              class="btn btn-brand"
               type="submit"
               [disabled]="saving || f.invalid"
               >

@@ -9,30 +9,30 @@
     <div class="login-body">
       <form (ngSubmit)="submit()" [formGroup]="form">
         <div class="mb-4">
-          <label class="form-label" for="login-username">Username</label>
+          <label class="field-label" for="login-username">Username</label>
           <input
             id="login-username"
-            class="form-control"
+            class="input"
             formControlName="username"
             autocomplete="username"
             placeholder="Your username"
             />
         </div>
         <div class="mb-4">
-          <label class="form-label" for="login-password">Password</label>
+          <label class="field-label" for="login-password">Password</label>
           <input
             id="login-password"
             type="password"
-            class="form-control"
+            class="input"
             formControlName="password"
             autocomplete="current-password"
             placeholder="••••••••"
             />
         </div>
         @if (error) {
-          <div class="alert alert-danger">{{ error }}</div>
+          <div class="alert alert-error">{{ error }}</div>
         }
-        <button class="btn btn-primary w-full" type="submit" [disabled]="loading">
+        <button class="btn btn-brand w-full" type="submit" [disabled]="loading">
           {{ loading ? "Signing in…" : "Sign in" }}
         </button>
       </form>

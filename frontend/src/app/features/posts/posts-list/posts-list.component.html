@@ -8,10 +8,10 @@
   }
 
   @if (loading) {
-    <div class="alert alert-info">Loading articles…</div>
+    <div class="px-3.5 py-2.5 rounded-lg border text-sm leading-normal mb-3 bg-[#eef4ff] border-[#0b4bb3]/20 text-[#0b2a55]">Loading articles…</div>
   }
   @if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
+    <div class="px-3.5 py-2.5 rounded-lg border text-sm leading-normal mb-3 bg-[#fff1f1] border-red-900/20 text-red-900">{{ error }}</div>
   }
 
   @if (posts.length) {
@@ -116,7 +116,7 @@
                   </a>
                   @if (canEdit(p)) {
                     <div class="story-card-actions">
-                      <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/posts', p.id, 'edit']">Edit</a>
+                      <a class="inline-flex items-center justify-center px-2.5 py-1 rounded-lg text-[13px] font-semibold cursor-pointer whitespace-nowrap no-underline transition-all duration-150 border border-black/20 text-gray-700 hover:bg-black/5 disabled:opacity-55 disabled:cursor-not-allowed" [routerLink]="['/posts', p.id, 'edit']">Edit</a>
                     </div>
                   }
                 </div>
@@ -129,17 +129,17 @@
         @if (page && page.totalPages > 1) {
           <nav class="pagination-nav" aria-label="Article pagination">
             <ul class="pagination">
-              <li class="page-item" [class.disabled]="page.first">
-                <button class="page-link" aria-label="Previous page"
+              <li>
+                <button class="page-btn" aria-label="Previous page"
                   (click)="goToPage(page.number - 1)" [disabled]="page.first">
                   ← Previous
                 </button>
               </li>
-              <li class="page-item disabled">
-                <span class="page-link">Page {{ page.number + 1 }} of {{ page.totalPages }}</span>
+              <li>
+                <span class="page-btn opacity-50 pointer-events-none">Page {{ page.number + 1 }} of {{ page.totalPages }}</span>
               </li>
-              <li class="page-item" [class.disabled]="page.last">
-                <button class="page-link" aria-label="Next page"
+              <li>
+                <button class="page-btn" aria-label="Next page"
                   (click)="goToPage(page.number + 1)" [disabled]="page.last">
                   Next →
                 </button>

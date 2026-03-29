@@ -1,9 +1,9 @@
 <div class="page-shell">
   @if (loading) {
-    <div class="alert alert-info">Loading...</div>
+    <div class="px-3.5 py-2.5 rounded-lg border text-sm leading-normal mb-3 bg-[#eef4ff] border-[#0b4bb3]/20 text-[#0b2a55]">Loading...</div>
   }
   @if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
+    <div class="px-3.5 py-2.5 rounded-lg border text-sm leading-normal mb-3 bg-[#fff1f1] border-red-900/20 text-red-900">{{ error }}</div>
   }
 
   @if (page && !loading) {

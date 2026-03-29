@@ -1,20 +1,20 @@
 <div class="container py-6">
   <h4>Search</h4>
-  <div class="input-group mb-4">
+  <div class="flex items-stretch mb-4">
     <input
-      class="form-control"
+      class="input rounded-r-none flex-1"
       [(ngModel)]="query"
       (keyup.enter)="runSearch()"
       placeholder="Search posts, pages, or socials"
       />
-    <button class="btn btn-primary" type="button" (click)="runSearch()">Search</button>
+    <button class="btn btn-brand rounded-l-none border-l-0" type="button" (click)="runSearch()">Search</button>
   </div>
 
   @if (loading) {
     <div class="alert alert-info">Searching...</div>
   }
   @if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
+    <div class="alert alert-error">{{ error }}</div>
   }
 
   @if (hasSearched && !loading && !error && !results.length) {
@@ -22,17 +22,17 @@
   }
 
   @if (results.length) {
-    <div class="list-group">
+    <div class="item-list">
       @for (r of results; track r) {
         <a
-          class="list-group-item list-group-item-action"
+          class="item-row item-link"
           [href]="r.type === 'SOCIAL' ? r.url : null"
           [routerLink]="r.type !== 'SOCIAL' ? r.url : null"
           [attr.target]="r.type === 'SOCIAL' ? '_blank' : null"
           >
           <div class="flex justify-between">
             <h6 class="mb-1">{{ r.title }}</h6>
-            <span class="badge bg-secondary">{{ r.type }}</span>
+            <span class="tag tag-muted">{{ r.type }}</span>
           </div>
           <small class="text-gray-500 result-url">{{ r.url }}</small>
           @if (r.snippet) {

@@ -4,53 +4,53 @@
     <div class="alert alert-info">Loading...</div>
   }
   @if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
+    <div class="alert alert-error">{{ error }}</div>
   }
   @if (info) {
-    <div class="alert alert-secondary">{{ info }}</div>
+    <div class="alert alert-muted">{{ info }}</div>
   }
 
   <div class="flex flex-wrap gap-4 items-end admin-pages-grid">
     <div class="w-full sm:w-1/3">
-      <label class="form-label">Slug</label>
-      <input class="form-control" [(ngModel)]="current.slug" (blur)="onSlugBlur()" placeholder="e.g. about-us" />
+      <label class="field-label">Slug</label>
+      <input class="input" [(ngModel)]="current.slug" (blur)="onSlugBlur()" placeholder="e.g. about-us" />
       <small class="text-gray-500">Lowercase, hyphen-separated. This becomes the URL.</small>
     </div>
     <div class="w-full sm:w-1/3">
-      <label class="form-label">Title</label>
-      <input class="form-control" [(ngModel)]="current.title" placeholder="Page title" />
+      <label class="field-label">Title</label>
+      <input class="input" [(ngModel)]="current.title" placeholder="Page title" />
     </div>
     <div class="w-full sm:w-1/3 flex gap-2">
       <button class="btn btn-success" type="button" (click)="save()" [disabled]="saving || !current.slug || !current.title">
         {{ saving ? 'Saving...' : 'Save' }}
       </button>
-      <button class="btn btn-outline-secondary" type="button" (click)="newPage()">New page</button>
+      <button class="btn btn-outline" type="button" (click)="newPage()">New page</button>
     </div>
   </div>
 
   <div class="mt-4">
-    <label class="form-label">Content</label>
-    <textarea class="form-control" rows="10" [(ngModel)]="current.content" placeholder="Page content"></textarea>
+    <label class="field-label">Content</label>
+    <textarea class="input resize-y" rows="10" [(ngModel)]="current.content" placeholder="Page content"></textarea>
   </div>
 
   <div class="mt-4">
-    <label class="form-label">Gallery Images</label>
+    <label class="field-label">Gallery Images</label>
     @if (current.images?.length) {
       <div class="flex flex-wrap gap-2 mb-2">
         @for (img of current.images; track img) {
           <div class="relative">
-            <img [src]="img" class="img-thumbnail admin-page-thumb" alt="gallery" />
+            <img [src]="img" class="admin-page-thumb border border-black/10 rounded-lg p-[3px] bg-white" alt="gallery" />
             <button type="button" class="btn-close absolute top-0 right-0" aria-label="Remove" (click)="removeImage(img)"></button>
           </div>
         }
       </div>
     }
-    <div class="input-group mb-2">
-      <input #imgUrl class="form-control" placeholder="Paste image URL" />
-      <button class="btn btn-outline-secondary" type="button" (click)="addImageUrl(imgUrl.value); imgUrl.value=''">Add URL</button>
+    <div class="flex items-stretch mb-2">
+      <input #imgUrl class="input rounded-r-none flex-1" placeholder="Paste image URL" />
+      <button class="btn btn-outline rounded-l-none border-l-0" type="button" (click)="addImageUrl(imgUrl.value); imgUrl.value=''">Add URL</button>
     </div>
     <div class="mb-2">
-      <input type="file" class="form-control" (change)="onImageFileSelected($event)" />
+      <input type="file" class="input" (change)="onImageFileSelected($event)" />
       @if (uploadError) {
         <div class="text-red-700 text-sm mt-1">{{ uploadError }}</div>
       }
@@ -62,13 +62,13 @@
 
   <div class="mt-4">
     <h6>Existing pages</h6>
-    <ul class="list-group">
+    <ul class="item-list">
       @for (p of pages; track p) {
-        <li class="list-group-item flex justify-between items-center">
+        <li class="item-row flex justify-between items-center">
           <span>{{ p.title }} ({{ p.slug }})</span>
           <div class="flex gap-2">
-            <button class="btn btn-outline-primary btn-sm" type="button" (click)="edit(p)">Edit</button>
-            <button class="btn btn-outline-danger btn-sm" type="button" (click)="remove(p.slug)">Delete</button>
+            <button class="btn btn-ghost btn-sm" type="button" (click)="edit(p)">Edit</button>
+            <button class="btn btn-danger btn-sm" type="button" (click)="remove(p.slug)">Delete</button>
           </div>
         </li>
       }

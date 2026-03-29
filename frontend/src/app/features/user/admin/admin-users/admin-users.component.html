@@ -4,13 +4,13 @@
     <div class="alert alert-info">Loading...</div>
   }
   @if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
+    <div class="alert alert-error">{{ error }}</div>
   }
 
   <form class="flex flex-wrap gap-2 mb-4" (ngSubmit)="create()">
     <div class="w-full sm:w-1/4">
       <input
-        class="form-control"
+        class="input"
         [(ngModel)]="form.username"
         name="username"
         placeholder="Username"
@@ -19,7 +19,7 @@
     </div>
     <div class="w-full sm:w-1/4">
       <input
-        class="form-control"
+        class="input"
         [(ngModel)]="form.email"
         name="email"
         placeholder="Email"
@@ -29,7 +29,7 @@
     <div class="w-full sm:w-1/4">
       <input
         type="password"
-        class="form-control"
+        class="input"
         [(ngModel)]="form.password"
         name="password"
         placeholder="Password"
@@ -43,13 +43,13 @@
       </select>
     </div>
     <div class="w-full sm:w-[8.333%] grid">
-      <button class="btn btn-primary btn-sm" type="submit" [disabled]="saving">
+      <button class="btn btn-brand btn-sm" type="submit" [disabled]="saving">
         {{ saving ? "..." : "Add" }}
       </button>
     </div>
   </form>
 
-  <table class="table table-sm align-middle">
+  <table class="data-table">
     <thead>
       <tr>
         <th>Username</th>
@@ -65,9 +65,7 @@
           <td>{{ u.email }}</td>
           <td>{{ u.roleName }}</td>
           <td>
-            <button class="btn btn-outline-danger btn-sm" (click)="delete(u.id)">
-              Delete
-            </button>
+            <button class="btn btn-danger btn-sm" (click)="delete(u.id)">Delete</button>
           </td>
         </tr>
       }

@@ -4,75 +4,68 @@
   @if (loading) {
     <div class="alert alert-info">Loading...</div>
   }
+
   <form (ngSubmit)="submit()" [formGroup]="form">
     <div class="mb-4">
-      <label class="form-label" for="post-title">Title</label>
-      <input id="post-title" class="form-control" formControlName="title" />
+      <label class="field-label" for="post-title">Title</label>
+      <input id="post-title" class="input" formControlName="title" />
       @if (form.controls.title.invalid && form.controls.title.touched) {
-        <div class="text-red-700 text-sm">
-          Title is required.
-        </div>
+        <div class="text-red-700 text-sm">Title is required.</div>
       }
     </div>
     <div class="mb-4">
-      <label class="form-label" for="post-content">Content</label>
-      <textarea id="post-content" class="form-control" rows="8" formControlName="content"></textarea>
+      <label class="field-label" for="post-content">Content</label>
+      <textarea id="post-content" class="input resize-y" rows="8" formControlName="content"></textarea>
       @if (form.controls.content.invalid && form.controls.content.touched) {
-        <div class="text-red-700 text-sm">
-          Content is required.
-        </div>
+        <div class="text-red-700 text-sm">Content is required.</div>
       }
     </div>
     <div class="mb-4">
-      <label class="form-label" for="post-category">Category</label>
+      <label class="field-label" for="post-category">Category</label>
       <select id="post-category" class="form-select" formControlName="categoryId">
         <option [ngValue]="null">Select a category</option>
         @for (c of categories; track c) {
-          <option [ngValue]="c.id">
-            {{ c.name }}
-          </option>
+          <option [ngValue]="c.id">{{ c.name }}</option>
         }
       </select>
       @if (form.controls.categoryId.invalid && form.controls.categoryId.touched) {
-        <div class="text-red-700 text-sm">
-          Please choose a category.
-        </div>
+        <div class="text-red-700 text-sm">Please choose a category.</div>
       }
     </div>
     <div class="mb-4">
-      <label class="form-label" for="post-cover">Cover Image URL</label>
-      <input id="post-cover" class="form-control" formControlName="coverImage" />
+      <label class="field-label" for="post-cover">Cover Image URL</label>
+      <input id="post-cover" class="input" formControlName="coverImage" />
       <div class="cover-divider">
         <span>or upload a file</span>
       </div>
-      <input type="file" class="form-control" (change)="onCoverSelected($event)" />
+      <input type="file" class="input" (change)="onCoverSelected($event)" />
       @if (uploadError) {
         <div class="text-red-700 text-sm">{{ uploadError }}</div>
       }
     </div>
 
     <div class="mb-4">
-      <label class="form-label">Gallery Images</label>
+      <label class="field-label">Gallery Images</label>
       @if (imageUrls.length) {
         <div class="flex flex-wrap gap-2 mb-2">
           @for (img of imageUrls; track img) {
             <div class="relative">
-              <img [src]="img" class="img-thumbnail gallery-thumb" alt="gallery" />
+              <img [src]="img" class="gallery-thumb border border-black/10 rounded-lg p-[3px] bg-white" alt="gallery" />
               <button type="button" class="btn-close btn-close-white absolute top-0 right-0"
-              aria-label="Remove" (click)="removeGalleryImage(img)"></button>
+                aria-label="Remove" (click)="removeGalleryImage(img)"></button>
             </div>
           }
         </div>
       }
-      <input type="file" class="form-control" multiple (change)="onGallerySelected($event)" />
-      <div class="form-text">Upload one or more images to include in the article gallery.</div>
+      <input type="file" class="input" multiple (change)="onGallerySelected($event)" />
+      <div class="field-hint">Upload one or more images to include in the article gallery.</div>
       @if (uploadingGallery) {
         <div class="text-sm text-gray-500 mt-1">Uploading...</div>
       }
     </div>
 
     <div class="flex flex-wrap items-center gap-3 mt-2">
-      <button class="btn btn-primary" type="submit" [disabled]="saving">
+      <button class="btn btn-brand" type="submit" [disabled]="saving">
         {{ saving ? "Saving..." : "Save" }}
       </button>
       @if (success) {

@@ -21,5 +21,8 @@ public class PostResponse {
     private LocalDateTime updatedAt;
     private Long viewCount;
     private List<String> imageUrls;
-    // ... any other fields you want to expose
+    /** Plain-text excerpt (HTML stripped, max 200 chars). Use this in list/card views. */
+    private String excerpt;
+    /** Tells the client how to render {@code content}. Always "html" for now. */
+    private String contentType;
 }

@@ -1,4 +1,4 @@
-<div class="container mt-4">
+<div class="container mt-6">
   <h4>Social Links</h4>
   @if (error) {
     <div class="alert alert-danger">{{ error }}</div>
@@ -22,7 +22,7 @@
           <td><input class="form-control form-control-sm" [(ngModel)]="link.url" /></td>
           <td><input class="form-control form-control-sm" [(ngModel)]="link.icon" placeholder="Optional" /></td>
           <td>
-            <div class="d-flex gap-1">
+            <div class="flex gap-1">
               <button class="btn btn-success btn-sm" type="button" (click)="save(link)" [disabled]="saving">Save</button>
               <button class="btn btn-outline-danger btn-sm" type="button" (click)="remove(link)">Delete</button>
             </div>
@@ -31,7 +31,7 @@
       }
       @if (!links.length) {
         <tr>
-          <td colspan="4" class="text-muted text-center">No links added yet.</td>
+          <td colspan="4" class="text-gray-500 text-center">No links added yet.</td>
         </tr>
       }
     </tbody>

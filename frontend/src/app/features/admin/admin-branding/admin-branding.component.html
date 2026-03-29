@@ -1,8 +1,8 @@
 @if (!loading) {
-  <div class="container mt-4">
+  <div class="container mt-6">
     <div class="admin-branding">
       <h4>Site Branding</h4>
-      <p class="text-muted">
+      <p class="text-gray-500">
         Update the logo and tagline shown in the header and footer.
       </p>
       <form #f="ngForm" (ngSubmit)="save(f)">
@@ -19,7 +19,7 @@
                 maxlength="120"
                 placeholder="Toghrak X"
                 />
-              <small class="text-muted">Shown next to the logo.</small>
+              <small class="text-gray-500">Shown next to the logo.</small>
             </div>
             <div class="form-group">
               <div class="form-label">Logo</div>
@@ -40,7 +40,7 @@
                   (change)="onFileSelected($event)"
                   />
               </div>
-              <small class="text-muted">Or paste a URL below.</small>
+              <small class="text-gray-500">Or paste a URL below.</small>
               <input
                 id="logoUrl"
                 class="form-control mt-2"
@@ -61,10 +61,10 @@
                 rows="3"
                 placeholder="Stories that matter, in one place."
               ></textarea>
-              <small class="text-muted">Displayed under the logo.</small>
+              <small class="text-gray-500">Displayed under the logo.</small>
             </div>
           </div>
-          <div class="card-footer d-flex gap-2">
+          <div class="card-footer gap-2">
             <button
               class="btn btn-primary"
               type="submit"
@@ -73,13 +73,13 @@
               Save
             </button>
             @if (saving) {
-              <div class="text-muted">Saving...</div>
+              <div class="text-gray-500">Saving...</div>
             }
             @if (success) {
-              <div class="text-success">{{ success }}</div>
+              <div class="text-green-700">{{ success }}</div>
             }
             @if (error) {
-              <div class="text-danger">{{ error }}</div>
+              <div class="text-red-700">{{ error }}</div>
             }
           </div>
         </div>

@@ -1,4 +1,4 @@
-<div class="container mt-4">
+<div class="container mt-6">
   <h4>Categories</h4>
   @if (loading) {
     <div class="alert alert-info">Loading...</div>
@@ -10,8 +10,8 @@
     <div class="alert alert-success">{{ info }}</div>
   }
 
-  <form class="row g-2 mb-3" (ngSubmit)="save()">
-    <div class="col-sm-4">
+  <form class="flex flex-wrap gap-2 mb-4" (ngSubmit)="save()">
+    <div class="w-full sm:w-1/3">
       <input
         class="form-control"
         [(ngModel)]="form.name"
@@ -20,7 +20,7 @@
         required
         />
     </div>
-    <div class="col-sm-6">
+    <div class="w-full sm:w-1/2">
       <input
         class="form-control"
         [(ngModel)]="form.description"
@@ -28,14 +28,14 @@
         placeholder="Description (optional)"
         />
     </div>
-    <div class="col-sm-2 d-grid">
+    <div class="w-full sm:w-1/6 grid">
       <button class="btn btn-primary btn-sm" type="submit" [disabled]="saving">
         {{ saving ? "..." : (editingId ? "Update" : "Add") }}
       </button>
     </div>
     @if (editingId) {
-      <div class="col-sm-2">
-        <button type="button" class="btn btn-outline-secondary btn-sm w-100" (click)="cancelEdit()">
+      <div class="w-full sm:w-1/6">
+        <button type="button" class="btn btn-outline-secondary btn-sm w-full" (click)="cancelEdit()">
           Cancel
         </button>
       </div>
@@ -57,7 +57,7 @@
             <td>{{ c.name }}</td>
             <td>{{ c.description }}</td>
             <td>
-              <div class="d-flex gap-1">
+              <div class="flex gap-1">
                 <button class="btn btn-outline-secondary btn-sm" (click)="startEdit(c)">Edit</button>
                 <button class="btn btn-outline-danger btn-sm" (click)="remove(c.id)">Delete</button>
               </div>
@@ -66,7 +66,7 @@
         }
         @if (!loading && !categories.length) {
           <tr>
-            <td colspan="3" class="text-muted text-center">No categories yet.</td>
+            <td colspan="3" class="text-gray-500 text-center">No categories yet.</td>
           </tr>
         }
       </tbody>

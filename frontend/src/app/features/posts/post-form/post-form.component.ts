@@ -24,6 +24,7 @@ export class PostFormComponent implements OnInit, OnDestroy {
   categories: Category[] = [];
   loading = false;
   saving = false;
+  success: string | null = null;
   error: string | null = null;
   uploadError: string | null = null;
   imageUrls: string[] = [];
@@ -120,7 +121,11 @@ export class PostFormComponent implements OnInit, OnDestroy {
         : this.postsService.create(payload as CreatePostRequest);
 
     request$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res) => this.router.navigate(['/posts', res.id]),
+      next: (res) => {
+        this.success = this.isEdit ? 'Post updated successfully.' : 'Post published successfully.';
+        this.saving = false;
+        setTimeout(() => this.router.navigate(['/posts', res.slug]), 1500);
+      },
       error: () => {
         this.error = 'Failed to save post.';
         this.saving = false;

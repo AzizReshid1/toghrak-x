@@ -1,20 +1,20 @@
 @if (!loading) {
-  <div class="container mt-4 page-narrow">
-    <h4 class="mb-3">Profile</h4>
+  <div class="container mt-6 page-narrow">
+    <h4 class="mb-4">Profile</h4>
     @if (error) {
       <div class="alert alert-danger">{{ error }}</div>
     }
     @if (user) {
       <div class="card">
         <div class="card-body">
-          <dl class="row mb-0">
-            <dt class="col-sm-4">Username</dt>
-            <dd class="col-sm-8">{{ user.username }}</dd>
-            <dt class="col-sm-4">Email</dt>
-            <dd class="col-sm-8">{{ user.email }}</dd>
+          <dl class="flex flex-wrap mb-0">
+            <dt class="w-full sm:w-1/3">Username</dt>
+            <dd class="w-full sm:w-2/3">{{ user.username }}</dd>
+            <dt class="w-full sm:w-1/3">Email</dt>
+            <dd class="w-full sm:w-2/3">{{ user.email }}</dd>
             @if (user.roleName) {
-              <dt class="col-sm-4">Role</dt>
-              <dd class="col-sm-8">{{ user.roleName }}</dd>
+              <dt class="w-full sm:w-1/3">Role</dt>
+              <dd class="w-full sm:w-2/3">{{ user.roleName }}</dd>
             }
           </dl>
         </div>
@@ -22,5 +22,5 @@
     }
   </div>
 } @else {
-  <div class="container mt-4"><div class="alert alert-info">Loading...</div></div>
+  <div class="container mt-6"><div class="alert alert-info">Loading...</div></div>
 }

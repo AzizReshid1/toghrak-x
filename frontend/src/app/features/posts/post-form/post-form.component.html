@@ -1,33 +1,29 @@
-<div class="container mt-4 page-medium">
-  <h4 class="mb-3">{{ isEdit ? "Edit Post" : "New Post" }}</h4>
+<div class="container mt-6 page-medium">
+  <h4 class="mb-4">{{ isEdit ? "Edit Post" : "New Post" }}</h4>
 
   @if (loading) {
     <div class="alert alert-info">Loading...</div>
   }
-  @if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
-  }
-
   <form (ngSubmit)="submit()" [formGroup]="form">
-    <div class="mb-3">
+    <div class="mb-4">
       <label class="form-label" for="post-title">Title</label>
       <input id="post-title" class="form-control" formControlName="title" />
       @if (form.controls.title.invalid && form.controls.title.touched) {
-        <div class="text-danger small">
+        <div class="text-red-700 text-sm">
           Title is required.
         </div>
       }
     </div>
-    <div class="mb-3">
+    <div class="mb-4">
       <label class="form-label" for="post-content">Content</label>
       <textarea id="post-content" class="form-control" rows="8" formControlName="content"></textarea>
       @if (form.controls.content.invalid && form.controls.content.touched) {
-        <div class="text-danger small">
+        <div class="text-red-700 text-sm">
           Content is required.
         </div>
       }
     </div>
-    <div class="mb-3">
+    <div class="mb-4">
       <label class="form-label" for="post-category">Category</label>
       <select id="post-category" class="form-select" formControlName="categoryId">
         <option [ngValue]="null">Select a category</option>
@@ -38,12 +34,12 @@
         }
       </select>
       @if (form.controls.categoryId.invalid && form.controls.categoryId.touched) {
-        <div class="text-danger small">
+        <div class="text-red-700 text-sm">
           Please choose a category.
         </div>
       }
     </div>
-    <div class="mb-3">
+    <div class="mb-4">
       <label class="form-label" for="post-cover">Cover Image URL</label>
       <input id="post-cover" class="form-control" formControlName="coverImage" />
       <div class="cover-divider">
@@ -51,18 +47,18 @@
       </div>
       <input type="file" class="form-control" (change)="onCoverSelected($event)" />
       @if (uploadError) {
-        <div class="text-danger small">{{ uploadError }}</div>
+        <div class="text-red-700 text-sm">{{ uploadError }}</div>
       }
     </div>
 
-    <div class="mb-3">
+    <div class="mb-4">
       <label class="form-label">Gallery Images</label>
       @if (imageUrls.length) {
-        <div class="d-flex flex-wrap gap-2 mb-2">
+        <div class="flex flex-wrap gap-2 mb-2">
           @for (img of imageUrls; track img) {
-            <div class="position-relative">
+            <div class="relative">
               <img [src]="img" class="img-thumbnail gallery-thumb" alt="gallery" />
-              <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0"
+              <button type="button" class="btn-close btn-close-white absolute top-0 right-0"
               aria-label="Remove" (click)="removeGalleryImage(img)"></button>
             </div>
           }
@@ -71,12 +67,20 @@
       <input type="file" class="form-control" multiple (change)="onGallerySelected($event)" />
       <div class="form-text">Upload one or more images to include in the article gallery.</div>
       @if (uploadingGallery) {
-        <div class="small text-muted mt-1">Uploading...</div>
+        <div class="text-sm text-gray-500 mt-1">Uploading...</div>
       }
     </div>
 
-    <button class="btn btn-primary" type="submit" [disabled]="saving">
-      {{ saving ? "Saving..." : "Save" }}
-    </button>
+    <div class="flex flex-wrap items-center gap-3 mt-2">
+      <button class="btn btn-primary" type="submit" [disabled]="saving">
+        {{ saving ? "Saving..." : "Save" }}
+      </button>
+      @if (success) {
+        <span class="text-green-700 font-medium">{{ success }}</span>
+      }
+      @if (error) {
+        <span class="text-red-700 font-medium">{{ error }}</span>
+      }
+    </div>
   </form>
 </div>

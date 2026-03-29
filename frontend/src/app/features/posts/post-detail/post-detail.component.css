@@ -61,10 +61,7 @@
   margin-right: auto;
 }
 
-.post-content {
-  white-space: pre-line;
-  margin: 0;
-}
+/* Content body typography lives in styles.css under .post-content */
 
 .post-gallery h5 {
   margin-bottom: 10px;

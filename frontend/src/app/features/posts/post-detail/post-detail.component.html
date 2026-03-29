@@ -14,7 +14,7 @@
     <article class="post-card">
       <h1>{{ post.title }}</h1>
       <div class="post-meta">
-        <span class="badge bg-light text-dark">{{ post.categoryName }}</span>
+        <span class="badge bg-light text-gray-900">{{ post.categoryName }}</span>
         <span>By {{ post.authorUsername }}</span>
         @if (post.createdAt) {
           <span>{{ post.createdAt | date: 'mediumDate' }}</span>
@@ -25,9 +25,7 @@
           <img [src]="post.coverImage" [alt]="post.title" loading="lazy" />
         </div>
       }
-      <div class="post-body">
-        <p class="post-content">{{ post.content }}</p>
-      </div>
+      <div class="post-body post-content" [innerHTML]="safeContent"></div>
       @if (post.imageUrls.length) {
         <div class="post-gallery">
           <h5>Gallery</h5>
@@ -41,7 +39,7 @@
     </article>
   </div>
 } @else {
-  <div class="container mt-4">
+  <div class="container mt-6">
     @if (error) {
       <div class="alert alert-danger">{{ error }}</div>
     }

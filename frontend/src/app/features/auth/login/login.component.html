@@ -8,7 +8,7 @@
 
     <div class="login-body">
       <form (ngSubmit)="submit()" [formGroup]="form">
-        <div class="mb-3">
+        <div class="mb-4">
           <label class="form-label" for="login-username">Username</label>
           <input
             id="login-username"
@@ -18,7 +18,7 @@
             placeholder="Your username"
             />
         </div>
-        <div class="mb-3">
+        <div class="mb-4">
           <label class="form-label" for="login-password">Password</label>
           <input
             id="login-password"
@@ -32,7 +32,7 @@
         @if (error) {
           <div class="alert alert-danger">{{ error }}</div>
         }
-        <button class="btn btn-primary w-100" type="submit" [disabled]="loading">
+        <button class="btn btn-primary w-full" type="submit" [disabled]="loading">
           {{ loading ? "Signing in…" : "Sign in" }}
         </button>
       </form>

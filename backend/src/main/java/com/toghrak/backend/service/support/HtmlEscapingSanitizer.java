@@ -32,6 +32,38 @@ public class HtmlEscapingSanitizer implements UserContentSanitizer {
     @Override
     public String sanitize(String input) {
         if (input == null) return "";
-        return Jsoup.clean(input, SAFELIST);
+        String trimmed = input.strip();
+        // If the input has no block-level HTML tags it is plain text from the
+        // textarea.  Convert it to HTML so [innerHTML] renders paragraphs and
+        // line breaks correctly instead of collapsing all whitespace.
+        if (!BLOCK_TAG.matcher(trimmed).find()) {
+            StringBuilder sb = new StringBuilder();
+            for (String para : trimmed.split("\\r?\\n([ \\t]*\\r?\\n)+")) {
+                String p = para.strip();
+                if (!p.isEmpty()) {
+                    // Escape then restore single newlines as <br> tags
+                    String escaped = escapeHtml(p).replaceAll("\\r?\\n", "<br>");
+                    sb.append("<p>").append(escaped).append("</p>");
+                }
+            }
+            return sb.isEmpty() ? "" : Jsoup.clean(sb.toString(), SAFELIST);
+        }
+        return Jsoup.clean(trimmed, SAFELIST);
     }
+
+    /** Escapes the five XML/HTML special characters in a plain-text run. */
+    private static String escapeHtml(String text) {
+        return text
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
+
+    /** Matches opening block-level tags that signal the input already contains HTML. */
+    private static final java.util.regex.Pattern BLOCK_TAG =
+            java.util.regex.Pattern.compile(
+                    "<(p|div|h[1-6]|ul|ol|blockquote|pre|table)[\\s/>]",
+                    java.util.regex.Pattern.CASE_INSENSITIVE);
 }

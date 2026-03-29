@@ -2,7 +2,12 @@ export interface PostResponse {
   id: number;
   slug: string;
   title: string;
+  /** HTML content — render with [innerHTML], never with {{ }}. */
   content: string;
+  /** Plain-text excerpt (HTML stripped, ≤200 chars). Use in list/card views. */
+  excerpt: string;
+  /** Always "html". Tells the client how to render `content`. */
+  contentType: string;
   coverImage?: string | null;
   categoryId?: number;
   categoryName: string;

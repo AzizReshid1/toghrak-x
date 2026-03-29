@@ -9,6 +9,7 @@ import com.toghrak.backend.security.UserPrincipal;
 import com.toghrak.backend.service.PostService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
 import org.springframework.data.domain.*;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -106,6 +107,8 @@ public class PostController {
         response.setTitle(post.getTitle());
         response.setSlug(post.getSlug());
         response.setContent(post.getContent());
+        response.setContentType("html");
+        response.setExcerpt(buildExcerpt(post.getContent(), 200));
         response.setCoverImage(post.getCoverImage());
         response.setCategoryId(post.getCategory().getId());
         response.setCategoryName(post.getCategory().getName());
@@ -118,7 +121,13 @@ public class PostController {
                         .map(PostImage::getImageUrl)
                         .toList());
         return response;
+    }
 
+    /** Strips HTML tags and trims to {@code maxLen} characters for safe use in list/card views. */
+    private static String buildExcerpt(String html, int maxLen) {
+        if (html == null || html.isBlank()) return "";
+        String text = Jsoup.parse(html).text();
+        return text.length() <= maxLen ? text : text.substring(0, maxLen).trim() + "\u2026";
     }
 
 }

@@ -35,9 +35,7 @@
                   <span class="cat-label">{{ lead.categoryName }}</span>
                 }
                 <h1 class="lead-title">{{ lead.title }}</h1>
-                <p class="lead-excerpt">
-                  {{ lead.content | slice:0:200 }}{{ lead.content.length > 200 ? '…' : '' }}
-                </p>
+                <p class="lead-excerpt">{{ lead.excerpt }}</p>
                 <div class="story-meta">
                   <span class="meta-author">{{ lead.authorUsername }}</span>
                   <span class="meta-dot">·</span>
@@ -108,9 +106,7 @@
                         <span class="cat-label cat-label--sm">{{ p.categoryName }}</span>
                       }
                       <h3 class="story-card-title">{{ p.title }}</h3>
-                      <p class="story-card-excerpt">
-                        {{ p.content | slice:0:110 }}{{ p.content.length > 110 ? '…' : '' }}
-                      </p>
+                      <p class="story-card-excerpt">{{ p.excerpt }}</p>
                       <div class="story-meta">
                         <span class="meta-author">{{ p.authorUsername }}</span>
                         <span class="meta-dot">·</span>

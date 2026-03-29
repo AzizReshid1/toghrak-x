@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { PostsService } from '../../../services/posts.service';
 import { PostResponse } from '../../../models/post';
 import { Subject, takeUntil } from 'rxjs';
@@ -16,6 +17,9 @@ import { NavHighlightService } from '../../../services/nav-highlight.service';
 })
 export class PostDetailComponent implements OnInit, OnDestroy {
   post?: PostResponse;
+  /** Trusted HTML produced from post.content — bypasses Angular's redundant
+   *  sanitizer because the content is already sanitized server-side by Jsoup. */
+  safeContent!: SafeHtml;
   loading = false;
   error: string | null = null;
   deleting = false;
@@ -28,6 +32,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
+    private sanitizer: DomSanitizer,
     private posts: PostsService,
     private session: SessionService,
     private navHighlight: NavHighlightService
@@ -64,6 +69,9 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.posts.getBySlug(slug).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.post = res;
+        this.safeContent = this.sanitizer.bypassSecurityTrustHtml(
+          this.formatContent(res.content ?? '')
+        );
         this.loading = false;
         this.navHighlight.setCategory({
           id: res.categoryId ?? null,
@@ -90,6 +98,26 @@ export class PostDetailComponent implements OnInit, OnDestroy {
         this.deleting = false;
       },
     });
+  }
+
+  /**
+   * Converts plain-text post content (legacy posts saved before the backend
+   * applied HTML wrapping) into safe HTML for [innerHTML] rendering.
+   * Posts that already contain block-level tags are returned unchanged.
+   */
+  private formatContent(raw: string): string {
+    if (!raw.trim()) return '';
+    // If the content already has block-level tags it was saved as HTML — leave it.
+    if (/<(p|div|h[1-6]|ul|ol|blockquote|pre|table)[\s/>]/i.test(raw)) {
+      return raw;
+    }
+    // Plain-text path: split on blank lines → <p> per paragraph, \n → <br>.
+    return raw
+      .trim()
+      .split(/\r?\n[ \t]*\r?\n/)
+      .filter(block => block.trim().length > 0)
+      .map(block => `<p>${block.trim().replace(/\r?\n/g, '<br>')}</p>`)
+      .join('');
   }
 
   private updateOwnershipFlag(): void {

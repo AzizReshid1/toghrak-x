@@ -11,7 +11,7 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>com.toghrak</groupId>
+	<groupId>com.toghrakx</groupId>
 	<artifactId>toghrak-x-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Toghrak X Backend</name>

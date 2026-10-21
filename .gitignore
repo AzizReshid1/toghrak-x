@@ -9,20 +9,18 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .gradle/
 build/
-logs/**
+logs/
 /uploads/
 backend/uploads/
 backend/HELP.md
 hs_err_pid*.log
 replay_pid*.log
 
-# Maven wrapper (keep tracked; do NOT ignore .mvn/wrapper)
+# Maven wrapper: keep tracked
 !mvnw
 !mvnw.cmd
 !.mvn/wrapper/maven-wrapper.jar
 !.mvn/wrapper/**
-# If you truly want to ignore wrapper, uncomment:
-# .mvn/
 
 ############################################
 # Frontend (Angular / Node)
@@ -31,21 +29,20 @@ node_modules/
 dist/
 .angular/
 .tmp/
+/tmp
 coverage/
+/out-tsc
+/bazel-out
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-/tmp
-/out-tsc
-/bazel-out
 
 ############################################
 # Env / secrets
 ############################################
 .env
-.env.local
-.env.*.local
 .env.*
+!.env.example
 
 ############################################
 # IDE / OS
@@ -58,9 +55,14 @@ yarn-error.log*
 .project
 .classpath
 .settings/
+.history/
 .DS_Store
 Thumbs.db
-.history/
+
+############################################
+# Local AI tooling
+############################################
+.claude/
 
 ############################################
 # Other

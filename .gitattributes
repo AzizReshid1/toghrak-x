@@ -1,0 +1,10 @@
+# Normalize line endings in the repository
+* text=auto
+
+# Windows scripts need CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Shell scripts need LF (important for Docker/Linux)
+*.sh text eol=lf
+mvnw text eol=lf

@@ -38,7 +38,7 @@ public class AuthController {
                         RefreshTokenService refreshTokenService,
                         UserService userService,
                         @Value("${app.refresh.expiration:43200000}") long refreshExpiryMs,
-                        @Value("${app.refresh.cookie.secure:false}") boolean secureCookie,
+                        @Value("${app.refresh.cookie.secure:true}") boolean secureCookie,
                         @Value("${app.refresh.cookie.domain:}") String cookieDomain) {
                 this.authenticationManager = authenticationManager;
                 this.jwtTokenService = jwtTokenService;

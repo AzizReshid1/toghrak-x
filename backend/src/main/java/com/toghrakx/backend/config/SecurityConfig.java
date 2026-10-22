@@ -34,7 +34,7 @@ public class SecurityConfig {
     private final List<String> allowedOrigins;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-            @org.springframework.beans.factory.annotation.Value("${app.security.swagger-public:true}") boolean swaggerPublic,
+            @org.springframework.beans.factory.annotation.Value("${app.security.swagger-public:false}") boolean swaggerPublic,
             @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins:http://localhost:4200}") String allowedOriginsRaw) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.swaggerPublic = swaggerPublic;

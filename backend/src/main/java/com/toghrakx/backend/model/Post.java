@@ -67,16 +67,13 @@ public class Post {
     @Builder.Default
     private List<PostImage> images = new ArrayList<>();
 
-    @Column(nullable = false, columnDefinition = "bigint default 0")
+    @Column(nullable = false)
     @Builder.Default
     private Long viewCount = 0L;
 
     @PrePersist
     public void onCreate() {
         createdAt = Instant.now();
-        if (viewCount == null) {
-            viewCount = 0L;
-        }
         contentText = Jsoup.parse(content).text();
     }
 

@@ -49,7 +49,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         boolean existsBySlug(String slug);
 
         @Modifying(flushAutomatically = true, clearAutomatically = true)
-        @Query("update Post p set p.viewCount = coalesce(p.viewCount, 0) + 1 where p.id = :id")
+        @Query("update Post p set p.viewCount = p.viewCount + 1 where p.id = :id")
         int incrementViewCount(Long id);
 
         // No "images" in this graph: fetch-joining a collection stops Hibernate from applying

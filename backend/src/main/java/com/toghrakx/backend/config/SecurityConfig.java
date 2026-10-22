@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -122,6 +123,13 @@ public class SecurityConfig {
                         // Everything else requires a logged-in user
                         .anyRequest().authenticated())
 
+                // Security headers. Spring Security already sends X-Content-Type-Options: nosniff,
+                // X-Frame-Options: DENY and X-XSS-Protection: 0 by default; only these two are added.
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; "
+                                        + "script-src 'self'; connect-src 'self'"))
+                        .referrerPolicy(referrer -> referrer.policy(ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
                 // Let CORS preflight through (optional but helpful)
                 .cors(Customizer.withDefaults())
                 // JWT filter

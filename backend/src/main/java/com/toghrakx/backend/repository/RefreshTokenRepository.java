@@ -11,7 +11,8 @@ import java.util.Optional;
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
     Optional<RefreshToken> findByToken(String token);
 
-    @Modifying
+    // Same session handling as deleteAllByUserId below, so loaded tokens never show a stale "revoked" value.
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update RefreshToken rt set rt.revoked = true where rt.user.id = :userId")
     void revokeAllByUserId(Long userId);
 

@@ -94,9 +94,13 @@ public class UserService {
             user.setUsername(newUsername);
         }
 
+        // Password or role changes end the user's existing sessions (see the end of this method).
+        boolean credentialsChanged = false;
+
         // Update password if provided (after encoding)
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
+            credentialsChanged = true;
         }
         // Update email if provided and check uniqueness
         String newEmail = request.getEmail();
@@ -118,6 +122,9 @@ public class UserService {
                         userRepository.countByRole_Name("ADMIN") <= 1) {
                     throw new IllegalStateException("Cannot change the role of the last admin account.");
                 }
+                if (!newRole.getName().equals(user.getRole().getName())) {
+                    credentialsChanged = true;
+                }
                 user.setRole(newRole);
             }
         } else {
@@ -125,6 +132,12 @@ public class UserService {
             if (request.getRoleName() != null) {
                 throw new AccessDeniedException("You cannot change your role.");
             }
+        }
+
+        // Revoke refresh tokens so no session (including a stolen one) can renew itself with the
+        // old password or role. The current access token still works until it expires (app.jwt.expiration).
+        if (credentialsChanged) {
+            refreshTokenRepository.revokeAllByUserId(userId);
         }
 
         // updatedAt is set automatically by @PreUpdate on User — no manual assignment needed.

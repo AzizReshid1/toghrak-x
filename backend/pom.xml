@@ -49,6 +49,17 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Rate limiting: token buckets (Bucket4j), one per client, held in a self-expiring cache (Caffeine) -->
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j_jdk17-core</artifactId>
+			<version>8.21.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+		</dependency>
+
 		<!-- Database migrations -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>

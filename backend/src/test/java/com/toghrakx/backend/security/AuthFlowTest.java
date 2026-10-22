@@ -3,6 +3,7 @@ package com.toghrakx.backend.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.toghrakx.backend.IntegrationTest;
 import com.toghrakx.backend.service.UserService;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,6 +44,12 @@ class AuthFlowTest {
         mockMvc.perform(get("/api/users/me").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("editor1"));
+    }
+
+    @Test
+    void unknownRefreshTokenGives401() throws Exception {
+        mockMvc.perform(post("/api/auth/refresh").cookie(new Cookie("refreshToken", "not-a-real-token")))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

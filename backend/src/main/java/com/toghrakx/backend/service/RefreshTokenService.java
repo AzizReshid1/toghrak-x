@@ -48,9 +48,19 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(token);
     }
 
+    // noRollbackFor: when a revoked token is reused, the "revoke all" below must be saved even though
+    // the request then fails with 401.
+    @Transactional(noRollbackFor = BadCredentialsException.class)
     public RefreshToken rotate(String tokenValue) {
         RefreshToken existing = refreshTokenRepository.findByToken(hash(tokenValue))
-                .orElseThrow(() -> new ResourceNotFoundException("Invalid refresh token"));
+                .orElseThrow(() -> new BadCredentialsException("Invalid refresh token."));
+        if (existing.isRevoked()) {
+            // A token that was already rotated or logged out is being used again: two parties hold a copy,
+            // so it may have been stolen. Revoke all of the user's tokens so everyone must log in again
+            // (refresh token reuse detection, OAuth 2.0 Security Best Current Practice, RFC 9700).
+            refreshTokenRepository.revokeAllByUserId(existing.getUser().getId());
+            throw new BadCredentialsException("Refresh token has been revoked.");
+        }
         validate(existing);
         existing.setRevoked(true);
         refreshTokenRepository.save(existing);
@@ -83,10 +93,6 @@ public class RefreshTokenService {
     }
 
     private void validate(RefreshToken token) {
-        if (token.isRevoked()) {
-            // Token was explicitly revoked (e.g. logout or rotation) — treat as auth failure, not 404.
-            throw new BadCredentialsException("Refresh token has been revoked.");
-        }
         if (token.getExpiresAt().isBefore(Instant.now())) {
             // Expired tokens are an auth failure — client must re-authenticate.
             throw new BadCredentialsException("Refresh token has expired.");

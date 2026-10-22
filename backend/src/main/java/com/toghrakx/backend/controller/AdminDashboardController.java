@@ -1,46 +1,27 @@
 package com.toghrakx.backend.controller;
 
-import com.toghrakx.backend.repository.PostRepository;
-import com.toghrakx.backend.repository.UserRepository;
+import com.toghrakx.backend.dto.DashboardStats;
+import com.toghrakx.backend.service.DashboardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
 public class AdminDashboardController {
 
-    private final UserRepository userRepository;
-    private final PostRepository postRepository;
+    private final DashboardService dashboardService;
 
-    public AdminDashboardController(UserRepository userRepository, PostRepository postRepository) {
-        this.userRepository = userRepository;
-        this.postRepository = postRepository;
+    public AdminDashboardController(DashboardService dashboardService) {
+        this.dashboardService = dashboardService;
     }
 
-    /**
-     * Returns a summary of key platform metrics for the admin dashboard.
-     * All counts are read-only queries — no writes are performed.
-     */
+    /** Returns a summary of key platform metrics for the admin dashboard. */
     @GetMapping("/dashboard")
     @PreAuthorize("hasRole('ADMIN')")
-    @Transactional(readOnly = true)
-    public ResponseEntity<Map<String, Object>> getDashboard() {
-        long totalUsers = userRepository.count();
-        long totalAdmins = userRepository.countByRole_Name("ADMIN");
-        long totalEditors = userRepository.countByRole_Name("EDITOR");
-        long totalPosts = postRepository.count();
-
-        return ResponseEntity.ok(Map.of(
-                "totalUsers", totalUsers,
-                "totalAdmins", totalAdmins,
-                "totalEditors", totalEditors,
-                "totalPosts", totalPosts
-        ));
+    public ResponseEntity<DashboardStats> getDashboard() {
+        return ResponseEntity.ok(dashboardService.getStats());
     }
 }

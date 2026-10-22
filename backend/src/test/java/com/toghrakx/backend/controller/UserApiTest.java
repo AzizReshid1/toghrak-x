@@ -9,7 +9,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @IntegrationTest
@@ -33,6 +35,16 @@ class UserApiTest {
         mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON)
                 .content(newUser("12345678")))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void dashboardReturnsCountsWithTheSameFieldNames() throws Exception {
+        mockMvc.perform(get("/api/admin/dashboard"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalUsers").isNumber())
+                .andExpect(jsonPath("$.totalAdmins").isNumber())
+                .andExpect(jsonPath("$.totalEditors").isNumber())
+                .andExpect(jsonPath("$.totalPosts").isNumber());
     }
 
     private static String newUser(String password) {

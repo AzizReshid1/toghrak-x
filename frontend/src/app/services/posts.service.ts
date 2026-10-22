@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 import { Page } from '../models/page';
 import {
   PostResponse,
+  PostSummary,
   CreatePostRequest,
   UpdatePostRequest,
 } from '../models/post';
@@ -15,12 +16,12 @@ export class PostsService {
 
   constructor(private http: HttpClient) {}
 
-  list(page = 0, size = 10, categoryId?: number): Observable<Page<PostResponse>> {
+  list(page = 0, size = 10, categoryId?: number): Observable<Page<PostSummary>> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (categoryId !== undefined && categoryId !== null) {
       params = params.set('categoryId', categoryId);
     }
-    return this.http.get<Page<PostResponse>>(this.base, { params });
+    return this.http.get<Page<PostSummary>>(this.base, { params });
   }
 
   get(id: number): Observable<PostResponse> {
@@ -31,9 +32,9 @@ export class PostsService {
     return this.http.get<PostResponse>(`${this.base}/slug/${slug}`);
   }
 
-  popular(limit = 6): Observable<PostResponse[]> {
+  popular(limit = 6): Observable<PostSummary[]> {
     const params = new HttpParams().set('limit', limit);
-    return this.http.get<PostResponse[]>(`${this.base}/popular`, { params });
+    return this.http.get<PostSummary[]>(`${this.base}/popular`, { params });
   }
 
   create(payload: CreatePostRequest): Observable<PostResponse> {

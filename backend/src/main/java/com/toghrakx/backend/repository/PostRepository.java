@@ -53,7 +53,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         int incrementViewCount(Long id);
 
         // No "images" in this graph: fetch-joining a collection stops Hibernate from applying
-        // SQL LIMIT, so it would load every post and trim in memory. Images are batch-loaded instead.
+        // SQL LIMIT, so it would load every post and trim in memory. Popular posts are shown as summaries without images.
         @EntityGraph(attributePaths = { "category", "author" })
         List<Post> findAllByOrderByViewCountDescUpdatedAtDescCreatedAtDesc(Pageable pageable);
 

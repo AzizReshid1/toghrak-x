@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subject, combineLatest, takeUntil } from 'rxjs';
 import { PostsService } from '../../../services/posts.service';
-import { PostResponse } from '../../../models/post';
+import { PostSummary } from '../../../models/post';
 import { Page } from '../../../models/page';
 import { User } from '../../../models/user';
 import { CategoriesService } from '../../../services/categories.service';
@@ -16,10 +16,10 @@ import { SessionService } from '../../../services/session.service';
     standalone: false
 })
 export class PostsListComponent implements OnInit, OnDestroy {
-  page?: Page<PostResponse>;
+  page?: Page<PostSummary>;
   loading = false;
   error: string | null = null;
-  popular: PostResponse[] = [];
+  popular: PostSummary[] = [];
   popularLoading = false;
   currentPage = 0;
   isLoggedIn$: Observable<boolean>;
@@ -39,7 +39,7 @@ export class PostsListComponent implements OnInit, OnDestroy {
     this.isLoggedIn$ = this.session.isLoggedIn$;
   }
 
-  get posts(): PostResponse[] {
+  get posts(): PostSummary[] {
     return this.page?.content ?? [];
   }
 
@@ -77,7 +77,7 @@ export class PostsListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  canEdit(post: PostResponse): boolean {
+  canEdit(post: PostSummary): boolean {
     if (this.isAdmin) return true;
     return !!this.currentUser && post.authorUsername === this.currentUser.username;
   }
@@ -90,7 +90,7 @@ export class PostsListComponent implements OnInit, OnDestroy {
     this.postsService.list(page, 10, categoryId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (res: Page<PostResponse>) => {
+        next: (res: Page<PostSummary>) => {
           this.page = res;
           this.loading = false;
         },

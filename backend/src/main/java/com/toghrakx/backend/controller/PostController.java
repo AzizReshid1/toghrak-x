@@ -2,6 +2,7 @@ package com.toghrakx.backend.controller;
 
 import com.toghrakx.backend.dto.CreatePostRequest;
 import com.toghrakx.backend.dto.PostResponse;
+import com.toghrakx.backend.dto.PostSummary;
 import com.toghrakx.backend.dto.UpdatePostRequest;
 import com.toghrakx.backend.model.Post;
 import com.toghrakx.backend.model.PostImage;
@@ -9,7 +10,6 @@ import com.toghrakx.backend.security.UserPrincipal;
 import com.toghrakx.backend.service.PostService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
 import org.springframework.data.domain.*;
 import java.util.List;
 import java.util.Set;
@@ -44,25 +44,25 @@ public class PostController {
 
     // paginated GET /api/posts
     @GetMapping
-    public ResponseEntity<Page<PostResponse>> getPosts(
+    public ResponseEntity<Page<PostSummary>> getPosts(
             @org.springframework.data.web.PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(value = "categoryId", required = false) Long categoryId) {
         // hard cap page size to prevent abuse (e.g., max 50)
         int safeSize = Math.min(pageable.getPageSize(), 50);
         Pageable safePageable = PageRequest.of(pageable.getPageNumber(), safeSize, safeSort(pageable.getSort()));
 
-        Page<PostResponse> page = postService
+        Page<PostSummary> page = postService
                 .getPosts(safePageable, categoryId)
-                .map(this::toPostResponse);
+                .map(this::toPostSummary);
 
         return ResponseEntity.ok(page);
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<List<PostResponse>> getPopular(
+    public ResponseEntity<List<PostSummary>> getPopular(
             @RequestParam(value = "limit", defaultValue = "6") int limit) {
         var popular = postService.getPopular(limit).stream()
-                .map(this::toPostResponse)
+                .map(this::toPostSummary)
                 .toList();
         return ResponseEntity.ok(popular);
     }
@@ -126,7 +126,7 @@ public class PostController {
         response.setSlug(post.getSlug());
         response.setContent(post.getContent());
         response.setContentType("html");
-        response.setExcerpt(buildExcerpt(post.getContent(), 200));
+        response.setExcerpt(buildExcerpt(post.getContentText(), 200));
         response.setCoverImage(post.getCoverImage());
         response.setCategoryId(post.getCategory().getId());
         response.setCategoryName(post.getCategory().getName());
@@ -141,10 +141,26 @@ public class PostController {
         return response;
     }
 
-    /** Strips HTML tags and trims to {@code maxLen} characters for safe use in list/card views. */
-    private static String buildExcerpt(String html, int maxLen) {
-        if (html == null || html.isBlank()) return "";
-        String text = Jsoup.parse(html).text();
+    // List/card view: no HTML content or gallery, so responses stay small and no images are loaded.
+    private PostSummary toPostSummary(Post post) {
+        PostSummary summary = new PostSummary();
+        summary.setId(post.getId());
+        summary.setTitle(post.getTitle());
+        summary.setSlug(post.getSlug());
+        summary.setExcerpt(buildExcerpt(post.getContentText(), 200));
+        summary.setCoverImage(post.getCoverImage());
+        summary.setCategoryId(post.getCategory().getId());
+        summary.setCategoryName(post.getCategory().getName());
+        summary.setAuthorUsername(post.getAuthor().getUsername());
+        summary.setCreatedAt(post.getCreatedAt());
+        summary.setUpdatedAt(post.getUpdatedAt());
+        summary.setViewCount(post.getViewCount());
+        return summary;
+    }
+
+    /** Trims the post's plain-text copy (HTML already stripped on save) to {@code maxLen} characters. */
+    private static String buildExcerpt(String text, int maxLen) {
+        if (text == null || text.isBlank()) return "";
         return text.length() <= maxLen ? text : text.substring(0, maxLen).trim() + "\u2026";
     }
 

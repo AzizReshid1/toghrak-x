@@ -148,28 +148,20 @@ public class PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found: " + postId));
     }
 
-    // 5️⃣ List all posts
-    // NEW: paginated listing
+    // 5️⃣ List all posts (paginated). Lists are shown as summaries, so gallery images are not loaded.
     @Transactional(readOnly = true)
     public Page<Post> getPosts(Pageable pageable, Long categoryId) {
         if (categoryId != null) {
-            Page<Post> page = postRepository.findByCategoryId(categoryId, pageable);
-            page.getContent().forEach(p -> p.getImages().size());
-            return page;
+            return postRepository.findByCategoryId(categoryId, pageable);
         }
-        Page<Post> page = postRepository.findAllBy(pageable);
-        page.getContent().forEach(p -> p.getImages().size());
-        return page;
+        return postRepository.findAllBy(pageable);
     }
 
     @Transactional(readOnly = true)
     public List<Post> getPopular(int limit) {
         int size = Math.min(Math.max(limit, 1), 20);
-        List<Post> popular = postRepository
+        return postRepository
                 .findAllByOrderByViewCountDescUpdatedAtDescCreatedAtDesc(PageRequest.of(0, size));
-        // Initialise images inside the transaction (open-in-view is off); batch fetching loads them in one query
-        popular.forEach(p -> p.getImages().size());
-        return popular;
     }
 
     private String generateUniqueSlug(String title) {

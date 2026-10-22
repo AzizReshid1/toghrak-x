@@ -18,6 +18,22 @@ export interface PostResponse {
   imageUrls: string[];
 }
 
+/** A post in lists and cards (GET /api/posts, /api/posts/popular): no HTML content or gallery. */
+export interface PostSummary {
+  id: number;
+  slug: string;
+  title: string;
+  /** Plain-text excerpt (HTML stripped, ≤200 chars). */
+  excerpt: string;
+  coverImage?: string | null;
+  categoryId?: number;
+  categoryName: string;
+  authorUsername: string;
+  createdAt: string;
+  updatedAt?: string | null;
+  viewCount?: number;
+}
+
 // request payloads expected by backend DTOs
 export interface CreatePostRequest {
   title: string;

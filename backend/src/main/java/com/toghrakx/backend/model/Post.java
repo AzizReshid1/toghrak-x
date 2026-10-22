@@ -2,7 +2,6 @@ package com.toghrakx.backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.Hibernate;
 import org.jsoup.Jsoup;
 
@@ -63,7 +62,6 @@ public class Post {
 
     // One post can have many images
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @BatchSize(size = 50)
     @Builder.Default
     private List<PostImage> images = new ArrayList<>();
 

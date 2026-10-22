@@ -15,7 +15,9 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     @Query("update RefreshToken rt set rt.revoked = true where rt.user.id = :userId")
     void revokeAllByUserId(Long userId);
 
-    @Modifying
+    // Bulk delete bypasses Hibernate's session: flush pending changes first, then clear the
+    // session so no stale RefreshToken objects still point at a user that is about to be deleted.
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("delete from RefreshToken rt where rt.user.id = :userId")
     void deleteAllByUserId(@Param("userId") Long userId);
 

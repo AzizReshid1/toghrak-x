@@ -74,13 +74,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     private String resolveKey(HttpServletRequest request) {
-        // X-Forwarded-For is set by reverse proxies (Nginx, AWS ALB, Cloudflare, etc.).
-        // It can be a comma-separated chain; the first value is the original client IP.
-        // Fall back to getRemoteAddr() for direct connections (local dev, no proxy).
-        String forwarded = request.getHeader("X-Forwarded-For");
-        String ip = (forwarded != null && !forwarded.isBlank())
-                ? forwarded.split(",")[0].trim()
-                : request.getRemoteAddr();
+        // Never read X-Forwarded-For directly: clients can send any value in it.
+        // With server.forward-headers-strategy=native, Tomcat sets getRemoteAddr() to the real
+        // client IP, taking it from X-Forwarded-For only when the request came through a trusted proxy.
+        String ip = request.getRemoteAddr();
         String path = request.getRequestURI();
         return (ip == null ? "unknown" : ip) + ":" + path;
     }

@@ -5,6 +5,7 @@ import com.toghrakx.backend.model.SiteSettings;
 import com.toghrakx.backend.service.SiteSettingsService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,6 +24,7 @@ public class SiteSettingsController {
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SiteSettingsDto> update(@Valid @RequestBody SiteSettingsDto dto) {
         SiteSettings updated = service.update(dto.getTitle(), dto.getLogoUrl(), dto.getSlogan());
         return ResponseEntity.ok(toDto(updated));

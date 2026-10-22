@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,7 @@ public class PostController {
 
     // 1) CREATE a new post
     @PostMapping
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMIN')")
     public ResponseEntity<PostResponse> createPost(
             @Valid @RequestBody CreatePostRequest request,
             @AuthenticationPrincipal UserPrincipal currentUser) {
@@ -82,6 +84,7 @@ public class PostController {
 
     // 4) UPDATE a post (Only the owner can update)
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMIN')")
     public ResponseEntity<PostResponse> updatePost(
             @PathVariable Long id,
             @Valid @RequestBody UpdatePostRequest request,
@@ -92,6 +95,7 @@ public class PostController {
 
     // 5) DELETE a post (Only the owner or admin can delete)
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMIN')")
     public ResponseEntity<Void> deletePost(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal currentUser) {

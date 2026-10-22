@@ -84,58 +84,25 @@ public class SecurityConfig {
                                 swaggerPublic || authentication.get().getAuthorities().stream()
                                         .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))))
 
+                        // Access rules have two layers, each with one job:
+                        // - here (URL rules): only "public" vs "must be logged in";
+                        // - @PreAuthorize on each controller method: which roles may call it.
+                        // A new endpoint is private by default; add a role check on the method itself.
+
                         // Authentication endpoints
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // Categories — GET is public; write operations require authentication.
-                        // Role enforcement (ADMIN only) is handled by @PreAuthorize in CategoryController.
-                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/categories/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").authenticated()
+                        // Public read-only content
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/categories/**",
+                                "/api/posts/**",
+                                "/api/pages/**",
+                                "/api/social-links/**",
+                                "/api/site-settings",
+                                "/api/search",
+                                "/images/**").permitAll()
 
-                        // Posts
-                        .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/posts/**").hasAnyRole("EDITOR", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/posts/**").hasAnyRole("EDITOR", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/posts/**").hasAnyRole("EDITOR", "ADMIN")
-
-                        // Pages
-                        .requestMatchers(HttpMethod.GET, "/api/pages/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/pages/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/pages/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/pages/**").hasRole("ADMIN")
-
-                        // Social links
-                        .requestMatchers(HttpMethod.GET, "/api/social-links/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/social-links/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/social-links/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/social-links/**").hasRole("ADMIN")
-
-                        // Site settings (logo/slogan)
-                        .requestMatchers(HttpMethod.GET, "/api/site-settings").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/site-settings").hasRole("ADMIN")
-
-                        // Search
-                        .requestMatchers(HttpMethod.GET, "/api/search").permitAll()
-
-                        // User profile
-                        .requestMatchers("/api/users/me").authenticated()
-
-                        // Public images
-                        .requestMatchers("/images/**").permitAll()
-
-                        // Image upload
-                        .requestMatchers(HttpMethod.POST, "/api/images/**").hasAnyRole("EDITOR", "ADMIN")
-
-                        // User management — role enforcement (ADMIN only) is handled
-                        // by @PreAuthorize in UserController; SecurityConfig ensures auth is required.
-                        .requestMatchers("/api/users").authenticated()
-                        // Admin dashboard — role enforcement is handled by @PreAuthorize
-                        // in AdminDashboardController; SecurityConfig ensures auth is required.
-                        .requestMatchers("/api/admin/**").authenticated()
-
-                        // Anything else requires auth
+                        // Everything else requires a logged-in user
                         .anyRequest().authenticated())
 
                 // Let CORS preflight through (optional but helpful)

@@ -96,7 +96,7 @@ public class PostController {
             @PathVariable Long id,
             @Valid @RequestBody UpdatePostRequest request,
             @AuthenticationPrincipal UserPrincipal currentUser) {
-        Post updatedPost = postService.updatePost(id, currentUser.getId(), isAdmin(currentUser), request);
+        Post updatedPost = postService.updatePost(id, currentUser.getId(), currentUser.isAdmin(), request);
         return ResponseEntity.ok(toPostResponse(updatedPost));
     }
 
@@ -106,7 +106,7 @@ public class PostController {
     public ResponseEntity<Void> deletePost(
             @PathVariable Long id,
             @AuthenticationPrincipal UserPrincipal currentUser) {
-        postService.deletePost(id, currentUser.getId(), isAdmin(currentUser));
+        postService.deletePost(id, currentUser.getId(), currentUser.isAdmin());
         return ResponseEntity.noContent().build();
     }
 
@@ -119,11 +119,6 @@ public class PostController {
                 .filter(order -> ALLOWED_SORT_FIELDS.contains(order.getProperty()))
                 .toList();
         return allowed.isEmpty() ? Sort.by(Sort.Direction.DESC, "createdAt") : Sort.by(allowed);
-    }
-
-    private boolean isAdmin(UserPrincipal currentUser) {
-        return currentUser != null && currentUser.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 
     private PostResponse toPostResponse(Post post) {

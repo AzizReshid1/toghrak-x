@@ -48,6 +48,10 @@ public class UserPrincipal implements UserDetails {
         return id;
     }
 
+    public boolean isAdmin() {
+        return authorities.stream().anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;

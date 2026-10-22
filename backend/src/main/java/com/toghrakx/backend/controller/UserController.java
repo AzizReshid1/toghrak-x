@@ -57,7 +57,7 @@ public class UserController {
                     .body(Map.of("error", "unauthorized"));
         }
         User user = userService.getUser(currentUser.getId());
-        if (isAdmin(currentUser)) {
+        if (currentUser.isAdmin()) {
             return ResponseEntity.ok(toAdminUserResponse(user));
         } else {
             return ResponseEntity.ok(toUserProfileResponse(user));
@@ -78,8 +78,8 @@ public class UserController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request,
             @AuthenticationPrincipal UserPrincipal currentUser) {
-        User updatedUser = userService.updateUser(id, currentUser.getId(), isAdmin(currentUser), request);
-        if (isAdmin(currentUser)) {
+        User updatedUser = userService.updateUser(id, currentUser.getId(), currentUser.isAdmin(), request);
+        if (currentUser.isAdmin()) {
             return ResponseEntity.ok(toAdminUserResponse(updatedUser));
         } else {
             return ResponseEntity.ok(toUserProfileResponse(updatedUser));
@@ -95,11 +95,6 @@ public class UserController {
     }
 
     // --- Helper Methods for response mapping ---
-
-    private boolean isAdmin(UserPrincipal currentUser) {
-        return currentUser.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-    }
 
     private AdminUserResponse toAdminUserResponse(User user) {
         AdminUserResponse response = new AdminUserResponse();

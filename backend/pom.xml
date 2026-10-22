@@ -146,6 +146,9 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+							<!-- Spring Boot's managed version; stated explicitly because IntelliJ's
+							     Maven import cannot resolve a version-less annotation processor path -->
+							<version>${lombok.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>

@@ -13,7 +13,8 @@ public class SocialLinkDto {
     @Size(max = 100, message = "Label must be at most 100 characters")
     private String label;
     @NotBlank(message = "Url is required")
-    @Size(max = 2048, message = "Url is too long")
+    @Size(max = 255, message = "Url must be at most 255 characters")
     private String url;
+    @Size(max = 255, message = "Icon must be at most 255 characters")
     private String icon;
 }

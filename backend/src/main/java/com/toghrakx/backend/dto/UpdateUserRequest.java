@@ -17,6 +17,7 @@ public class UpdateUserRequest {
     private String password;
 
     @Email(message = "Invalid email format")
+    @Size(max = 255, message = "Email must be at most 255 characters")
     private String email;
 
     private String roleName; // // Optional: Only admins may update role, hence not mandatory for every

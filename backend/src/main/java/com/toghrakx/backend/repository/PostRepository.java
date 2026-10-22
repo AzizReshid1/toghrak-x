@@ -41,9 +41,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         @EntityGraph(attributePaths = { "category", "author", "images" })
         Optional<Post> findBySlug(String slug);
 
-        @EntityGraph(attributePaths = { "category", "author", "images" })
-        List<Post> findTop6ByOrderByViewCountDescUpdatedAtDescCreatedAtDesc();
-
         // Returns only the numeric ID for a given slug — avoids loading the full entity
         // just to resolve the slug before incrementing view count.
         @Query("select p.id from Post p where p.slug = :slug")
@@ -57,8 +54,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         @Query("update Post p set p.viewCount = coalesce(p.viewCount, 0) + 1 where p.id = :id")
         int incrementViewCount(Long id);
 
-        @EntityGraph(attributePaths = { "category", "author", "images" })
-        List<Post> findTop20ByOrderByViewCountDescUpdatedAtDescCreatedAtDesc();
+        // No "images" in this graph: fetch-joining a collection stops Hibernate from applying
+        // SQL LIMIT, so it would load every post and trim in memory. Images are batch-loaded instead.
+        @EntityGraph(attributePaths = { "category", "author" })
+        List<Post> findAllByOrderByViewCountDescUpdatedAtDescCreatedAtDesc(Pageable pageable);
 
         boolean existsByAuthorId(Long authorId);
 

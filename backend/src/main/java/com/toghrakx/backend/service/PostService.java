@@ -12,6 +12,7 @@ import com.toghrakx.backend.repository.PostRepository;
 import com.toghrakx.backend.repository.UserRepository;
 import com.toghrakx.backend.service.support.UserContentSanitizer;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -164,9 +165,11 @@ public class PostService {
     @Transactional(readOnly = true)
     public List<Post> getPopular(int limit) {
         int size = Math.min(Math.max(limit, 1), 20);
-        // Dedicated fetch graph method protects against lazy-loading issues
-        List<Post> popular = postRepository.findTop20ByOrderByViewCountDescUpdatedAtDescCreatedAtDesc();
-        return popular.size() > size ? popular.subList(0, size) : popular;
+        List<Post> popular = postRepository
+                .findAllByOrderByViewCountDescUpdatedAtDescCreatedAtDesc(PageRequest.of(0, size));
+        // Initialise images inside the transaction (open-in-view is off); batch fetching loads them in one query
+        popular.forEach(p -> p.getImages().size());
+        return popular;
     }
 
     private String generateUniqueSlug(String title, Long excludeId) {

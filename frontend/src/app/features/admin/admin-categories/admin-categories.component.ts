@@ -96,7 +96,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           // Surface backend message (e.g., if posts still exist under this category).
-          this.error = err?.error?.message || 'Failed to delete category.';
+          this.error = err?.error?.detail || 'Failed to delete category.';
         },
       });
   }

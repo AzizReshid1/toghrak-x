@@ -1,99 +1,97 @@
 package com.toghrakx.backend.exception;
 
 import io.jsonwebtoken.JwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.Instant;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Every error is returned as an RFC 9457 ProblemDetail ({ type, title, status, detail, instance }).
+ * Extending ResponseEntityExceptionHandler gives Spring MVC's own errors (malformed JSON, wrong
+ * HTTP method, upload too large, ...) the same shape. Errors raised outside controllers use
+ * ProblemDetailWriter.
+ */
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+@Slf4j
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // ── 401 Unauthorized ────────────────────────────────────────────────────
 
-    @ExceptionHandler({BadCredentialsException.class, JwtException.class})
-    public ResponseEntity<Map<String, Object>> handleUnauthorized(Exception ex) {
-        return errorBody(HttpStatus.UNAUTHORIZED, "Unauthorized", ex.getMessage());
+    @ExceptionHandler({ AuthenticationException.class, JwtException.class })
+    public ProblemDetail handleUnauthorized(Exception ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     // ── 403 Forbidden ───────────────────────────────────────────────────────
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
-        return errorBody(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage());
+    public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
     // ── 404 Not Found ───────────────────────────────────────────────────────
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
-        return errorBody(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage());
+    public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     // ── 409 Conflict ────────────────────────────────────────────────────────
 
-    @ExceptionHandler(UsernameAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleUsernameAlreadyExists(UsernameAlreadyExistsException ex) {
-        return errorBody(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
-    }
-
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
-        return errorBody(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
+    // IllegalStateException is used for deliberate business-rule violations
+    // (e.g. deleting a user who still owns posts), so its message is safe to show.
+    @ExceptionHandler({ UsernameAlreadyExistsException.class, EmailAlreadyExistsException.class,
+            IllegalStateException.class })
+    public ProblemDetail handleConflict(RuntimeException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleDataIntegrity(DataIntegrityViolationException ex) {
+    public ProblemDetail handleDataIntegrity(DataIntegrityViolationException ex) {
         // Do NOT expose ex.getMessage() — it leaks DB internals (table/column/constraint names).
-        return errorBody(HttpStatus.CONFLICT, "Conflict", "A data conflict occurred.");
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
-        // Used for deliberate business-rule violations (e.g. deleting a user who still owns posts).
-        return errorBody(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "A data conflict occurred.");
     }
 
     // ── 400 Bad Request ─────────────────────────────────────────────────────
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleBadRequest(IllegalArgumentException ex) {
-        return errorBody(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage());
+    public ProblemDetail handleBadRequest(IllegalArgumentException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
-        Map<String, Object> errors = new HashMap<>();
+    // Validation errors keep the per-field messages in an extra "errors" property: { field: message }.
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,
+            @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
+        Map<String, String> errors = new LinkedHashMap<>();
         ex.getBindingResult().getFieldErrors()
-                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-        errors.put("timestamp", Instant.now());
-        errors.put("error", "Bad Request");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+                .forEach(error -> errors.putIfAbsent(error.getField(), error.getDefaultMessage()));
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed.");
+        problem.setProperty("errors", errors);
+        return handleExceptionInternal(ex, problem, headers, status, request);
     }
 
-    // ── 413 Payload Too Large ───────────────────────────────────────────────
+    // ── 500 Internal Server Error ───────────────────────────────────────────
 
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<Map<String, Object>> handleUploadTooLarge(MaxUploadSizeExceededException ex) {
-        return errorBody(HttpStatus.PAYLOAD_TOO_LARGE, "Payload Too Large", "Maximum upload size exceeded.");
-    }
-
-    // ── helper ──────────────────────────────────────────────────────────────
-
-    private ResponseEntity<Map<String, Object>> errorBody(HttpStatus status, String error, String message) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", Instant.now());
-        body.put("error", error);
-        body.put("message", message);
-        return ResponseEntity.status(status).body(body);
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleUnexpected(Exception ex) {
+        // Log the details for us; never send stack traces or internal messages to the client.
+        log.error("Unhandled exception", ex);
+        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
     }
 }

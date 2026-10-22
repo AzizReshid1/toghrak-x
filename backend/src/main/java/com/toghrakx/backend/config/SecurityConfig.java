@@ -1,9 +1,11 @@
 package com.toghrakx.backend.config;
 
+import com.toghrakx.backend.exception.ProblemDetailWriter;
 import com.toghrakx.backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import java.util.Arrays;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -18,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -54,16 +55,17 @@ public class SecurityConfig {
             "/v3/api-docs/swagger-config"
     };
 
+    // 401/403 decided by the URL rules use the same ProblemDetail body as controller errors.
     @Bean
-    AuthenticationEntryPoint restAuthenticationEntryPoint() {
-        return (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-                "Unauthorized");
+    AuthenticationEntryPoint restAuthenticationEntryPoint(ProblemDetailWriter problemDetailWriter) {
+        return (request, response, authException) -> problemDetailWriter.write(request, response,
+                HttpStatus.UNAUTHORIZED, "Authentication is required to access this resource.");
     }
 
     @Bean
-    AccessDeniedHandler restAccessDeniedHandler() {
-        return (request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN,
-                "Forbidden");
+    AccessDeniedHandler restAccessDeniedHandler(ProblemDetailWriter problemDetailWriter) {
+        return (request, response, accessDeniedException) -> problemDetailWriter.write(request, response,
+                HttpStatus.FORBIDDEN, "You do not have permission to access this resource.");
     }
 
     // JwtAuthenticationFilter is a @Component, so Spring Boot would also register it as a plain
@@ -77,13 +79,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationEntryPoint authenticationEntryPoint,
+            AccessDeniedHandler accessDeniedHandler) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for JWT usage
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(restAuthenticationEntryPoint())
-                        .accessDeniedHandler(restAccessDeniedHandler()))
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(registry -> registry
 
                         // Static resources ((common locations) css, js, images, webjars, favicon, etc.)

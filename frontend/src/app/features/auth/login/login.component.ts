@@ -38,7 +38,7 @@ export class LoginComponent {
       next: () => this.router.navigateByUrl(returnUrl),
       error: (err) => {
         this.error =
-          err?.error?.message || 'Login failed. Check your credentials.';
+          err?.error?.detail || 'Login failed. Check your credentials.';
         this.loading = false;
       },
     });

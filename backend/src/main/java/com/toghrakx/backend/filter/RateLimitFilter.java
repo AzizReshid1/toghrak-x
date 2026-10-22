@@ -1,9 +1,11 @@
 package com.toghrakx.backend.filter;
 
+import com.toghrakx.backend.exception.ProblemDetailWriter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.lang.NonNull;
@@ -35,6 +37,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
             "/api/posts/popular", new Limit(30),
             "/api/auth/login", new Limit(10));
 
+    private final ProblemDetailWriter problemDetailWriter;
+
+    public RateLimitFilter(ProblemDetailWriter problemDetailWriter) {
+        this.problemDetailWriter = problemDetailWriter;
+    }
+
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         String path = request.getRequestURI();
@@ -58,8 +66,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 counter.windowStart = now;
             }
             if (counter.count.incrementAndGet() > max) {
-                response.setStatus(429);
-                response.getWriter().write("Too Many Requests");
+                problemDetailWriter.write(request, response, HttpStatus.TOO_MANY_REQUESTS,
+                        "Too many requests. Please wait a minute and try again.");
                 return;
             }
         }

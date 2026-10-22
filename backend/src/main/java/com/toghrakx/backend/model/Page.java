@@ -3,6 +3,7 @@ package com.toghrakx.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.jsoup.Jsoup;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,6 +35,10 @@ public class Page {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    // Plain-text copy of content used by search — see Post.contentText.
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String contentText;
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "page_images", joinColumns = @JoinColumn(name = "page_id"), indexes = {
             @Index(name = "idx_page_images_page_id", columnList = "page_id")
@@ -47,11 +52,13 @@ public class Page {
     @PrePersist
     public void onCreate() {
         updatedAt = LocalDateTime.now();
+        contentText = Jsoup.parse(content).text();
     }
 
     @PreUpdate
     public void onUpdate() {
         updatedAt = LocalDateTime.now();
+        contentText = Jsoup.parse(content).text();
     }
 
     @Override

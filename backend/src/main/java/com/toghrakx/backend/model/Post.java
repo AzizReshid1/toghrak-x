@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.Hibernate;
+import org.jsoup.Jsoup;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,6 +40,11 @@ public class Post {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    // Plain-text copy of content (HTML tags stripped) used by search, so queries match
+    // words readers see rather than markup like "span" or "href". Kept in sync on every save.
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String contentText;
+
     // The main or featured image (optional)
     private String coverImage;
 
@@ -71,11 +77,13 @@ public class Post {
         if (viewCount == null) {
             viewCount = 0L;
         }
+        contentText = Jsoup.parse(content).text();
     }
 
     @PreUpdate
     public void onUpdate() {
         updatedAt = LocalDateTime.now();
+        contentText = Jsoup.parse(content).text();
     }
 
     @Override

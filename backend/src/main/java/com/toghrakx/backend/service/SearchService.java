@@ -82,7 +82,7 @@ public class SearchService {
                     item.setTitle(p.getTitle());
                     // Slug-based URL: human-readable, SEO-friendly, stable.
                     item.setUrl("/posts/" + p.getSlug());
-                    item.setSnippet(snippet(p.getContent(), fullTerm));
+                    item.setSnippet(snippet(p.getContentText(), fullTerm));
                     return item;
                 })
                 .toList();
@@ -116,7 +116,7 @@ public class SearchService {
                     // Angular route is path: 'page' (singular) — /page/:slug.
                     // Using /pages/ (plural) hits the ** wildcard and shows 404.
                     item.setUrl("/page/" + p.getSlug());
-                    item.setSnippet(snippet(p.getContent(), fullTerm));
+                    item.setSnippet(snippet(p.getContentText(), fullTerm));
                     return item;
                 })
                 .toList();

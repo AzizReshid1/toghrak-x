@@ -23,7 +23,7 @@ public interface PageRepository extends JpaRepository<Page, Long> {
     @Query(value = """
             SELECT * FROM pages p
             WHERE lower(p.title) LIKE lower(concat('%', :term, '%'))
-               OR lower(p.content) LIKE lower(concat('%', :term, '%'))
+               OR lower(p.content_text) LIKE lower(concat('%', :term, '%'))
             ORDER BY p.updated_at DESC
             LIMIT :limit
             """, nativeQuery = true)

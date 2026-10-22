@@ -72,7 +72,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         @Query(value = """
                 SELECT * FROM posts p
                 WHERE lower(p.title) LIKE lower(concat('%', :term, '%'))
-                   OR lower(p.content) LIKE lower(concat('%', :term, '%'))
+                   OR lower(p.content_text) LIKE lower(concat('%', :term, '%'))
                 ORDER BY p.created_at DESC
                 LIMIT :limit
                 """, nativeQuery = true)

@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -56,18 +57,9 @@ public class ImageService {
         }
         validateFileType(file);
 
-        // Normalize file name and remove any path traversal characters
-        String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
-        if (originalFileName.contains("..")) {
-            throw new IllegalArgumentException("Invalid file name");
-        }
-
-        // Create a unique file name (UUID + extension)
-        String fileExtension = "";
-        int dotIndex = originalFileName.lastIndexOf('.');
-        if (dotIndex > 0) {
-            fileExtension = originalFileName.substring(dotIndex);
-        }
+        // The browser's file name and Content-Type can be anything; the file's own bytes decide.
+        // The stored file gets the extension of the detected format, not the one the client sent.
+        String fileExtension = detectImageExtension(file);
         String fileName = UUID.randomUUID().toString() + fileExtension;
 
         try {
@@ -119,6 +111,43 @@ public class ImageService {
             // A leftover file only wastes disk space; never fail the user's request because of it.
             log.warn("Could not delete unused image {}: {}", fileName, ex.getMessage());
         }
+    }
+
+    /**
+     * Identifies the image format from the file signature ("magic number") at the start of the file:
+     * PNG, JPEG, GIF or WebP. Anything else — e.g. a script or document renamed to .png — is rejected.
+     */
+    private String detectImageExtension(MultipartFile file) {
+        byte[] header = new byte[12];
+        int read;
+        try (InputStream in = file.getInputStream()) {
+            read = in.readNBytes(header, 0, header.length);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Could not read the uploaded file.", ex);
+        }
+        if (read >= 8 && startsWith(header, 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A)) {
+            return ".png";
+        }
+        if (read >= 3 && startsWith(header, 0xFF, 0xD8, 0xFF)) {
+            return ".jpg";
+        }
+        if (read >= 6 && (startsWith(header, 'G', 'I', 'F', '8', '7', 'a') || startsWith(header, 'G', 'I', 'F', '8', '9', 'a'))) {
+            return ".gif";
+        }
+        if (read >= 12 && startsWith(header, 'R', 'I', 'F', 'F')
+                && header[8] == 'W' && header[9] == 'E' && header[10] == 'B' && header[11] == 'P') {
+            return ".webp";
+        }
+        throw new IllegalArgumentException("The file is not a valid PNG, JPEG, GIF or WebP image.");
+    }
+
+    private static boolean startsWith(byte[] data, int... signature) {
+        for (int i = 0; i < signature.length; i++) {
+            if ((data[i] & 0xFF) != signature[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private String normalizeBaseUrl(String baseUrl) {

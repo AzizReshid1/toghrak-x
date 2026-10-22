@@ -87,11 +87,27 @@ class PostApiTest {
                 .andExpect(jsonPath("$[0].content").doesNotExist());
     }
 
+    @Test
+    void postWithUyghurTitleCanBeOpenedByItsSlug() throws Exception {
+        Post post = createPost("ئۇيغۇر تىلى");
+
+        assertThat(post.getSlug()).isEqualTo("ئۇيغۇر-تىلى");
+        // The browser sends the slug percent-encoded, exactly like this
+        String encoded = java.net.URLEncoder.encode(post.getSlug(), java.nio.charset.StandardCharsets.UTF_8);
+        mockMvc.perform(get(java.net.URI.create("/api/posts/slug/" + encoded)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("ئۇيغۇر تىلى"));
+    }
+
     private Post createPost() {
+        return createPost("Hello");
+    }
+
+    private Post createPost(String title) {
         User author = userService.createUser("editor1", "editor1@example.com", "password", "EDITOR");
         Category category = categoryService.createCategory("News", null);
         CreatePostRequest request = new CreatePostRequest();
-        request.setTitle("Hello");
+        request.setTitle(title);
         request.setContent("<p>Full <strong>article</strong> body</p>");
         request.setCategoryId(category.getId());
         return postService.createPost(author.getId(), request);

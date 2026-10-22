@@ -1,5 +1,6 @@
 package com.toghrakx.backend.service;
 
+import com.toghrakx.backend.service.support.SlugUtil;
 import com.toghrakx.backend.dto.CreatePostRequest;
 import com.toghrakx.backend.dto.UpdatePostRequest;
 import com.toghrakx.backend.exception.ResourceNotFoundException;
@@ -177,7 +178,11 @@ public class PostService {
     }
 
     private String generateUniqueSlug(String title) {
-        String base = slugify(title);
+        // 240 leaves room for a "-N" suffix within the 255-character column
+        String base = SlugUtil.slugify(title, 240);
+        if (base.isEmpty()) {
+            base = "post-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        }
         String candidate = base;
         int counter = 1;
         while (postRepository.existsBySlug(candidate)) {
@@ -186,19 +191,6 @@ public class PostService {
         return candidate;
     }
 
-    private String slugify(String input) {
-        if (input == null || input.isBlank()) {
-            return "post-" + java.util.UUID.randomUUID().toString().substring(0, 8);
-        }
-        String slug = input.toLowerCase()
-                .replaceAll("[^a-z0-9]+", "-")
-                .replaceAll("-{2,}", "-")
-                .replaceAll("(^-|-$)", "");
-        if (slug.isBlank()) {
-            slug = "post-" + java.util.UUID.randomUUID().toString().substring(0, 8);
-        }
-        return slug;
-    }
 
     private void setImages(Post post, List<String> imageUrls) {
         post.getImages().clear();

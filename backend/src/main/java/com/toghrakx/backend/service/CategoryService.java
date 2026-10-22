@@ -1,5 +1,6 @@
 package com.toghrakx.backend.service;
 
+import com.toghrakx.backend.service.support.SlugUtil;
 import com.toghrakx.backend.exception.ResourceNotFoundException;
 import com.toghrakx.backend.model.Category;
 import com.toghrakx.backend.repository.CategoryRepository;
@@ -69,7 +70,11 @@ public class CategoryService {
         if (category.getSlug() != null && !category.getSlug().isBlank()) {
             return;
         }
-        String base = slugify(category.getName());
+        // 140 leaves room for a "-N" suffix within the 150-character column
+        String base = SlugUtil.slugify(category.getName(), 140);
+        if (base.isEmpty()) {
+            base = "category";
+        }
         String unique = ensureUniqueSlug(base, category.getId());
         category.setSlug(unique);
     }
@@ -87,14 +92,4 @@ public class CategoryService {
         }
     }
 
-    private String slugify(String input) {
-        String lower = input == null ? "" : input.toLowerCase().trim();
-        String normalized = lower.replaceAll("[^a-z0-9]+", "-");
-        normalized = normalized.replaceAll("-{2,}", "-");
-        normalized = normalized.replaceAll("(^-+|-+$)", "");
-        if (normalized.isBlank()) {
-            normalized = "category";
-        }
-        return normalized;
-    }
 }

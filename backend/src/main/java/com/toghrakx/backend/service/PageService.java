@@ -1,5 +1,6 @@
 package com.toghrakx.backend.service;
 
+import com.toghrakx.backend.service.support.SlugUtil;
 import com.toghrakx.backend.exception.ResourceNotFoundException;
 import com.toghrakx.backend.model.Page;
 import com.toghrakx.backend.repository.PageRepository;
@@ -92,17 +93,8 @@ public class PageService {
         if (slug == null) {
             throw new IllegalArgumentException("Slug is required");
         }
-        String normalized = slug.toLowerCase().trim();
-        normalized = normalized.replaceAll("[^a-z0-9]+", "-");
-        normalized = normalized.replaceAll("-{2,}", "-");
-        normalized = normalized.replaceAll("(^-+|-+$)", "");
-        if (normalized.isBlank()) {
-            throw new IllegalArgumentException("Slug is invalid");
-        }
-        if (normalized.length() > 100) {
-            normalized = normalized.substring(0, 100).replaceAll("-+$", "");
-        }
-        if (normalized.isBlank()) {
+        String normalized = SlugUtil.slugify(slug, 100);
+        if (normalized.isEmpty()) {
             throw new IllegalArgumentException("Slug is invalid");
         }
         return normalized;

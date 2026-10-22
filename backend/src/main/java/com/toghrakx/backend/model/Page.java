@@ -5,7 +5,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 import org.jsoup.Jsoup;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,17 +47,17 @@ public class Page {
     @Builder.Default
     private List<String> images = new ArrayList<>();
 
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @PrePersist
     public void onCreate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Instant.now();
         contentText = Jsoup.parse(content).text();
     }
 
     @PreUpdate
     public void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Instant.now();
         contentText = Jsoup.parse(content).text();
     }
 

@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -84,22 +84,22 @@ public class DataInitializer {
                                 List<Page> defaults = List.of(
                                                 Page.builder().slug("about").title("About")
                                                                 .content("Tell readers about Toghrak X.")
-                                                                .updatedAt(LocalDateTime.now()).build(),
+                                                                .updatedAt(Instant.now()).build(),
                                                 Page.builder().slug("contact").title("Contact")
                                                                 .content("Email: hello@toghrakpublishingplatform.example")
-                                                                .updatedAt(LocalDateTime.now()).build(),
+                                                                .updatedAt(Instant.now()).build(),
                                                 Page.builder().slug("how-it-works").title("How It Works")
                                                                 .content("Explain how Toghrak X works for creators and readers.")
-                                                                .updatedAt(LocalDateTime.now()).build(),
+                                                                .updatedAt(Instant.now()).build(),
                                                 Page.builder().slug("faq").title("FAQ")
                                                                 .content("Add common questions and answers.")
-                                                                .updatedAt(LocalDateTime.now()).build(),
+                                                                .updatedAt(Instant.now()).build(),
                                                 Page.builder().slug("privacy").title("Privacy Policy")
                                                                 .content("Describe how user data is handled.")
-                                                                .updatedAt(LocalDateTime.now()).build(),
+                                                                .updatedAt(Instant.now()).build(),
                                                 Page.builder().slug("terms").title("Terms of Use")
                                                                 .content("Outline acceptable use and responsibilities.")
-                                                                .updatedAt(LocalDateTime.now())
+                                                                .updatedAt(Instant.now())
                                                                 .build());
                                 defaults.forEach(pageRepository::save);
                         }

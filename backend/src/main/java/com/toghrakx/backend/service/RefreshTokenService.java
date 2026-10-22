@@ -11,7 +11,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import java.security.MessageDigest;
@@ -41,7 +41,7 @@ public class RefreshTokenService {
         RefreshToken token = RefreshToken.builder()
                 .token(hash(raw))
                 .user(user)
-                .expiresAt(LocalDateTime.now().plus(refreshTtlMs, ChronoUnit.MILLIS))
+                .expiresAt(Instant.now().plus(refreshTtlMs, ChronoUnit.MILLIS))
                 .revoked(false)
                 .build();
         token.setPlainToken(raw);
@@ -73,7 +73,7 @@ public class RefreshTokenService {
      * Intended to be called on a schedule (e.g., nightly).
      */
     public int cleanupExpiredOrRevoked() {
-        return refreshTokenRepository.deleteExpiredOrRevoked(LocalDateTime.now());
+        return refreshTokenRepository.deleteExpiredOrRevoked(Instant.now());
     }
 
     // Run nightly at 03:00 server time
@@ -87,7 +87,7 @@ public class RefreshTokenService {
             // Token was explicitly revoked (e.g. logout or rotation) — treat as auth failure, not 404.
             throw new BadCredentialsException("Refresh token has been revoked.");
         }
-        if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (token.getExpiresAt().isBefore(Instant.now())) {
             // Expired tokens are an auth failure — client must re-authenticate.
             throw new BadCredentialsException("Refresh token has expired.");
         }

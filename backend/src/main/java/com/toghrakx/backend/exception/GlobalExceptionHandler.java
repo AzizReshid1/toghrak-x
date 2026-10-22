@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-        errors.put("timestamp", LocalDateTime.now());
+        errors.put("timestamp", Instant.now());
         errors.put("error", "Bad Request");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
@@ -91,7 +91,7 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<Map<String, Object>> errorBody(HttpStatus status, String error, String message) {
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
+        body.put("timestamp", Instant.now());
         body.put("error", error);
         body.put("message", message);
         return ResponseEntity.status(status).body(body);

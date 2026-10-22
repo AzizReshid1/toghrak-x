@@ -6,7 +6,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.Hibernate;
 import org.jsoup.Jsoup;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,8 +58,8 @@ public class Post {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     // One post can have many images
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -73,7 +73,7 @@ public class Post {
 
     @PrePersist
     public void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = Instant.now();
         if (viewCount == null) {
             viewCount = 0L;
         }
@@ -82,7 +82,7 @@ public class Post {
 
     @PreUpdate
     public void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Instant.now();
         contentText = Jsoup.parse(content).text();
     }
 

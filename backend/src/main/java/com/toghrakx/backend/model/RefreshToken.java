@@ -3,7 +3,7 @@ package com.toghrakx.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "refresh_tokens", indexes = {
@@ -30,7 +30,7 @@ public class RefreshToken {
     private User user;
 
     @Column(nullable = false)
-    private LocalDateTime expiresAt;
+    private Instant expiresAt;
 
     @Column(nullable = false)
     @Builder.Default

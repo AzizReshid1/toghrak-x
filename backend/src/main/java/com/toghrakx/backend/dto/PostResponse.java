@@ -3,7 +3,7 @@ package com.toghrakx.backend.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -17,8 +17,8 @@ public class PostResponse {
     private Long categoryId;
     private String categoryName;
     private String authorUsername;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
     private Long viewCount;
     private List<String> imageUrls;
     /** Plain-text excerpt (HTML stripped, max 200 chars). Use this in list/card views. */

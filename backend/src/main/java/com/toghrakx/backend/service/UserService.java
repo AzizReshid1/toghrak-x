@@ -160,8 +160,8 @@ public class UserService {
 
         // Block deletion if the user still owns posts — this is a deliberate business rule,
         // not a DB constraint violation. IllegalStateException maps to 409 Conflict via the handler.
-        if (postRepository.existsByAuthorId(userId)) {
-            long n = postRepository.countByAuthorId(userId);
+        long n = postRepository.countByAuthorId(userId);
+        if (n > 0) {
             throw new IllegalStateException(
                     "Cannot delete user: they still own " + n + " post(s). " +
                             "Delete or transfer their posts first.");

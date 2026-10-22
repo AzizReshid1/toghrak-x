@@ -58,8 +58,8 @@ public class CategoryService {
 
     public void deleteCategory(Long id) {
         Category existing = getCategoryById(id);
-        if (postRepository.existsByCategoryId(id)) {
-            long n = postRepository.countByCategoryId(id);
+        long n = postRepository.countByCategoryId(id);
+        if (n > 0) {
             throw new IllegalStateException(
                     "Cannot delete category: there are still " + n + " post(s) assigned to it.");
         }

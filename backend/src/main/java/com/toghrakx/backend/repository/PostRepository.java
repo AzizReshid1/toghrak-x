@@ -57,11 +57,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         @EntityGraph(attributePaths = { "category", "author" })
         List<Post> findAllByOrderByViewCountDescUpdatedAtDescCreatedAtDesc(Pageable pageable);
 
-        boolean existsByAuthorId(Long authorId);
-
         long countByAuthorId(Long authorId);
-
-        boolean existsByCategoryId(Long categoryId);
 
         long countByCategoryId(Long categoryId);
 

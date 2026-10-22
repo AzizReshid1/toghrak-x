@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 // Each test runs in a transaction that is rolled back afterwards, so tests do not affect each other.
 @IntegrationTest
@@ -55,6 +56,20 @@ class PostServiceTest {
 
         assertThat(updated.getCoverImage()).isNull();
         assertThat(updated.getImages()).isEmpty();
+    }
+
+    @Test
+    void categoryWithPostsCannotBeDeletedAndAuthorWithPostsNeither() {
+        User author = userService.createUser("editor1", "editor1@example.com", "password", "EDITOR");
+        Category category = categoryService.createCategory("News", null);
+        postService.createPost(author.getId(), createRequest("Title", category));
+
+        assertThatThrownBy(() -> categoryService.deleteCategory(category.getId()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("still 1 post(s)");
+        assertThatThrownBy(() -> userService.deleteUser(author.getId()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("still own 1 post(s)");
     }
 
     private static UpdatePostRequest updateRequest(String title, Category category) {

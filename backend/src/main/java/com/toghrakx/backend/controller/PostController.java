@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.springframework.data.domain.*;
 import java.util.List;
+import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/posts")
 @Slf4j
 public class PostController {
+
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of("createdAt", "updatedAt", "viewCount", "title");
 
     private final PostService postService;
 
@@ -44,7 +47,7 @@ public class PostController {
             @RequestParam(value = "categoryId", required = false) Long categoryId) {
         // hard cap page size to prevent abuse (e.g., max 50)
         int safeSize = Math.min(pageable.getPageSize(), 50);
-        Pageable safePageable = PageRequest.of(pageable.getPageNumber(), safeSize, pageable.getSort());
+        Pageable safePageable = PageRequest.of(pageable.getPageNumber(), safeSize, safeSort(pageable.getSort()));
 
         Page<PostResponse> page = postService
                 .getPosts(safePageable, categoryId)
@@ -94,6 +97,17 @@ public class PostController {
             @AuthenticationPrincipal UserPrincipal currentUser) {
         postService.deletePost(id, currentUser.getId(), isAdmin(currentUser));
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Keeps only whitelisted sort fields. Without this, ?sort=abc causes a 500 error and
+     * ?sort=author.password lets anyone order posts by their authors' password hashes.
+     */
+    private static Sort safeSort(Sort requested) {
+        List<Sort.Order> allowed = requested.stream()
+                .filter(order -> ALLOWED_SORT_FIELDS.contains(order.getProperty()))
+                .toList();
+        return allowed.isEmpty() ? Sort.by(Sort.Direction.DESC, "createdAt") : Sort.by(allowed);
     }
 
     private boolean isAdmin(UserPrincipal currentUser) {

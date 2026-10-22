@@ -32,20 +32,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = getTokenFromRequest(request);
 
         if (token != null) {
-            if (jwtTokenService.validateToken(token)) {
+            // One signature check per request; the user id and role are read from the same parsed claims.
+            // The role is embedded in the token, so no database query is needed either.
+            jwtTokenService.parse(token).ifPresent(claims -> {
                 try {
-                    // Role is embedded in the token — no database query needed on every request.
-                    Long userId = jwtTokenService.getUserIdFromToken(token);
-                    String role = jwtTokenService.getRoleFromToken(token);
-                    UserPrincipal principal = UserPrincipal.fromToken(userId, role);
+                    UserPrincipal principal = UserPrincipal.fromToken(
+                            Long.parseLong(claims.getSubject()), claims.get("role", String.class));
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } catch (Exception ex) {
                     log.error("Failed to set user authentication: {}", ex.getMessage());
                 }
-            }
-            // An invalid token is already logged (at DEBUG) by JwtTokenService.validateToken.
+            });
+            // An invalid token is already logged (at DEBUG) by JwtTokenService.parse.
         }
 
         filterChain.doFilter(request, response);

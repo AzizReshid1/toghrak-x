@@ -10,12 +10,14 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 
 @Component
 @Slf4j
 public class JwtTokenService {
 
     private final SecretKey key;
+    private final JwtParser parser;
     private final Long jwtExpirationMs;
 
     public JwtTokenService(@Value("${app.jwt.secret}") String secret,
@@ -32,6 +34,8 @@ public class JwtTokenService {
                     "Current length: " + keyBytes.length + " bytes. Provide a longer secret and restart.");
         }
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        // Thread-safe and immutable, so it is built once instead of on every request
+        this.parser = Jwts.parser().verifyWith(key).build();
         this.jwtExpirationMs = jwtExpirationMs;
     }
 
@@ -62,32 +66,18 @@ public class JwtTokenService {
                 .compact();
     }
 
-    public Long getUserIdFromToken(String token) {
-        return Long.parseLong(getClaims(token).getSubject());
-    }
-
-    /** Extracts the role name (without ROLE_ prefix) embedded in the token claim. */
-    public String getRoleFromToken(String token) {
-        return getClaims(token).get("role", String.class);
-    }
-
-    public boolean validateToken(String token) {
+    /**
+     * Verifies the token's signature and expiry once and returns its claims: the user id is the
+     * subject, the role (without ROLE_ prefix) is the "role" claim. Empty if the token is invalid.
+     */
+    public Optional<Claims> parse(String token) {
         try {
-            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
-            return true;
+            return Optional.of(parser.parseSignedClaims(token).getPayload());
         } catch (JwtException | IllegalArgumentException e) {
             // Anyone can send a fake, expired or empty token, so this is routine, not an error.
             // Logged once, at DEBUG, so bad tokens cannot flood the logs; the request just stays anonymous.
             log.debug("Rejected JWT: {}", e.getMessage());
+            return Optional.empty();
         }
-        return false;
-    }
-
-    private Claims getClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
     }
 }

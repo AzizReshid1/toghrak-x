@@ -79,18 +79,10 @@ public class RefreshTokenService {
         refreshTokenRepository.revokeAllByUserId(userId);
     }
 
-    /**
-     * Cleanup job to purge expired or revoked refresh tokens.
-     * Intended to be called on a schedule (e.g., nightly).
-     */
+    /** Purges expired or revoked refresh tokens; runs nightly at 03:00 server time. */
+    @Scheduled(cron = "0 0 3 * * *")
     public int cleanupExpiredOrRevoked() {
         return refreshTokenRepository.deleteExpiredOrRevoked(Instant.now());
-    }
-
-    // Run nightly at 03:00 server time
-    @Scheduled(cron = "0 0 3 * * *")
-    public void scheduledCleanup() {
-        cleanupExpiredOrRevoked();
     }
 
     private void validate(RefreshToken token) {

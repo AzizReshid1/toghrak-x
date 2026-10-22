@@ -40,6 +40,16 @@ class RefreshTokenServiceTest {
     }
 
     @Test
+    void nightlyCleanupDeletesRevokedTokens() {
+        RefreshToken token = refreshTokenService.create(user.getId());
+        refreshTokenService.revokeAllForUser(user.getId());
+
+        refreshTokenService.cleanupExpiredOrRevoked();
+
+        assertThat(refreshTokenRepository.findById(token.getId())).isEmpty();
+    }
+
+    @Test
     void unknownTokenIsAnAuthenticationFailure() {
         assertThatThrownBy(() -> refreshTokenService.rotate("not-a-real-token"))
                 .isInstanceOf(BadCredentialsException.class);

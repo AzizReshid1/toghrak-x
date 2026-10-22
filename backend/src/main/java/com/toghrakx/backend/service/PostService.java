@@ -48,7 +48,7 @@ public class PostService {
                 .orElseThrow(
                         () -> new ResourceNotFoundException("Category not found with id=" + request.getCategoryId()));
 
-        String slug = generateUniqueSlug(request.getTitle(), null);
+        String slug = generateUniqueSlug(request.getTitle());
 
         Post post = Post.builder()
                 .title(request.getTitle())
@@ -85,9 +85,9 @@ public class PostService {
         String newCoverImage = request.getCoverImage();
         List<String> imageUrls = request.getImageUrls();
 
+        // The slug is set once at creation and never changes, so shared links and search results keep working.
         if (newTitle != null && !newTitle.isBlank()) {
             post.setTitle(newTitle);
-            post.setSlug(generateUniqueSlug(newTitle, postId));
         }
         if (newContent != null && !newContent.isBlank()) {
             post.setContent(sanitizer.sanitize(newContent));
@@ -172,21 +172,14 @@ public class PostService {
         return popular;
     }
 
-    private String generateUniqueSlug(String title, Long excludeId) {
+    private String generateUniqueSlug(String title) {
         String base = slugify(title);
         String candidate = base;
         int counter = 1;
-        while (slugExists(candidate, excludeId)) {
+        while (postRepository.existsBySlug(candidate)) {
             candidate = base + "-" + counter++;
         }
         return candidate;
-    }
-
-    private boolean slugExists(String slug, Long excludeId) {
-        if (excludeId != null) {
-            return postRepository.existsBySlugAndIdNot(slug, excludeId);
-        }
-        return postRepository.existsBySlug(slug);
     }
 
     private String slugify(String input) {

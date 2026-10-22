@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HexFormat;
 import java.util.UUID;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -102,12 +103,7 @@ public class RefreshTokenService {
     private String hash(String token) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] bytes = digest.digest(token.getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            for (byte b : bytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
+            return HexFormat.of().formatHex(digest.digest(token.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 not available", e);
         }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @Transactional
@@ -40,11 +41,12 @@ public class UserService {
 
     // 1️⃣ Create user (Editor/Admin)
     public User createUser(String username, String email, String password, String roleName) {
+        email = normalizeEmail(email);
         // Check for duplicate username
         if (userRepository.existsByUsername(username)) {
             throw new UsernameAlreadyExistsException("Username already exists!");
         }
-        if (userRepository.existsByEmail(email)) {
+        if (userRepository.existsByEmailIgnoreCase(email)) {
             throw new EmailAlreadyExistsException("Email already exists!");
         }
 
@@ -103,9 +105,9 @@ public class UserService {
             credentialsChanged = true;
         }
         // Update email if provided and check uniqueness
-        String newEmail = request.getEmail();
-        if (newEmail != null && !newEmail.isBlank() && !newEmail.equals(user.getEmail())) {
-            if (userRepository.existsByEmail(newEmail)) {
+        String newEmail = request.getEmail() == null ? null : normalizeEmail(request.getEmail());
+        if (newEmail != null && !newEmail.isBlank() && !newEmail.equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.existsByEmailIgnoreCase(newEmail)) {
                 throw new EmailAlreadyExistsException("Email already exists!");
             }
             user.setEmail(newEmail);
@@ -169,6 +171,11 @@ public class UserService {
         // foreign key from refresh_tokens blocks the delete.
         refreshTokenRepository.deleteAllByUserId(userId);
         userRepository.deleteById(userId);
+    }
+
+    // Email addresses are case-insensitive in practice, so "Aziz@x.com" and "aziz@x.com" must be one user.
+    private static String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }
 
     // Utility: Check if the current user has admin privileges

@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
+import java.util.Locale;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -72,7 +73,7 @@ public class DataInitializer {
 
                                         User admin = User.builder()
                                                         .username(adminUsername)
-                                                        .email(adminEmail)
+                                                        .email(adminEmail.trim().toLowerCase(Locale.ROOT))
                                                         .password(passwordEncoder.encode(adminPassword))
                                                         .role(adminRole)
                                                         .build();

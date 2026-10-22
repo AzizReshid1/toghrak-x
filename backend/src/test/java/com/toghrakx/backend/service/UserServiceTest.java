@@ -2,6 +2,7 @@ package com.toghrakx.backend.service;
 
 import com.toghrakx.backend.IntegrationTest;
 import com.toghrakx.backend.dto.UpdateUserRequest;
+import com.toghrakx.backend.exception.EmailAlreadyExistsException;
 import com.toghrakx.backend.model.RefreshToken;
 import com.toghrakx.backend.model.User;
 import com.toghrakx.backend.repository.RefreshTokenRepository;
@@ -103,6 +104,21 @@ class UserServiceTest {
         userService.updateUser(editor.getId(), editor.getId(), false, request);
 
         assertThat(isRevoked(token)).isFalse();
+    }
+
+    @Test
+    void emailIsStoredInLowerCase() {
+        User user = userService.createUser("editor1", "Editor.One@Example.COM", "password", "EDITOR");
+
+        assertThat(user.getEmail()).isEqualTo("editor.one@example.com");
+    }
+
+    @Test
+    void emailThatDiffersOnlyInCaseIsAlreadyTaken() {
+        userService.createUser("editor1", "aziz@example.com", "password", "EDITOR");
+
+        assertThatThrownBy(() -> userService.createUser("editor2", "Aziz@Example.com", "password", "EDITOR"))
+                .isInstanceOf(EmailAlreadyExistsException.class);
     }
 
     private boolean isRevoked(RefreshToken token) {

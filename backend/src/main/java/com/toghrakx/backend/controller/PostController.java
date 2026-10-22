@@ -75,6 +75,13 @@ public class PostController {
         return ResponseEntity.ok(toPostResponse(post));
     }
 
+    // 3c) Record one view of a post — called by the post page after it loads. Public, like reading.
+    @PostMapping("/{id}/view")
+    public ResponseEntity<Void> recordView(@PathVariable Long id) {
+        postService.recordView(id);
+        return ResponseEntity.noContent().build();
+    }
+
     // 3b) GET single post by numeric ID — kept for internal use (edit form, admin)
     @GetMapping("/{id}")
     public ResponseEntity<PostResponse> getPost(@PathVariable Long id) {

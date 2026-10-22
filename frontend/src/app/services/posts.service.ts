@@ -32,6 +32,11 @@ export class PostsService {
     return this.http.get<PostResponse>(`${this.base}/slug/${slug}`);
   }
 
+  /** Counts one view of a post. Kept separate from getBySlug so that GET requests never change data. */
+  recordView(id: number): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/view`, null);
+  }
+
   popular(limit = 6): Observable<PostSummary[]> {
     const params = new HttpParams().set('limit', limit);
     return this.http.get<PostSummary[]>(`${this.base}/popular`, { params });

@@ -69,6 +69,8 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.posts.getBySlug(slug).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.post = res;
+        // Fire-and-forget: a failed view count must never affect reading the post.
+        this.posts.recordView(res.id).subscribe({ error: () => {} });
         this.safeContent = this.sanitizer.bypassSecurityTrustHtml(
           this.formatContent(res.content ?? '')
         );

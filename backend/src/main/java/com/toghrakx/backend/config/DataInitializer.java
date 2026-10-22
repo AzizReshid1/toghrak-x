@@ -4,10 +4,12 @@ import com.toghrakx.backend.exception.ResourceNotFoundException;
 import com.toghrakx.backend.model.Role;
 import com.toghrakx.backend.model.User;
 import com.toghrakx.backend.model.Page;
+import com.toghrakx.backend.model.SiteSettings;
 import com.toghrakx.backend.model.SocialLink;
 import com.toghrakx.backend.repository.RoleRepository;
 import com.toghrakx.backend.repository.UserRepository;
 import com.toghrakx.backend.repository.PageRepository;
+import com.toghrakx.backend.repository.SiteSettingsRepository;
 import com.toghrakx.backend.repository.SocialLinkRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +44,8 @@ public class DataInitializer {
                         UserRepository userRepo,
                         PasswordEncoder passwordEncoder,
                         PageRepository pageRepository,
-                        SocialLinkRepository socialLinkRepository) {
+                        SocialLinkRepository socialLinkRepository,
+                        SiteSettingsRepository siteSettingsRepository) {
                 return args -> {
                         // Seed roles if they do not exist
                         if (roleRepo.findByName("ADMIN").isEmpty()) {
@@ -115,6 +118,11 @@ public class DataInitializer {
                                                 SocialLink.builder().label("LinkedIn")
                                                                 .url("https://linkedin.com/company/toghrakplatform")
                                                                 .icon("in").build()));
+                        }
+
+                        // The site has exactly one settings row; create it here so GET /api/site-settings only reads.
+                        if (siteSettingsRepository.count() == 0) {
+                                siteSettingsRepository.save(new SiteSettings());
                         }
                 };
         }

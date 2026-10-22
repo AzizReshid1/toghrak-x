@@ -132,13 +132,20 @@ public class PostService {
         postRepository.deleteById(postId);
     }
 
-    // 4️⃣ Retrieve a single post by slug (SEO-friendly URL)
-    // This is the public reader endpoint, so it is the only place a view is counted.
+    // 4️⃣ Retrieve a single post by slug (SEO-friendly URL) — read-only; views are recorded by recordView()
+    @Transactional(readOnly = true)
     public Post getPostBySlug(String slug) {
         Long id = postRepository.findIdBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found: " + slug));
-        postRepository.incrementViewCount(id);
         return getPost(id);
+    }
+
+    // Counts one view. A separate POST so that GET stays safe: refreshes of the API, crawlers
+    // and link prefetching do not change data.
+    public void recordView(Long postId) {
+        if (postRepository.incrementViewCount(postId) == 0) {
+            throw new ResourceNotFoundException("Post not found: " + postId);
+        }
     }
 
     // Retrieve a single post by numeric ID (edit form, admin) — read-only, does not count a view

@@ -23,10 +23,10 @@ public class SiteSettingsService {
         return repository.save(settings);
     }
 
-    @Transactional
+    // Read-only: GET must not change data. DataInitializer creates the row at startup; if it is
+    // somehow missing, return empty defaults rather than inserting one here.
+    @Transactional(readOnly = true)
     public SiteSettings get() {
-        SiteSettings settings = repository.findTopByOrderByIdAsc()
-                .orElseGet(() -> repository.save(new SiteSettings()));
-        return settings;
+        return repository.findTopByOrderByIdAsc().orElseGet(SiteSettings::new);
     }
 }

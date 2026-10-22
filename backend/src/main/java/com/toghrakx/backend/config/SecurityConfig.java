@@ -113,6 +113,9 @@ public class SecurityConfig {
                                 "/api/search",
                                 "/images/**").permitAll()
 
+                        // Anonymous readers record a post view
+                        .requestMatchers(HttpMethod.POST, "/api/posts/*/view").permitAll()
+
                         // Everything else requires a logged-in user
                         .anyRequest().authenticated())
 

@@ -29,15 +29,18 @@ public class PostService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final UserContentSanitizer sanitizer;
+    private final ImageService imageService;
 
     public PostService(PostRepository postRepository,
             UserRepository userRepository,
             CategoryRepository categoryRepository,
-            UserContentSanitizer sanitizer) {
+            UserContentSanitizer sanitizer,
+            ImageService imageService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.sanitizer = sanitizer;
+        this.imageService = imageService;
     }
 
     public Post createPost(Long authorId, CreatePostRequest request) {
@@ -86,6 +89,8 @@ public class PostService {
         Category category = categoryRepository.findById(newCategoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id=" + newCategoryId));
         String newCoverImage = request.getCoverImage();
+        // Images this post used before the update; any that end up unused are deleted after commit.
+        List<String> previousImages = imageUrlsOf(post);
 
         post.setTitle(request.getTitle());
         post.setContent(sanitizer.sanitize(request.getContent()));
@@ -95,6 +100,7 @@ public class PostService {
 
         // updatedAt is set automatically by @PreUpdate on Post — no manual assignment needed.
         Post saved = postRepository.save(post);
+        imageService.deleteIfUnreferencedAfterCommit(previousImages);
         return postRepository.findWithImagesById(saved.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found: " + saved.getId()));
     }
@@ -117,7 +123,18 @@ public class PostService {
             }
         }
 
+        List<String> images = imageUrlsOf(post);
         postRepository.deleteById(postId);
+        // Remove the post's uploaded files too, unless another post, page or the site logo still uses them.
+        imageService.deleteIfUnreferencedAfterCommit(images);
+    }
+
+    // Cover image plus gallery URLs of a post
+    private List<String> imageUrlsOf(Post post) {
+        List<String> urls = new ArrayList<>();
+        urls.add(post.getCoverImage());
+        post.getImages().forEach(image -> urls.add(image.getImageUrl()));
+        return urls;
     }
 
     // 4️⃣ Retrieve a single post by slug (SEO-friendly URL) — read-only; views are recorded by recordView()

@@ -1,33 +1,48 @@
 package com.toghrakx.backend.service;
 
 import com.toghrakx.backend.config.UploadPathResolver;
+import com.toghrakx.backend.repository.ImageReferenceRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
+@Slf4j
 public class ImageService {
 
     private final Path fileStorageLocation;
     private final String imageBaseUrl;
+    private final ImageReferenceRepository imageReferences;
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".png", ".jpg", ".jpeg", ".webp", ".gif");
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of("image/png", "image/jpeg", "image/webp",
             "image/gif");
+    private static final Pattern STORED_FILE_NAME = Pattern.compile(
+            "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(png|jpg|jpeg|webp|gif)",
+            Pattern.CASE_INSENSITIVE);
 
     public ImageService(@Value("${app.image.upload-dir}") String uploadDir,
-            @Value("${app.image.base-url}") String imageBaseUrl) {
+            @Value("${app.image.base-url}") String imageBaseUrl,
+            ImageReferenceRepository imageReferences) {
         this.fileStorageLocation = UploadPathResolver.resolve(uploadDir);
         this.imageBaseUrl = normalizeBaseUrl(imageBaseUrl);
+        this.imageReferences = imageReferences;
         try {
             Files.createDirectories(this.fileStorageLocation);
         } catch (IOException ex) {
@@ -64,6 +79,45 @@ public class ImageService {
             return imageBaseUrl + fileName;
         } catch (IOException ex) {
             throw new IllegalStateException("Could not store file. Please try again.", ex);
+        }
+    }
+
+    /**
+     * Deletes the given uploaded images if nothing references them any more. Runs after the current
+     * transaction commits, so a change that is rolled back never loses its images. URLs that do not
+     * point at our own storage (external images) are ignored.
+     */
+    public void deleteIfUnreferencedAfterCommit(Collection<String> imageUrls) {
+        List<String> urls = imageUrls.stream().filter(Objects::nonNull).distinct().toList();
+        if (urls.isEmpty()) {
+            return;
+        }
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    urls.forEach(ImageService.this::deleteIfUnreferenced);
+                }
+            });
+        } else {
+            urls.forEach(this::deleteIfUnreferenced);
+        }
+    }
+
+    private void deleteIfUnreferenced(String url) {
+        if (!url.startsWith(imageBaseUrl)) {
+            return;
+        }
+        String fileName = url.substring(imageBaseUrl.length());
+        // Only names this service generates (UUID + image extension): never follow a path elsewhere.
+        if (!STORED_FILE_NAME.matcher(fileName).matches() || imageReferences.isReferenced(fileName)) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(fileStorageLocation.resolve(fileName));
+        } catch (IOException ex) {
+            // A leftover file only wastes disk space; never fail the user's request because of it.
+            log.warn("Could not delete unused image {}: {}", fileName, ex.getMessage());
         }
     }
 

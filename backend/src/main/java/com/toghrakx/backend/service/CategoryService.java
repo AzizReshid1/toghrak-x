@@ -6,7 +6,6 @@ import com.toghrakx.backend.repository.CategoryRepository;
 import com.toghrakx.backend.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 
@@ -60,7 +59,7 @@ public class CategoryService {
         Category existing = getCategoryById(id);
         if (postRepository.existsByCategoryId(id)) {
             long n = postRepository.countByCategoryId(id);
-            throw new DataIntegrityViolationException(
+            throw new IllegalStateException(
                     "Cannot delete category: there are still " + n + " post(s) assigned to it.");
         }
         categoryRepository.delete(existing);

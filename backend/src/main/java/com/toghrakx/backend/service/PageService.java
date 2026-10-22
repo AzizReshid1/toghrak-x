@@ -4,7 +4,6 @@ import com.toghrakx.backend.exception.ResourceNotFoundException;
 import com.toghrakx.backend.model.Page;
 import com.toghrakx.backend.repository.PageRepository;
 import com.toghrakx.backend.service.support.UserContentSanitizer;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,7 @@ public class PageService {
     public Page create(String slug, String title, String content, List<String> images) {
         String normalizedSlug = normalizeSlug(slug);
         if (pageRepository.existsBySlug(normalizedSlug)) {
-            throw new DataIntegrityViolationException("Page slug already exists: " + normalizedSlug);
+            throw new IllegalStateException("Page slug already exists: " + normalizedSlug);
         }
         Page page = Page.builder()
                 .slug(normalizedSlug)
@@ -46,7 +45,7 @@ public class PageService {
                 .orElseThrow(() -> new ResourceNotFoundException("Page not found: " + slug));
         String normalizedSlug = normalizeSlug(newSlug);
         if (!normalizedSlug.equals(existing.getSlug()) && pageRepository.existsBySlug(normalizedSlug)) {
-            throw new DataIntegrityViolationException("Page slug already exists: " + normalizedSlug);
+            throw new IllegalStateException("Page slug already exists: " + normalizedSlug);
         }
         existing.setSlug(normalizedSlug);
         existing.setTitle(title);

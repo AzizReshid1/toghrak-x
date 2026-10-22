@@ -112,6 +112,12 @@ public class UserService {
             if (request.getRoleName() != null && !request.getRoleName().isBlank()) {
                 Role newRole = roleRepository.findByName(request.getRoleName())
                         .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + request.getRoleName()));
+
+                // Same rule as deleteUser: demoting the last admin would leave nobody able to manage the site.
+                if ("ADMIN".equals(user.getRole().getName()) && !"ADMIN".equals(newRole.getName()) &&
+                        userRepository.countByRole_Name("ADMIN") <= 1) {
+                    throw new IllegalStateException("Cannot change the role of the last admin account.");
+                }
                 user.setRole(newRole);
             }
         } else {

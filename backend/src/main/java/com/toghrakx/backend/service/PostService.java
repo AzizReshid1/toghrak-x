@@ -132,20 +132,17 @@ public class PostService {
     }
 
     // 4️⃣ Retrieve a single post by slug (SEO-friendly URL)
+    // This is the public reader endpoint, so it is the only place a view is counted.
     public Post getPostBySlug(String slug) {
-        // Resolve slug → ID with a lightweight single-column query,
-        // then delegate to getPost() so view count increment logic stays in one place.
         Long id = postRepository.findIdBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found: " + slug));
+        postRepository.incrementViewCount(id);
         return getPost(id);
     }
 
-    // Retrieve a single post by numeric ID
+    // Retrieve a single post by numeric ID (edit form, admin) — read-only, does not count a view
+    @Transactional(readOnly = true)
     public Post getPost(Long postId) {
-        int updated = postRepository.incrementViewCount(postId);
-        if (updated == 0) {
-            throw new ResourceNotFoundException("Post not found: " + postId);
-        }
         return postRepository.findWithImagesById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found: " + postId));
     }

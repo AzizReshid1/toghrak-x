@@ -13,7 +13,8 @@ public class UpdateUserRequest {
     @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
     private String username;
 
-    @Size(min = 6, message = "Password must be at least 6 characters long")
+    // Same rule as CreateUserRequest. Optional: null keeps the current password.
+    @Size(min = 8, max = 72, message = "Password must be between 8 and 72 characters")
     private String password;
 
     @Email(message = "Invalid email format")

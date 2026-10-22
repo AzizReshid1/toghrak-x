@@ -32,8 +32,10 @@
         class="input"
         [(ngModel)]="form.password"
         name="password"
-        placeholder="Password"
+        placeholder="Password (8+ characters)"
         required
+        minlength="8"
+        maxlength="72"
         />
     </div>
     <div class="w-full sm:w-1/6">

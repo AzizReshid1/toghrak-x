@@ -75,8 +75,10 @@ public class JwtTokenService {
         try {
             Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
-        } catch (JwtException e) {
-            log.error("JWT validation failed: {}", e.getMessage());
+        } catch (JwtException | IllegalArgumentException e) {
+            // Anyone can send a fake, expired or empty token, so this is routine, not an error.
+            // Logged once, at DEBUG, so bad tokens cannot flood the logs; the request just stays anonymous.
+            log.debug("Rejected JWT: {}", e.getMessage());
         }
         return false;
     }

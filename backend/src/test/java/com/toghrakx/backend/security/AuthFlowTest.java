@@ -5,12 +5,16 @@ import com.toghrakx.backend.IntegrationTest;
 import com.toghrakx.backend.service.UserService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -20,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @IntegrationTest
 @AutoConfigureMockMvc
 @Transactional
+@ExtendWith(OutputCaptureExtension.class)
 class AuthFlowTest {
 
     @Autowired
@@ -53,8 +58,17 @@ class AuthFlowTest {
     }
 
     @Test
-    void invalidTokenIsRejected() throws Exception {
+    void invalidTokenIsRejectedWithoutErrorLogs(CapturedOutput output) throws Exception {
         mockMvc.perform(get("/api/users/me").header("Authorization", "Bearer not-a-real-token"))
+                .andExpect(status().isUnauthorized());
+
+        // Fake tokens are routine; they must not produce ERROR/WARN lines anyone can use to flood the logs
+        assertThat(output.getOut()).doesNotContain("JWT validation failed", "Invalid or expired JWT");
+    }
+
+    @Test
+    void emptyBearerTokenIsUnauthorizedNotAServerError() throws Exception {
+        mockMvc.perform(get("/api/users/me").header("Authorization", "Bearer "))
                 .andExpect(status().isUnauthorized());
     }
 }

@@ -1,5 +1,6 @@
 package com.toghrakx.backend.service;
 
+import com.toghrakx.backend.config.UploadPathResolver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -9,7 +10,6 @@ import java.io.IOException;
 import java.util.Locale;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Set;
 import java.util.UUID;
@@ -26,7 +26,7 @@ public class ImageService {
 
     public ImageService(@Value("${app.image.upload-dir}") String uploadDir,
             @Value("${app.image.base-url}") String imageBaseUrl) {
-        this.fileStorageLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
+        this.fileStorageLocation = UploadPathResolver.resolve(uploadDir);
         this.imageBaseUrl = normalizeBaseUrl(imageBaseUrl);
         try {
             Files.createDirectories(this.fileStorageLocation);

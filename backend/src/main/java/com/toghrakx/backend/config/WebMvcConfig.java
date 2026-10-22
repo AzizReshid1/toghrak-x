@@ -7,7 +7,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.lang.NonNull;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -15,7 +14,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final Path uploadPath;
 
     public WebMvcConfig(@Value("${app.image.upload-dir}") String uploadDir) {
-        this.uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        this.uploadPath = UploadPathResolver.resolve(uploadDir);
     }
 
     @Override

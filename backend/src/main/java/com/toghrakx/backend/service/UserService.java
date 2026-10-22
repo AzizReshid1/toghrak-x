@@ -9,6 +9,7 @@ import com.toghrakx.backend.model.User;
 import com.toghrakx.backend.repository.RoleRepository;
 import com.toghrakx.backend.repository.UserRepository;
 import com.toghrakx.backend.repository.PostRepository;
+import com.toghrakx.backend.repository.RefreshTokenRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,14 +24,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PostRepository postRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
             RoleRepository roleRepository, PostRepository postRepository,
+            RefreshTokenRepository refreshTokenRepository,
             PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.postRepository = postRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -142,6 +146,9 @@ public class UserService {
                             "Delete or transfer their posts first.");
         }
 
+        // Every login stores a refresh token pointing at the user; remove them first or the
+        // foreign key from refresh_tokens blocks the delete.
+        refreshTokenRepository.deleteAllByUserId(userId);
         userRepository.deleteById(userId);
     }
 

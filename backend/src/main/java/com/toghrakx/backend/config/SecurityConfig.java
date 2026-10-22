@@ -23,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 
 import java.util.List;
 
@@ -63,6 +64,16 @@ public class SecurityConfig {
     AccessDeniedHandler restAccessDeniedHandler() {
         return (request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN,
                 "Forbidden");
+    }
+
+    // JwtAuthenticationFilter is a @Component, so Spring Boot would also register it as a plain
+    // servlet filter and run it a second time outside Spring Security. It belongs only in the
+    // security chain (addFilterBefore below), so switch the automatic registration off.
+    @Bean
+    FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterServletRegistration(JwtAuthenticationFilter filter) {
+        FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 
     @Bean

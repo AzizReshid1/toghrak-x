@@ -79,31 +79,19 @@ public class PostService {
             throw new AccessDeniedException("You can only update your own posts!");
         }
 
-        String newTitle = request.getTitle();
-        String newContent = request.getContent();
-        Long newCategoryId = request.getCategoryId();
-        String newCoverImage = request.getCoverImage();
-        List<String> imageUrls = request.getImageUrls();
-
+        // PUT semantics: the request is the post's complete new state (title, content and category
+        // are validated as required). An empty cover image or gallery removes it.
         // The slug is set once at creation and never changes, so shared links and search results keep working.
-        if (newTitle != null && !newTitle.isBlank()) {
-            post.setTitle(newTitle);
-        }
-        if (newContent != null && !newContent.isBlank()) {
-            post.setContent(sanitizer.sanitize(newContent));
-        }
-        if (newCategoryId != null) {
-            Category category = categoryRepository.findById(newCategoryId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id=" + newCategoryId));
-            post.setCategory(category);
-        }
-        if (newCoverImage != null && !newCoverImage.isBlank()) {
-            post.setCoverImage(newCoverImage);
-        }
+        Long newCategoryId = request.getCategoryId();
+        Category category = categoryRepository.findById(newCategoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id=" + newCategoryId));
+        String newCoverImage = request.getCoverImage();
 
-        if (imageUrls != null) {
-            setImages(post, imageUrls);
-        }
+        post.setTitle(request.getTitle());
+        post.setContent(sanitizer.sanitize(request.getContent()));
+        post.setCategory(category);
+        post.setCoverImage(newCoverImage == null || newCoverImage.isBlank() ? null : newCoverImage);
+        setImages(post, request.getImageUrls());
 
         // updatedAt is set automatically by @PreUpdate on Post — no manual assignment needed.
         Post saved = postRepository.save(post);

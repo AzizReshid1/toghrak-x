@@ -1,6 +1,7 @@
 package com.toghrakx.backend.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,13 +19,14 @@ public class UpdatePostRequest {
     @NotBlank(message = "Content cannot be empty")
     private String content;
 
-    // Optional, can be null if category remains unchanged
+    // PUT replaces the whole post, so this is its complete new state.
+    @NotNull(message = "Category ID is required")
     private Long categoryId;
 
-    // Optional cover image URL
+    // Null or blank removes the cover image
     @Size(max = 255, message = "Cover image URL is too long")
     private String coverImage;
 
-    // Optional: list of image URLs to update/replace the existing images
+    // Replaces the gallery; null or empty removes all gallery images
     private List<@Size(max = 255, message = "Image URL is too long") String> imageUrls;
 }

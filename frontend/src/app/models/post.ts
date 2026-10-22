@@ -43,10 +43,11 @@ export interface CreatePostRequest {
   imageUrls?: string[];
 }
 
+/** PUT replaces the whole post: send its complete new state. Null cover image / empty gallery removes them. */
 export interface UpdatePostRequest {
-  title?: string;
-  content?: string;
-  categoryId?: number;
+  title: string;
+  content: string;
+  categoryId: number;
   coverImage?: string | null;
   imageUrls?: string[];
 }

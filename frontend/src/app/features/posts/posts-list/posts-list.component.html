@@ -126,21 +126,21 @@
         }
 
         <!-- ── PAGINATION ─────────────────────────────────────────── -->
-        @if (page && page.totalPages > 1) {
+        @if (page && page.page.totalPages > 1) {
           <nav class="pagination-nav" aria-label="Article pagination">
             <ul class="pagination">
               <li>
                 <button class="page-btn" aria-label="Previous page"
-                  (click)="goToPage(page.number - 1)" [disabled]="page.first">
+                  (click)="goToPage(page.page.number - 1)" [disabled]="page.page.number === 0">
                   ← Previous
                 </button>
               </li>
               <li>
-                <span class="page-btn opacity-50 pointer-events-none">Page {{ page.number + 1 }} of {{ page.totalPages }}</span>
+                <span class="page-btn opacity-50 pointer-events-none">Page {{ page.page.number + 1 }} of {{ page.page.totalPages }}</span>
               </li>
               <li>
                 <button class="page-btn" aria-label="Next page"
-                  (click)="goToPage(page.number + 1)" [disabled]="page.last">
+                  (click)="goToPage(page.page.number + 1)" [disabled]="page.page.number + 1 >= page.page.totalPages">
                   Next →
                 </button>
               </li>

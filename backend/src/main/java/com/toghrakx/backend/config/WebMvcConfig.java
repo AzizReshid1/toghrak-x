@@ -2,13 +2,17 @@ package com.toghrakx.backend.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.lang.NonNull;
 
 import java.nio.file.Path;
 
+// VIA_DTO: paged responses use Spring Data's stable JSON shape { content, page: { size, number,
+// totalElements, totalPages } } instead of serialising PageImpl, whose fields can change between versions.
 @Configuration
+@EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final Path uploadPath;

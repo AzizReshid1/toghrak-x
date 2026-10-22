@@ -35,10 +35,7 @@ public class PageService {
                 .content(sanitizer.sanitize(content))
                 .images(cleanImages(images))
                 .build();
-        pageRepository.save(page);
-        // Ensure images are initialized for response mapping (Open-in-view is disabled)
-        return pageRepository.findBySlug(normalizedSlug)
-                .orElseThrow(() -> new ResourceNotFoundException("Page not found: " + normalizedSlug));
+        return pageRepository.save(page);
     }
 
     public Page update(String slug, String newSlug, String title, String content, List<String> images) {
@@ -52,10 +49,8 @@ public class PageService {
         existing.setTitle(title);
         existing.setContent(sanitizer.sanitize(content));
         existing.setImages(cleanImages(images));
-        pageRepository.save(existing);
-        // Ensure images are initialized for response mapping (Open-in-view is disabled)
-        return pageRepository.findBySlug(normalizedSlug)
-                .orElseThrow(() -> new ResourceNotFoundException("Page not found: " + normalizedSlug));
+        // findBySlug above already loaded the images, so the saved page can be returned as is
+        return pageRepository.save(existing);
     }
 
     public void delete(String slug) {

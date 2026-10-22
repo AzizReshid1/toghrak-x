@@ -65,14 +65,14 @@ public class PostService {
 
         setImages(post, request.getImageUrls());
 
-        Post saved = postRepository.save(post);
-        return postRepository.findWithImagesById(saved.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Post not found: " + saved.getId()));
+        // Author, category and images are already loaded objects, so the saved post can be returned as is
+        return postRepository.save(post);
     }
 
     // 2️⃣ Update an existing post
     public Post updatePost(Long postId, Long requestUserId, boolean requestUserAdmin, UpdatePostRequest request) {
-        Post post = postRepository.findById(postId)
+        // Loaded with author, category and images up front, so the result can be returned without a second query
+        Post post = postRepository.findWithImagesById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found: " + postId));
 
         User author = post.getAuthor();
@@ -102,8 +102,7 @@ public class PostService {
         // updatedAt is set automatically by @PreUpdate on Post — no manual assignment needed.
         Post saved = postRepository.save(post);
         imageService.deleteIfUnreferencedAfterCommit(previousImages);
-        return postRepository.findWithImagesById(saved.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Post not found: " + saved.getId()));
+        return saved;
     }
 
     // 3️⃣ Delete a post

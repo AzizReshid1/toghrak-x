@@ -21,7 +21,8 @@
         @if (page.updatedAt) {
           <div class="page-meta">Updated: {{ page.updatedAt | date: 'mediumDate' }}</div>
         }
-        <div class="page-content">{{ page.content }}</div>
+        <!-- Content is HTML (sanitized by the backend); [innerHTML] renders it and Angular sanitizes it again -->
+        <div class="page-content post-content" [innerHTML]="page.content"></div>
       </div>
     </section>
     @if (page.images; as imgs) {

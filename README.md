@@ -57,7 +57,7 @@ There are two roles:
 - Angular 21, TypeScript 5.9, RxJS 7.8
 - Tailwind CSS 3 plus component CSS
 - Quill 2 rich-text editor (ngx-quill)
-- Karma and Jasmine for unit tests
+- Vitest (Angular's `unit-test` builder, jsdom) for unit tests
 
 ### Backend (`backend/`)
 - Spring Boot 3.5.9, Java 21
@@ -140,7 +140,7 @@ Integration tests start a throwaway PostgreSQL in Docker (Testcontainers). Witho
 cd frontend
 npx ng test
 ```
-Runs the unit tests in Chrome (Karma). Use `npx ng test --watch=false --browsers=ChromeHeadless` for a single headless run.
+Runs the unit tests with Vitest in Node (jsdom); no browser is needed. Use `npx ng test --watch=false` for a single run instead of watch mode.
 
 ---
 

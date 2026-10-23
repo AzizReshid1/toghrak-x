@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -29,7 +30,7 @@ describe('AppComponent', () => {
   let userSubject: BehaviorSubject<User | null>;
   let loggedInSubject: BehaviorSubject<boolean>;
   let highlightSubject: BehaviorSubject<NavHighlightCategory | null>;
-  let uiService: { toasts$: any; dismiss: jasmine.Spy };
+  let uiService: { toasts$: any; dismiss: Mock };
 
   beforeEach(async () => {
     document.body.style.overflow = '';
@@ -41,9 +42,8 @@ describe('AppComponent', () => {
 
     uiService = {
       toasts$: toastsSubject.asObservable(),
-      dismiss: jasmine
-        .createSpy('dismiss')
-        .and.callFake((id: number) => toastsSubject.next(toastsSubject.value.filter((t) => t.id !== id))),
+      dismiss: vi.fn()
+        .mockImplementation((id: number) => toastsSubject.next(toastsSubject.value.filter((t) => t.id !== id))),
     };
 
     await TestBed.configureTestingModule({
@@ -86,7 +86,7 @@ describe('AppComponent', () => {
     toggleBtn.click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.isMenuOpen).toBeTrue();
+    expect(fixture.componentInstance.isMenuOpen).toBe(true);
     expect(document.body.style.overflow).toBe('hidden');
     expect(fixture.nativeElement.querySelector('.menu-backdrop')).toBeTruthy();
 
@@ -94,7 +94,7 @@ describe('AppComponent', () => {
     closeBtn.click();
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.isMenuOpen).toBeFalse();
+    expect(fixture.componentInstance.isMenuOpen).toBe(false);
     expect(document.body.style.overflow).toBe('');
   });
 
@@ -105,13 +105,13 @@ describe('AppComponent', () => {
 
     await router.navigateByUrl('/category/news');
     expect(fixture.componentInstance.activeCategorySlug).toBe('news');
-    expect(fixture.componentInstance.isHomeActive).toBeFalse();
+    expect(fixture.componentInstance.isHomeActive).toBe(false);
 
     await router.navigateByUrl('/search');
     expect(fixture.componentInstance.activeCategorySlug).toBeNull();
 
     await router.navigateByUrl('/');
-    expect(fixture.componentInstance.isHomeActive).toBeTrue();
+    expect(fixture.componentInstance.isHomeActive).toBe(true);
   });
 
   it('highlights the category of the post being read, but not on the post editor', async () => {
@@ -139,17 +139,17 @@ describe('AppComponent', () => {
 
     open();
     details.querySelector('.account-panel')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(fixture.componentInstance.isAccountMenuOpen).toBeTrue();
+    expect(fixture.componentInstance.isAccountMenuOpen).toBe(true);
 
     document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
-    expect(fixture.componentInstance.isAccountMenuOpen).toBeFalse();
-    expect(details.open).toBeFalse();
+    expect(fixture.componentInstance.isAccountMenuOpen).toBe(false);
+    expect(details.open).toBe(false);
 
     open();
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     fixture.detectChanges();
-    expect(fixture.componentInstance.isAccountMenuOpen).toBeFalse();
+    expect(fixture.componentInstance.isAccountMenuOpen).toBe(false);
   });
 
   it('tracks account menu open/close via details toggle', () => {
@@ -162,12 +162,12 @@ describe('AppComponent', () => {
     details.open = true;
     details.dispatchEvent(new Event('toggle'));
     fixture.detectChanges();
-    expect(fixture.componentInstance.isAccountMenuOpen).toBeTrue();
+    expect(fixture.componentInstance.isAccountMenuOpen).toBe(true);
 
     details.open = false;
     details.dispatchEvent(new Event('toggle'));
     fixture.detectChanges();
-    expect(fixture.componentInstance.isAccountMenuOpen).toBeFalse();
+    expect(fixture.componentInstance.isAccountMenuOpen).toBe(false);
   });
 
   it('closes menus when a nav link is clicked', () => {
@@ -181,8 +181,8 @@ describe('AppComponent', () => {
     details.open = true;
     details.dispatchEvent(new Event('toggle'));
     fixture.detectChanges();
-    expect(fixture.componentInstance.isMenuOpen).toBeTrue();
-    expect(fixture.componentInstance.isAccountMenuOpen).toBeTrue();
+    expect(fixture.componentInstance.isMenuOpen).toBe(true);
+    expect(fixture.componentInstance.isAccountMenuOpen).toBe(true);
     expect(document.body.style.overflow).toBe('hidden');
 
     const homeLink = fixture.debugElement
@@ -193,8 +193,8 @@ describe('AppComponent', () => {
     homeLink!.triggerEventHandler('click', new MouseEvent('click'));
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.isMenuOpen).toBeFalse();
-    expect(fixture.componentInstance.isAccountMenuOpen).toBeFalse();
+    expect(fixture.componentInstance.isMenuOpen).toBe(false);
+    expect(fixture.componentInstance.isAccountMenuOpen).toBe(false);
     expect(document.body.style.overflow).toBe('');
   });
 
@@ -213,7 +213,7 @@ describe('AppComponent', () => {
     (toasts[0].querySelector('.toast-close') as HTMLButtonElement).click();
     fixture.detectChanges();
 
-    expect(uiService.dismiss).toHaveBeenCalledOnceWith(1);
+    expect(uiService.dismiss).toHaveBeenCalledExactlyOnceWith(1);
     const remaining = fixture.nativeElement.querySelectorAll('.toast');
     expect(remaining.length).toBe(1);
     expect(remaining[0].textContent).toContain('Saved.');

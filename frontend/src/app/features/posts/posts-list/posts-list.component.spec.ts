@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -9,10 +10,10 @@ import { CategoriesService } from '../../../services/categories.service';
 import { SessionService } from '../../../services/session.service';
 
 describe('PostsListComponent', () => {
-  let router: jasmine.SpyObj<Router>;
+  let router: { navigate: Mock };
 
   function openCategory(categoryAnswer: any): PostsListComponent {
-    router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    router = { navigate: vi.fn() };
     TestBed.configureTestingModule({
       imports: [PostsListComponent],
       schemas: [NO_ERRORS_SCHEMA],

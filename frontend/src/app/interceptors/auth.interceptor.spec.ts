@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -9,13 +10,13 @@ import { AuthService } from '../services/auth.service';
 describe('authInterceptor', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
-  let auth: jasmine.SpyObj<AuthService>;
-  let router: jasmine.SpyObj<Router>;
+  let auth: { getToken: Mock; logout: Mock; refresh: Mock };
+  let router: { navigateByUrl: Mock };
 
   beforeEach(() => {
-    auth = jasmine.createSpyObj<AuthService>('AuthService', ['getToken', 'logout', 'refresh']);
-    auth.getToken.and.returnValue('token');
-    router = jasmine.createSpyObj<Router>('Router', ['navigateByUrl']);
+    auth = { getToken: vi.fn(), logout: vi.fn(), refresh: vi.fn() };
+    auth.getToken.mockReturnValue('token');
+    router = { navigateByUrl: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -36,10 +37,10 @@ describe('authInterceptor', () => {
     expect(httpMock.expectOne('/api/posts').request.headers.get('Authorization')).toBe('Bearer token');
 
     http.get('https://other-site.example/data').subscribe();
-    expect(httpMock.expectOne('https://other-site.example/data').request.headers.has('Authorization')).toBeFalse();
+    expect(httpMock.expectOne('https://other-site.example/data').request.headers.has('Authorization')).toBe(false);
 
     http.get('/apiary').subscribe(); // only the /api prefix itself, not URLs that merely start alike
-    expect(httpMock.expectOne('/apiary').request.headers.has('Authorization')).toBeFalse();
+    expect(httpMock.expectOne('/apiary').request.headers.has('Authorization')).toBe(false);
   });
 
   it('keeps the session on 403 (not allowed is not logged out)', () => {
@@ -51,7 +52,7 @@ describe('authInterceptor', () => {
   });
 
   it('logs out when a 401 cannot be fixed by refreshing the token', () => {
-    auth.refresh.and.returnValue(throwError(() => new Error('refresh failed')));
+    auth.refresh.mockReturnValue(throwError(() => new Error('refresh failed')));
 
     http.get('/api/users/me').subscribe({ next: () => {}, error: () => {} });
     httpMock.expectOne('/api/users/me').flush(null, { status: 401, statusText: 'Unauthorized' });
@@ -61,7 +62,7 @@ describe('authInterceptor', () => {
   });
 
   it('retries a request that got 401 with the token from the refresh', () => {
-    auth.refresh.and.returnValue(of({ token: 'new-token' }));
+    auth.refresh.mockReturnValue(of({ token: 'new-token' }));
 
     http.get('/api/users/me').subscribe();
     httpMock.expectOne('/api/users/me').flush(null, { status: 401, statusText: 'Unauthorized' });
@@ -73,9 +74,9 @@ describe('authInterceptor', () => {
 
   it('logs out only once when several requests fail and the refresh fails', () => {
     let token: string | null = 'expired-token';
-    auth.getToken.and.callFake(() => token);
-    auth.logout.and.callFake(() => (token = null));
-    auth.refresh.and.returnValue(throwError(() => new Error('refresh failed')));
+    auth.getToken.mockImplementation(() => token);
+    auth.logout.mockImplementation(() => (token = null));
+    auth.refresh.mockReturnValue(throwError(() => new Error('refresh failed')));
 
     http.get('/api/a').subscribe({ next: () => {}, error: () => {} });
     http.get('/api/b').subscribe({ next: () => {}, error: () => {} });

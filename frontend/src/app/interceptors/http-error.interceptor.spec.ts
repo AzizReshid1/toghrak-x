@@ -28,7 +28,7 @@ describe('httpErrorInterceptor', () => {
   });
 
   it('shows a network error message when status is 0', () => {
-    spyOn(ui, 'show').and.callThrough();
+    vi.spyOn(ui, 'show');
 
     http.get('/api/ping').subscribe({ next: () => {}, error: () => {} });
     const req = httpMock.expectOne('/api/ping');
@@ -41,7 +41,7 @@ describe('httpErrorInterceptor', () => {
   });
 
   it('shows a server error message when status is 500+', () => {
-    spyOn(ui, 'show').and.callThrough();
+    vi.spyOn(ui, 'show');
 
     http.get('/api/ping').subscribe({ next: () => {}, error: () => {} });
     const req = httpMock.expectOne('/api/ping');
@@ -54,7 +54,7 @@ describe('httpErrorInterceptor', () => {
   });
 
   it('does not show a message for 4xx errors', () => {
-    spyOn(ui, 'show').and.callThrough();
+    vi.spyOn(ui, 'show');
 
     http.get('/api/ping').subscribe({ next: () => {}, error: () => {} });
     const req = httpMock.expectOne('/api/ping');
@@ -64,7 +64,7 @@ describe('httpErrorInterceptor', () => {
   });
 
   it('shows the ProblemDetail reason from the server when a save fails', () => {
-    spyOn(ui, 'show').and.callThrough();
+    vi.spyOn(ui, 'show');
 
     http.delete('/api/categories/1').subscribe({ next: () => {}, error: () => {} });
     httpMock.expectOne('/api/categories/1').flush(
@@ -79,7 +79,7 @@ describe('httpErrorInterceptor', () => {
   });
 
   it('shows the field messages of a validation error', () => {
-    spyOn(ui, 'show').and.callThrough();
+    vi.spyOn(ui, 'show');
 
     http.post('/api/users', {}).subscribe({ next: () => {}, error: () => {} });
     httpMock.expectOne('/api/users').flush(
@@ -91,7 +91,7 @@ describe('httpErrorInterceptor', () => {
   });
 
   it('falls back to a plain message when the response has no reason', () => {
-    spyOn(ui, 'show').and.callThrough();
+    vi.spyOn(ui, 'show');
 
     http.put('/api/pages/about', {}).subscribe({ next: () => {}, error: () => {} });
     httpMock.expectOne('/api/pages/about').flush(null, { status: 403, statusText: 'Forbidden' });
@@ -100,7 +100,7 @@ describe('httpErrorInterceptor', () => {
   });
 
   it('leaves 401 to the auth flow, except for a failed login', () => {
-    spyOn(ui, 'show').and.callThrough();
+    vi.spyOn(ui, 'show');
 
     http.post('/api/auth/refresh', {}).subscribe({ next: () => {}, error: () => {} });
     httpMock.expectOne('/api/auth/refresh').flush(null, { status: 401, statusText: 'Unauthorized' });
@@ -112,7 +112,7 @@ describe('httpErrorInterceptor', () => {
   });
 
   it('stays silent for requests marked SKIP_ERROR_TOAST', () => {
-    spyOn(ui, 'show').and.callThrough();
+    vi.spyOn(ui, 'show');
 
     http.post('/api/posts/1/view', null, { context: new HttpContext().set(SKIP_ERROR_TOAST, true) })
       .subscribe({ next: () => {}, error: () => {} });

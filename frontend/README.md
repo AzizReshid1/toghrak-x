@@ -22,8 +22,8 @@ The output goes to `dist/toghrak-x/browser`. The app calls the API through the r
 ## Tests
 
 ```bash
-npx ng test                                        # Karma, Chrome, watch mode
-npx ng test --watch=false --browsers=ChromeHeadless  # single headless run
+npx ng test                 # Vitest, watch mode
+npx ng test --watch=false   # single run
 ```
 
 ## Layout

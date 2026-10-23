@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, map, of } from 'rxjs';
 import { AppComponent } from './app.component';
 import { AuthService } from './services/auth.service';
 import { SessionService } from './services/session.service';
@@ -64,7 +64,11 @@ describe('AppComponent', () => {
         { provide: AuthService, useValue: { logout: () => {} } },
         {
           provide: SessionService,
-          useValue: { isLoggedIn$: loggedInSubject.asObservable(), user$: userSubject.asObservable() },
+          useValue: {
+            isLoggedIn$: loggedInSubject.asObservable(),
+            user$: userSubject.asObservable(),
+            isAdmin$: userSubject.pipe(map((u) => u?.roleName === 'ADMIN')),
+          },
         },
         { provide: CategoriesService, useValue: { categories$: of(categories), refresh: () => {} } },
         { provide: PagesService, useValue: { pages$: of([]), load: () => {} } },

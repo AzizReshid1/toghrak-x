@@ -39,9 +39,9 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.session.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
       this.currentUser = user ?? undefined;
-      this.isAdmin = user?.roleName === 'ADMIN';
       this.updateOwnershipFlag();
     });
+    this.session.isAdmin$.pipe(takeUntil(this.destroy$)).subscribe((isAdmin) => (this.isAdmin = isAdmin));
 
     const slug = this.route.snapshot.paramMap.get('slug');
     if (!slug) {

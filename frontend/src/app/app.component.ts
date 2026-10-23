@@ -74,10 +74,8 @@ export class AppComponent implements OnInit, OnDestroy {
       )
       .subscribe((e) => this.updateActiveSectionFromUrl(e.urlAfterRedirects));
 
-    this.session.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
-      this.currentUser = user ?? undefined;
-      this.isAdmin = user?.roleName === 'ADMIN';
-    });
+    this.session.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => (this.currentUser = user ?? undefined));
+    this.session.isAdmin$.pipe(takeUntil(this.destroy$)).subscribe((isAdmin) => (this.isAdmin = isAdmin));
 
     this.categoriesService.categories$
       .pipe(takeUntil(this.destroy$))

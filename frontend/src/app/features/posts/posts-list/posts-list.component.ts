@@ -46,10 +46,8 @@ export class PostsListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.session.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
-      this.currentUser = user ?? undefined;
-      this.isAdmin = user?.roleName === 'ADMIN';
-    });
+    this.session.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => (this.currentUser = user ?? undefined));
+    this.session.isAdmin$.pipe(takeUntil(this.destroy$)).subscribe((isAdmin) => (this.isAdmin = isAdmin));
 
     combineLatest([this.route.paramMap, this.route.queryParamMap])
       .pipe(takeUntil(this.destroy$))

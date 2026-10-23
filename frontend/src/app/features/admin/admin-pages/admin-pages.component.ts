@@ -1,5 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { PagesService } from '../../../services/pages.service';
 import { ImagesService } from '../../../services/images.service';
 import { ContentPage, UpsertContentPageRequest } from '../../../models/content-page';
@@ -18,7 +19,7 @@ const RESERVED_SLUGS = new Set([
     templateUrl: './admin-pages.component.html',
     imports: [FormsModule, QuillEditorComponent]
 })
-export class AdminPagesComponent implements OnInit, OnDestroy {
+export class AdminPagesComponent implements OnInit {
   pages: ContentPage[] = [];
   loading = false;
   saving = false;
@@ -36,7 +37,7 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
   // this page, even when its slug is being renamed; looking it up by the new slug would create a copy.
   editingSlug: string | null = null;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private pageService: PagesService,
@@ -48,15 +49,10 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
     this.fetch();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   fetch(): void {
     this.loading = true;
     this.pageService.list()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (pages) => {
           this.pages = pages;
@@ -110,7 +106,7 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
     const req$ = isUpdate
       ? this.pageService.update(this.editingSlug!, this.current)
       : this.pageService.create(this.current);
-    req$.pipe(takeUntil(this.destroy$)).subscribe({
+    req$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.saving = false;
         this.editingSlug = normalized; // a renamed page now lives at its new slug
@@ -125,7 +121,7 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
   remove(slug: string): void {
     if (!confirm('Delete this page?')) return;
     this.pageService.delete(slug)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.ui.success('Page deleted.');
@@ -159,7 +155,7 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
     const file = input.files[0];
     this.uploading = true;
     this.imagesService.upload(file)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (resp) => {
           this.addImageUrl(resp.imageUrl);

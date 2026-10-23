@@ -1,9 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Location, DatePipe } from '@angular/common';
 import { PostsService } from '../../../services/posts.service';
 import { PostResponse } from '../../../models/post';
-import { Subject, catchError, filter, map, of, switchMap, takeUntil } from 'rxjs';
+import { catchError, filter, map, of, switchMap } from 'rxjs';
 import { User } from '../../../models/user';
 import { SessionService } from '../../../services/session.service';
 import { NavHighlightService } from '../../../services/nav-highlight.service';
@@ -25,7 +26,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   currentUser?: User;
   isAdmin = false;
   isOwner = false;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -37,11 +38,11 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.session.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
+    this.session.user$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
       this.currentUser = user ?? undefined;
       this.updateOwnershipFlag();
     });
-    this.session.isAdmin$.pipe(takeUntil(this.destroy$)).subscribe((isAdmin) => (this.isAdmin = isAdmin));
+    this.session.isAdmin$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((isAdmin) => (this.isAdmin = isAdmin));
 
     // React to every slug, not just the first one: Angular reuses this component when only the
     // slug changes (e.g. a link from one post to another). switchMap cancels the previous request,
@@ -55,15 +56,13 @@ export class PostDetailComponent implements OnInit, OnDestroy {
           this.error = null;
           return this.posts.getBySlug(slug).pipe(catchError(() => of(null)));
         }),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((post) => (post ? this.show(post) : this.showNotFound()));
   }
 
   ngOnDestroy(): void {
     this.navHighlight.clear();
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   goBack(): void {
@@ -94,7 +93,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     if (!this.post || this.deleting) return;
     if (!confirm('Delete this post?')) return;
     this.deleting = true;
-    this.posts.delete(this.post.id).pipe(takeUntil(this.destroy$)).subscribe({
+    this.posts.delete(this.post.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.router.navigateByUrl('/'),
       // The reason is shown as a toast by httpErrorInterceptor; the post stays on screen
       error: () => (this.deleting = false),

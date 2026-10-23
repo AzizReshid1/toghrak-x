@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, forkJoin, takeUntil } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { CategoriesService } from '../../../services/categories.service';
 import { PostsService } from '../../../services/posts.service';
 import { ImagesService } from '../../../services/images.service';
@@ -21,7 +22,7 @@ import { QuillEditorComponent } from 'ngx-quill';
     styleUrls: ['./post-form.component.css'],
     imports: [ReactiveFormsModule, QuillEditorComponent]
 })
-export class PostFormComponent implements OnInit, OnDestroy {
+export class PostFormComponent implements OnInit {
   isEdit = false;
   postId?: number;
   categories: Category[] = [];
@@ -39,7 +40,7 @@ export class PostFormComponent implements OnInit, OnDestroy {
     coverImage: [''],
   });
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private fb: FormBuilder,
@@ -61,14 +62,9 @@ export class PostFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   loadCategories(): void {
     this.categoriesService.list()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (cats) => (this.categories = cats),
         error: () => (this.error = 'Failed to load categories.'),
@@ -78,7 +74,7 @@ export class PostFormComponent implements OnInit, OnDestroy {
   loadPost(id: number): void {
     this.loading = true;
     this.postsService.get(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (p: PostResponse) => {
           this.form.patchValue({
@@ -122,7 +118,7 @@ export class PostFormComponent implements OnInit, OnDestroy {
         ? this.postsService.update(this.postId, payload as UpdatePostRequest)
         : this.postsService.create(payload as CreatePostRequest);
 
-    request$.pipe(takeUntil(this.destroy$)).subscribe({
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         // The toast stays visible on the next page, so there is no need to wait before navigating
         this.ui.success(this.isEdit ? 'Post updated successfully.' : 'Post published successfully.');
@@ -139,7 +135,7 @@ export class PostFormComponent implements OnInit, OnDestroy {
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
     this.imagesService.upload(file)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (resp) => this.form.patchValue({ coverImage: resp.imageUrl }),
         // The reason (e.g. not a valid image, too large) is shown as a toast by httpErrorInterceptor
@@ -156,7 +152,7 @@ export class PostFormComponent implements OnInit, OnDestroy {
     // forkJoin runs all uploads in parallel and emits once all complete,
     // or errors immediately if any single upload fails — no counter race condition.
     forkJoin(files.map((file) => this.imagesService.upload(file)))
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (responses) => {
           this.imageUrls = [...this.imageUrls, ...responses.map((r) => r.imageUrl)];

@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Observable, Subject, combineLatest, takeUntil } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { PostsService } from '../../../services/posts.service';
 import { PostSummary } from '../../../models/post';
 import { Page } from '../../../models/page';
@@ -17,7 +18,7 @@ import { DatePipe } from '@angular/common';
     styleUrls: ['./posts-list.component.css'],
     imports: [RouterLink, DatePipe]
 })
-export class PostsListComponent implements OnInit, OnDestroy {
+export class PostsListComponent implements OnInit {
   page?: Page<PostSummary>;
   loading = false;
   error: string | null = null;
@@ -31,7 +32,7 @@ export class PostsListComponent implements OnInit, OnDestroy {
   isAdmin = false;
   currentCategoryId?: number;
   currentCategorySlug?: string | null;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private postsService: PostsService,
@@ -48,11 +49,11 @@ export class PostsListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.session.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => (this.currentUser = user ?? undefined));
-    this.session.isAdmin$.pipe(takeUntil(this.destroy$)).subscribe((isAdmin) => (this.isAdmin = isAdmin));
+    this.session.user$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => (this.currentUser = user ?? undefined));
+    this.session.isAdmin$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((isAdmin) => (this.isAdmin = isAdmin));
 
     combineLatest([this.route.paramMap, this.route.queryParamMap])
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(([params, q]) => {
         const slug = params.get('slug');
         const pageParam = q.get('page');
@@ -74,11 +75,6 @@ export class PostsListComponent implements OnInit, OnDestroy {
     this.loadPopular();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   canEdit(post: PostSummary): boolean {
     if (this.isAdmin) return true;
     // Compare ids, not usernames: a username can change, the id cannot
@@ -91,7 +87,7 @@ export class PostsListComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
     this.postsService.list(page, this.pageSize, categoryId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: Page<PostSummary>) => {
           this.page = res;
@@ -125,7 +121,7 @@ export class PostsListComponent implements OnInit, OnDestroy {
   private loadPopular() {
     this.popularLoading = true;
     this.postsService.popular(6)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           this.popular = res;
@@ -140,7 +136,7 @@ export class PostsListComponent implements OnInit, OnDestroy {
 
   private resolveCategoryBySlug(slug: string, pageNum: number) {
     this.categoriesService.getBySlug(slug)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
       next: (cat: Category) => {
         this.currentCategoryId = cat.id;

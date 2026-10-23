@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Subject, of, takeUntil, switchMap, catchError } from 'rxjs';
+import { Subject, of, switchMap, catchError } from 'rxjs';
 import { SearchService } from '../../../services/search.service';
 import { SearchResult } from '../../../models/search-result';
 import { FormsModule } from '@angular/forms';
@@ -12,14 +13,14 @@ import { NgTemplateOutlet } from '@angular/common';
     styleUrls: ['./search.component.css'],
     imports: [FormsModule, NgTemplateOutlet, RouterLink]
 })
-export class SearchComponent implements OnInit, OnDestroy {
+export class SearchComponent implements OnInit {
   query = '';
   results: SearchResult[] = [];
   loading = false;
   error: string | null = null;
   hasSearched = false;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -57,17 +58,12 @@ export class SearchComponent implements OnInit, OnDestroy {
             })
           );
         }),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((res) => {
         this.results = res;
         this.loading = false;
       });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   // Navigate with the updated query — this updates the URL and triggers

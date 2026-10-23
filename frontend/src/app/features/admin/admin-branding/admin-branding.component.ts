@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NgForm, FormsModule } from '@angular/forms';
-import { Subject, skip, takeUntil } from 'rxjs';
+import { skip } from 'rxjs';
 import { SiteSettingsService } from '../../../services/site-settings.service';
 import { ImagesService } from '../../../services/images.service';
 import { SiteSettings } from '../../../models/site-settings';
@@ -12,7 +13,7 @@ import { UiMessageService } from '../../../services/ui-message.service';
     styleUrls: ['./admin-branding.component.css'],
     imports: [FormsModule]
 })
-export class AdminBrandingComponent implements OnInit, OnDestroy {
+export class AdminBrandingComponent implements OnInit {
   form: Partial<SiteSettings> = {
     title: 'Toghrak X',
     logoUrl: '',
@@ -21,7 +22,7 @@ export class AdminBrandingComponent implements OnInit, OnDestroy {
   loading = false;
   saving = false;
   error?: string;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private settings: SiteSettingsService,
@@ -34,7 +35,7 @@ export class AdminBrandingComponent implements OnInit, OnDestroy {
     // skip(1) skips the BehaviorSubject's initial null so loading stays true
     // until the HTTP response (or error) actually arrives.
     this.settings.settings$
-      .pipe(skip(1), takeUntil(this.destroy$))
+      .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
       .subscribe((s) => {
         if (s) {
           this.form.title = s.title || 'Toghrak X';
@@ -47,11 +48,6 @@ export class AdminBrandingComponent implements OnInit, OnDestroy {
         this.loading = false;
       });
     this.settings.load();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   onFileSelected(event: Event) {

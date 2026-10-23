@@ -1,5 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, catchError, of, switchMap, takeUntil } from 'rxjs';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, of, switchMap } from 'rxjs';
 import { User } from '../../../models/user';
 import { SessionService } from '../../../services/session.service';
 
@@ -7,12 +8,12 @@ import { SessionService } from '../../../services/session.service';
     selector: 'app-profile',
     templateUrl: './profile.component.html'
 })
-export class ProfileComponent implements OnInit, OnDestroy {
+export class ProfileComponent implements OnInit {
   user?: User;
   loading = false;
   error: string | null = null;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(private session: SessionService) {}
 
@@ -23,7 +24,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.session.user$
       .pipe(
         switchMap((u) => (u ? of(u) : this.session.refreshUser().pipe(catchError(() => of(null))))),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((u) => {
         this.user = u ?? undefined;
@@ -32,8 +33,4 @@ export class ProfileComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

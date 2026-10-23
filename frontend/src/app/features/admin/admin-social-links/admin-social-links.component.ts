@@ -1,5 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { SocialLinksService } from '../../../services/social-links.service';
 import { SocialLink } from '../../../models/social-link';
 import { UiMessageService } from '../../../services/ui-message.service';
@@ -10,23 +11,18 @@ import { FormsModule } from '@angular/forms';
     templateUrl: './admin-social-links.component.html',
     imports: [FormsModule]
 })
-export class AdminSocialLinksComponent implements OnInit, OnDestroy {
+export class AdminSocialLinksComponent implements OnInit {
   links: SocialLink[] = [];
   saving = false;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(private socialLinks: SocialLinksService, private ui: UiMessageService) {}
 
   ngOnInit(): void {
     this.socialLinks.links$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((links) => (this.links = [...links]));
     this.socialLinks.load();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   add() {
@@ -42,7 +38,7 @@ export class AdminSocialLinksComponent implements OnInit, OnDestroy {
     const req$ = link.id
       ? this.socialLinks.update(link.id, link)
       : this.socialLinks.create(link);
-    req$.pipe(takeUntil(this.destroy$)).subscribe({
+    req$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.saving = false;
         this.ui.success('Link saved.');
@@ -58,7 +54,7 @@ export class AdminSocialLinksComponent implements OnInit, OnDestroy {
       this.links = this.links.filter((l) => l !== link);
       return;
     }
-    this.socialLinks.delete(link.id).pipe(takeUntil(this.destroy$)).subscribe({
+    this.socialLinks.delete(link.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.ui.success('Link deleted.'),
       error: () => {}, // shown as a toast by httpErrorInterceptor
     });

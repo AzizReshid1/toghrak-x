@@ -1,5 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { PostsService } from '../../../services/posts.service';
 import { PostSummary } from '../../../models/post';
 import { Page } from '../../../models/page';
@@ -13,24 +14,19 @@ import { DatePipe } from '@angular/common';
     templateUrl: './admin-posts.component.html',
     imports: [RouterLink, DatePipe]
 })
-export class AdminPostsComponent implements OnInit, OnDestroy {
+export class AdminPostsComponent implements OnInit {
   page?: Page<PostSummary>;
   pageIndex = 0;
   readonly pageSize = 20;
   loading = false;
   error: string | null = null;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(private postsService: PostsService, private ui: UiMessageService) {}
 
   ngOnInit(): void {
     this.fetch(0);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   get posts(): PostSummary[] {
@@ -41,7 +37,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.pageIndex = pageIndex;
     this.postsService.list(pageIndex, this.pageSize)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
           this.page = res;
@@ -57,7 +53,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   remove(post: PostSummary): void {
     if (!confirm(`Delete the post "${post.title}"?`)) return;
     this.postsService.delete(post.id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.ui.success('Post deleted.');

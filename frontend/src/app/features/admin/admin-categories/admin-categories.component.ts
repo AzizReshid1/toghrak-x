@@ -1,5 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { CategoriesService } from '../../../services/categories.service';
 import { Category } from '../../../models/category';
 import { UiMessageService } from '../../../services/ui-message.service';
@@ -10,7 +11,7 @@ import { FormsModule } from '@angular/forms';
     templateUrl: './admin-categories.component.html',
     imports: [FormsModule]
 })
-export class AdminCategoriesComponent implements OnInit, OnDestroy {
+export class AdminCategoriesComponent implements OnInit {
   categories: Category[] = [];
   loading = false;
   saving = false;
@@ -22,7 +23,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
   };
   editingId: number | null = null;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(private categoriesService: CategoriesService, private ui: UiMessageService) {}
 
@@ -30,16 +31,11 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
     this.fetch();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   fetch(): void {
     this.loading = true;
     // list() already updates categories$ via tap — no extra refresh() needed here.
     this.categoriesService.list()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (cats) => {
           this.categories = cats;
@@ -66,7 +62,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
       ? this.categoriesService.update(this.editingId, payload)
       : this.categoriesService.create(payload);
 
-    request$.pipe(takeUntil(this.destroy$)).subscribe({
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.form = { name: '', description: '' };
         this.editingId = null;
@@ -83,7 +79,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
     if (!confirm('Delete this category?')) return;
     // delete calls refresh() internally via tap — no manual refresh needed.
     this.categoriesService.delete(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.fetch();

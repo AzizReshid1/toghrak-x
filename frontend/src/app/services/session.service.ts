@@ -1,24 +1,12 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import {
-  BehaviorSubject,
-  Observable,
-  Subject,
-  catchError,
-  distinctUntilChanged,
-  finalize,
-  map,
-  of,
-  shareReplay,
-  switchMap,
-  takeUntil,
-  tap,
-} from 'rxjs';
+import { Injectable, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BehaviorSubject, Observable, catchError, distinctUntilChanged, finalize, map, of, shareReplay, switchMap, tap } from 'rxjs';
 import { AuthService } from './auth.service';
 import { UsersService } from './users.service';
 import { User } from '../models/user';
 
 @Injectable({ providedIn: 'root' })
-export class SessionService implements OnDestroy {
+export class SessionService {
   private userSubject = new BehaviorSubject<User | null>(null);
   readonly user$ = this.userSubject.asObservable();
   private meRequest$?: Observable<User>;
@@ -32,7 +20,7 @@ export class SessionService implements OnDestroy {
     distinctUntilChanged()
   );
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(private auth: AuthService, private users: UsersService) {
     // Best-effort session restore: if a refresh cookie exists, acquire an access token in-memory.
@@ -52,7 +40,7 @@ export class SessionService implements OnDestroy {
             })
           );
         }),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
@@ -74,8 +62,4 @@ export class SessionService implements OnDestroy {
     return this.meRequest$;
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

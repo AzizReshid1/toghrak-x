@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { Subject, catchError, filter, map, of, switchMap, takeUntil } from 'rxjs';
+import { catchError, filter, map, of, switchMap } from 'rxjs';
 import { PagesService } from '../../../services/pages.service';
 import { ContentPage } from '../../../models/content-page';
 import { DatePipe } from '@angular/common';
@@ -11,11 +12,11 @@ import { DatePipe } from '@angular/common';
     styleUrls: ['./page-view.component.css'],
     imports: [DatePipe]
 })
-export class PageViewComponent implements OnInit, OnDestroy {
+export class PageViewComponent implements OnInit {
   page?: ContentPage;
   loading = false;
   error: string | null = null;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(private route: ActivatedRoute, private pageService: PagesService) {}
 
@@ -31,7 +32,7 @@ export class PageViewComponent implements OnInit, OnDestroy {
           this.error = null;
           return this.pageService.get(slug).pipe(catchError(() => of(null)));
         }),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((page) => {
         this.page = page ?? undefined;
@@ -40,8 +41,4 @@ export class PageViewComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 }

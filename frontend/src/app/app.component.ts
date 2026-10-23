@@ -1,6 +1,7 @@
-import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
-import { Observable, Subject, filter, takeUntil } from 'rxjs';
+import { Observable, filter } from 'rxjs';
 import { AuthService } from './services/auth.service';
 import { CategoriesService } from './services/categories.service';
 import { PagesService } from './services/pages.service';
@@ -43,7 +44,7 @@ export class AppComponent implements OnInit, OnDestroy {
   activeCategorySlug: string | null = null;
   isHomeActive = true;
   toasts$: Observable<Toast[]>;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private navHighlightCategory: NavHighlightCategory | null = null;
 
   constructor(
@@ -64,7 +65,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.updateActiveSectionFromUrl(this.router.url);
     this.navHighlight.category$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((category) => {
         this.navHighlightCategory = category;
         this.updateActiveSectionFromUrl(this.router.url);
@@ -72,15 +73,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.events
       .pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((e) => this.updateActiveSectionFromUrl(e.urlAfterRedirects));
 
-    this.session.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => (this.currentUser = user ?? undefined));
-    this.session.isAdmin$.pipe(takeUntil(this.destroy$)).subscribe((isAdmin) => (this.isAdmin = isAdmin));
+    this.session.user$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => (this.currentUser = user ?? undefined));
+    this.session.isAdmin$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((isAdmin) => (this.isAdmin = isAdmin));
 
     this.categoriesService.categories$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((cats) => {
         this.categories = cats;
         this.updateActiveSectionFromUrl(this.router.url);
@@ -88,15 +89,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.categoriesService.refresh();
 
     this.pageService.pages$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((pages) => (this.footerPages = pages));
     this.pageService.load();
     this.socialLinksService.links$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((links) => (this.socialLinks = links));
     this.socialLinksService.load();
     this.siteSettingsService.settings$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((settings) => {
         if (settings?.title) {
           this.brandTitle = settings.title;
@@ -119,8 +120,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.setBodyScrollLock(false);
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   logout() {

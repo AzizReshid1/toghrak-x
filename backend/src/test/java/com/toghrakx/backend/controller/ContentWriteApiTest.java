@@ -95,6 +95,7 @@ class ContentWriteApiTest {
         String created = mockMvc.perform(post("/api/posts").header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON).content(post))
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.authorId").value(admin.getId()))
                 .andExpect(jsonPath("$.authorUsername").value("write-admin"))
                 .andExpect(jsonPath("$.categoryName").value("Write tests"))
                 .andExpect(jsonPath("$.imageUrls[0]").value("https://example.com/a.jpg"))

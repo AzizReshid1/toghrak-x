@@ -121,6 +121,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       this.isOwner = false;
       return;
     }
-    this.isOwner = this.post.authorUsername === this.currentUser.username;
+    // Compare ids, not usernames: a username can change, the id cannot
+    this.isOwner = this.post.authorId === this.currentUser.id;
   }
 }

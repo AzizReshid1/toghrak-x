@@ -11,6 +11,7 @@ export interface PostResponse {
   coverImage?: string | null;
   categoryId?: number;
   categoryName: string;
+  authorId: number;
   authorUsername: string;
   createdAt: string;
   updatedAt?: string | null;
@@ -28,6 +29,7 @@ export interface PostSummary {
   coverImage?: string | null;
   categoryId?: number;
   categoryName: string;
+  authorId: number;
   authorUsername: string;
   createdAt: string;
   updatedAt?: string | null;

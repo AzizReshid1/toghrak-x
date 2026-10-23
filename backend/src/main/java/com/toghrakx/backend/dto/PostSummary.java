@@ -19,6 +19,7 @@ public class PostSummary {
     private String coverImage;
     private Long categoryId;
     private String categoryName;
+    private Long authorId;
     private String authorUsername;
     private Instant createdAt;
     private Instant updatedAt;

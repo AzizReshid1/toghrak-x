@@ -132,6 +132,7 @@ public class PostController {
         response.setCoverImage(post.getCoverImage());
         response.setCategoryId(post.getCategory().getId());
         response.setCategoryName(post.getCategory().getName());
+        response.setAuthorId(post.getAuthor().getId());
         response.setAuthorUsername(post.getAuthor().getUsername());
         response.setCreatedAt(post.getCreatedAt());
         response.setUpdatedAt(post.getUpdatedAt());
@@ -153,6 +154,7 @@ public class PostController {
         summary.setCoverImage(post.getCoverImage());
         summary.setCategoryId(post.getCategory().getId());
         summary.setCategoryName(post.getCategory().getName());
+        summary.setAuthorId(post.getAuthor().getId());
         summary.setAuthorUsername(post.getAuthor().getUsername());
         summary.setCreatedAt(post.getCreatedAt());
         summary.setUpdatedAt(post.getUpdatedAt());

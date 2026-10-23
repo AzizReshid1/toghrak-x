@@ -81,7 +81,8 @@ export class PostsListComponent implements OnInit, OnDestroy {
 
   canEdit(post: PostSummary): boolean {
     if (this.isAdmin) return true;
-    return !!this.currentUser && post.authorUsername === this.currentUser.username;
+    // Compare ids, not usernames: a username can change, the id cannot
+    return !!this.currentUser && post.authorId === this.currentUser.id;
   }
 
   load(page: number, categoryId: number | undefined = this.currentCategoryId) {

@@ -205,7 +205,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (first === 'category') {
       this.activeCategorySlug = second || null;
-    } else if (first === 'posts' && /^\d+$/.test(second)) {
+    } else if (first === 'posts' && parts.length === 2 && second !== 'new') {
+      // A post page (/posts/<slug>): highlight the category the post belongs to, as reported by
+      // PostDetailComponent through NavHighlightService. Editor pages (/posts/new, /posts/5/edit) are excluded.
       this.activeCategorySlug = this.resolveHighlightedCategorySlug();
     } else {
       this.activeCategorySlug = null;

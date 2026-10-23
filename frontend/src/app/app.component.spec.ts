@@ -14,7 +14,7 @@ import { PagesService } from './services/pages.service';
 import { SocialLinksService } from './services/social-links.service';
 import { SiteSettingsService } from './services/site-settings.service';
 import { Toast, UiMessageService } from './services/ui-message.service';
-import { NavHighlightService } from './services/nav-highlight.service';
+import { NavHighlightCategory, NavHighlightService } from './services/nav-highlight.service';
 import { Category } from './models/category';
 import { User } from './models/user';
 
@@ -34,6 +34,7 @@ describe('AppComponent', () => {
   let toastsSubject: BehaviorSubject<Toast[]>;
   let userSubject: BehaviorSubject<User | null>;
   let loggedInSubject: BehaviorSubject<boolean>;
+  let highlightSubject: BehaviorSubject<NavHighlightCategory | null>;
   let uiService: { toasts$: any; dismiss: jasmine.Spy };
 
   beforeEach(async () => {
@@ -42,6 +43,7 @@ describe('AppComponent', () => {
     toastsSubject = new BehaviorSubject<Toast[]>([]);
     userSubject = new BehaviorSubject<User | null>(user);
     loggedInSubject = new BehaviorSubject<boolean>(true);
+    highlightSubject = new BehaviorSubject<NavHighlightCategory | null>(null);
 
     uiService = {
       toasts$: toastsSubject.asObservable(),
@@ -75,7 +77,7 @@ describe('AppComponent', () => {
         { provide: SocialLinksService, useValue: { links$: of([]), load: () => {} } },
         { provide: SiteSettingsService, useValue: { settings$: of(null), load: () => {} } },
         { provide: UiMessageService, useValue: uiService },
-        { provide: NavHighlightService, useValue: { category$: of(null) } },
+        { provide: NavHighlightService, useValue: { category$: highlightSubject.asObservable() } },
       ],
     }).compileComponents();
   });
@@ -120,6 +122,19 @@ describe('AppComponent', () => {
 
     await router.navigateByUrl('/');
     expect(fixture.componentInstance.isHomeActive).toBeTrue();
+  });
+
+  it('highlights the category of the post being read, but not on the post editor', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/posts/some-news-story');
+    highlightSubject.next({ id: 2, name: 'News' }); // reported by PostDetailComponent
+    expect(fixture.componentInstance.activeCategorySlug).toBe('news');
+
+    await router.navigateByUrl('/posts/7/edit');
+    expect(fixture.componentInstance.activeCategorySlug).toBeNull();
   });
 
   it('closes the account menu on a click outside it or Escape, but not on a click inside', () => {

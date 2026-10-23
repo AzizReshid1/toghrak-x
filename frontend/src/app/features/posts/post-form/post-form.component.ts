@@ -129,7 +129,7 @@ export class PostFormComponent implements OnInit, OnDestroy {
         this.saving = false;
         this.router.navigate(['/posts', res.slug]);
       },
-      // The reason (e.g. title too long) is shown as a toast by HttpErrorInterceptor
+      // The reason (e.g. title too long) is shown as a toast by httpErrorInterceptor
       error: () => (this.saving = false),
     });
   }
@@ -142,7 +142,7 @@ export class PostFormComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (resp) => this.form.patchValue({ coverImage: resp.imageUrl }),
-        // The reason (e.g. not a valid image, too large) is shown as a toast by HttpErrorInterceptor
+        // The reason (e.g. not a valid image, too large) is shown as a toast by httpErrorInterceptor
         error: () => {},
       });
   }
@@ -162,7 +162,7 @@ export class PostFormComponent implements OnInit, OnDestroy {
           this.imageUrls = [...this.imageUrls, ...responses.map((r) => r.imageUrl)];
           this.uploadingGallery = false;
         },
-        // The reason is shown as a toast by HttpErrorInterceptor
+        // The reason is shown as a toast by httpErrorInterceptor
         error: () => (this.uploadingGallery = false),
       });
   }

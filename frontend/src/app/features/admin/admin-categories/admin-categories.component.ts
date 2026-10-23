@@ -74,7 +74,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
         this.saving = false;
         this.ui.success(isEditing ? 'Category updated.' : 'Category created.');
       },
-      // The reason (e.g. name already taken) is shown as a toast by HttpErrorInterceptor
+      // The reason (e.g. name already taken) is shown as a toast by httpErrorInterceptor
       error: () => (this.saving = false),
     });
   }
@@ -89,7 +89,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
           this.fetch();
           this.ui.success('Category deleted.');
         },
-        // The reason (e.g. posts still use this category) is shown as a toast by HttpErrorInterceptor
+        // The reason (e.g. posts still use this category) is shown as a toast by httpErrorInterceptor
         error: () => {},
       });
   }

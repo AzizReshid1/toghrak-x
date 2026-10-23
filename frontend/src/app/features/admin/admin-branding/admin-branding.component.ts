@@ -65,7 +65,7 @@ export class AdminBrandingComponent implements OnInit, OnDestroy {
         this.ui.success('Logo uploaded. Remember to save changes.');
         this.saving = false;
       },
-      // The reason (e.g. not a valid image, too large) is shown as a toast by HttpErrorInterceptor
+      // The reason (e.g. not a valid image, too large) is shown as a toast by httpErrorInterceptor
       error: () => (this.saving = false),
     });
   }
@@ -78,7 +78,7 @@ export class AdminBrandingComponent implements OnInit, OnDestroy {
         this.ui.success('Branding updated.');
         this.saving = false;
       },
-      // The reason is shown as a toast by HttpErrorInterceptor
+      // The reason is shown as a toast by httpErrorInterceptor
       error: () => (this.saving = false),
     });
   }

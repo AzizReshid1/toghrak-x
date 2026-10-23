@@ -34,7 +34,7 @@ export class LoginComponent {
 
     this.auth.login(payload).subscribe({
       next: () => this.router.navigateByUrl(returnUrl),
-      // "Wrong username or password" (or "too many attempts") is shown as a toast by HttpErrorInterceptor
+      // "Wrong username or password" (or "too many attempts") is shown as a toast by httpErrorInterceptor
       error: () => (this.loading = false),
     });
   }

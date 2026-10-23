@@ -47,7 +47,7 @@ export class AdminSocialLinksComponent implements OnInit, OnDestroy {
         this.saving = false;
         this.ui.success('Link saved.');
       },
-      // The reason is shown as a toast by HttpErrorInterceptor
+      // The reason is shown as a toast by httpErrorInterceptor
       error: () => (this.saving = false),
     });
   }
@@ -60,7 +60,7 @@ export class AdminSocialLinksComponent implements OnInit, OnDestroy {
     }
     this.socialLinks.delete(link.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => this.ui.success('Link deleted.'),
-      error: () => {}, // shown as a toast by HttpErrorInterceptor
+      error: () => {}, // shown as a toast by httpErrorInterceptor
     });
   }
 }

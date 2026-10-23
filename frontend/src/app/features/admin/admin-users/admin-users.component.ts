@@ -57,7 +57,7 @@ export class AdminUsersComponent implements OnInit {
         this.saving = false;
         this.ui.success('User created.');
       },
-      // The reason (e.g. username taken, password too short) is shown as a toast by HttpErrorInterceptor
+      // The reason (e.g. username taken, password too short) is shown as a toast by httpErrorInterceptor
       error: () => (this.saving = false),
     });
   }
@@ -69,7 +69,7 @@ export class AdminUsersComponent implements OnInit {
         this.fetch();
         this.ui.success('User deleted.');
       },
-      // The reason (e.g. the user still owns posts) is shown as a toast by HttpErrorInterceptor
+      // The reason (e.g. the user still owns posts) is shown as a toast by httpErrorInterceptor
       error: () => {},
     });
   }

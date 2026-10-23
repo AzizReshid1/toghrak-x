@@ -1,20 +1,20 @@
-import { HTTP_INTERCEPTORS, HttpClient, HttpContext } from '@angular/common/http';
+import { HttpClient, HttpContext, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { HttpErrorInterceptor, SKIP_ERROR_TOAST } from './http-error.interceptor';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { httpErrorInterceptor, SKIP_ERROR_TOAST } from './http-error.interceptor';
 import { UiMessageService } from '../services/ui-message.service';
 
-describe('HttpErrorInterceptor', () => {
+describe('httpErrorInterceptor', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
   let ui: UiMessageService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
         UiMessageService,
-        { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
+        provideHttpClient(withInterceptors([httpErrorInterceptor])),
+        provideHttpClientTesting(),
       ],
     });
 

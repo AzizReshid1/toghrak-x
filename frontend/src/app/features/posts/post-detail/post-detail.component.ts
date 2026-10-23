@@ -96,7 +96,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.deleting = true;
     this.posts.delete(this.post.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => this.router.navigateByUrl('/'),
-      // The reason is shown as a toast by HttpErrorInterceptor; the post stays on screen
+      // The reason is shown as a toast by httpErrorInterceptor; the post stays on screen
       error: () => (this.deleting = false),
     });
   }

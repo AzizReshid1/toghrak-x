@@ -117,7 +117,7 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
         this.fetch();
         this.ui.success(isUpdate ? 'Page updated.' : 'Page created.');
       },
-      // The reason is shown as a toast by HttpErrorInterceptor
+      // The reason is shown as a toast by httpErrorInterceptor
       error: () => (this.saving = false),
     });
   }
@@ -136,7 +136,7 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
           }
           this.fetch();
         },
-        error: () => {}, // shown as a toast by HttpErrorInterceptor
+        error: () => {}, // shown as a toast by httpErrorInterceptor
       });
   }
 
@@ -165,7 +165,7 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
           this.addImageUrl(resp.imageUrl);
           this.uploading = false;
         },
-        // The reason (e.g. not a valid image, too large) is shown as a toast by HttpErrorInterceptor
+        // The reason (e.g. not a valid image, too large) is shown as a toast by httpErrorInterceptor
         error: () => (this.uploading = false),
       });
   }

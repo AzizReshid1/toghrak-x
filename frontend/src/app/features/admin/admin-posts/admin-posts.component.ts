@@ -65,7 +65,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
           const lastOnPage = this.posts.length === 1 && this.pageIndex > 0;
           this.fetch(lastOnPage ? this.pageIndex - 1 : this.pageIndex);
         },
-        error: () => {}, // shown as a toast by HttpErrorInterceptor
+        error: () => {}, // shown as a toast by httpErrorInterceptor
       });
   }
 }

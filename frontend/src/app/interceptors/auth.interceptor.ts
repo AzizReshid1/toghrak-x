@@ -36,11 +36,8 @@ export class AuthInterceptor implements HttpInterceptor {
         if (!isAuthEndpoint && err.status === 401) {
           return this.handle401(authReq, next);
         }
-        if (!isAuthEndpoint && err.status === 403) {
-          this.auth.logout();
-          this.router.navigateByUrl('/login');
-          return throwError(() => err);
-        }
+        // 403 means "logged in, but not allowed to do this": the session stays, and
+        // HttpErrorInterceptor shows the reason. Only a failed refresh (in handle401) logs out.
         return throwError(() => err);
       })
     );

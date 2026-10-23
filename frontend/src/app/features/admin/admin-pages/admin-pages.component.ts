@@ -28,6 +28,9 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
     images: [],
   };
   uploading = false;
+  // Slug of the page opened for editing (null while drafting a new one). Saving always updates
+  // this page, even when its slug is being renamed; looking it up by the new slug would create a copy.
+  editingSlug: string | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -67,10 +70,12 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
 
   edit(page: ContentPage): void {
     this.current = { slug: page.slug, title: page.title, content: page.content, images: page.images || [] };
+    this.editingSlug = page.slug;
   }
 
   newPage(): void {
     this.current = { slug: '', title: '', content: '', images: [] };
+    this.editingSlug = null;
     this.ui.info('Drafting a new page. Set slug/title/content, then click Save.');
   }
 
@@ -97,15 +102,16 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
     }
     this.current.slug = normalized;
     this.saving = true;
-    const exists = this.pages.find((p) => p.slug === normalized);
-    const req$ = exists
-      ? this.pageService.update(exists.slug, this.current)
+    const isUpdate = this.editingSlug !== null;
+    const req$ = isUpdate
+      ? this.pageService.update(this.editingSlug!, this.current)
       : this.pageService.create(this.current);
     req$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.saving = false;
+        this.editingSlug = normalized; // a renamed page now lives at its new slug
         this.fetch();
-        this.ui.success(exists ? 'Page updated.' : 'Page created.');
+        this.ui.success(isUpdate ? 'Page updated.' : 'Page created.');
       },
       // The reason is shown as a toast by HttpErrorInterceptor
       error: () => (this.saving = false),
@@ -119,6 +125,11 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.ui.success('Page deleted.');
+          if (slug === this.editingSlug) {
+            // The open page is gone; start from an empty form instead of editing a deleted page
+            this.current = { slug: '', title: '', content: '', images: [] };
+            this.editingSlug = null;
+          }
           this.fetch();
         },
         error: () => {}, // shown as a toast by HttpErrorInterceptor

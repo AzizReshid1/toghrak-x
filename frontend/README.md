@@ -1,60 +1,38 @@
-# Documentation for Frontend
+# Toghrak X: frontend
 
-## Framework Versions
-- React: 17.0.2
-- Node.js: 14.x
-- Webpack: 5.x
-  
-## Prerequisites
-- Node.js and npm installed (check with `node -v` and `npm -v`)
-- Git installed (optional, for version control)
+Angular 21 application for Toghrak X. See the [main README](../README.md) for the whole project and deployment.
 
-## Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/AzizTuprak/toghrak-x.git
-   cd toghrak-x/frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+## Run
 
-## Development Setup
-1. To start the development server:
-   ```bash
-   npm start
-   ```
-2. Open your browser and navigate to `http://localhost:3000`.
-   
-## Project Structure
-- `src/`: Contains all source files.
-- `public/`: Contains static files.
-- `components/`: Contains React components.
-- `redux/`: Contains Redux state management files.
+```bash
+npm install
+npx ng serve
+```
 
-## Development Commands
-- Start the development server: `npm start`
-- Build for production: `npm run build`
-- Run tests: `npm test`
+Open `http://localhost:4200`. The dev server forwards `/api` and `/images` to the backend on `http://localhost:8081` (see `proxy.conf.json`), so the backend must be running.
 
-## Testing
-- Ensure that tests are written for components using Jest.
-- To run tests, use the command: `npm test`
+## Build
 
-## Backend Integration
-- The frontend communicates with the backend through REST APIs.
-- Ensure that the backend is running on the correct port.
+```bash
+npx ng build
+```
 
-## Authentication
-- Implement authentication using JWT (JSON Web Tokens).
-- Store tokens securely in local storage or cookies.
+The output goes to `dist/toghrak-x/browser`. The app calls the API through the relative URL `/api`, so in production the web server must forward `/api` and `/images` to the backend.
 
-## Troubleshooting
-- If the server does not start, check for port conflicts.
-- Ensure all dependencies are installed correctly.
-- Check console for errors in the browser.
+## Tests
 
----
+```bash
+npx ng test                                        # Karma, Chrome, watch mode
+npx ng test --watch=false --browsers=ChromeHeadless  # single headless run
+```
 
-For further information, refer to the project documentation or contact the project maintainer.
+## Layout
+
+| Folder | Contents |
+|---|---|
+| `src/app/features` | Screens, grouped by area: `posts`, `admin`, `auth`, `user`, `static`, `home` |
+| `src/app/services` | API calls and shared state (session, toasts) |
+| `src/app/interceptors` | Adds the login token to API calls; shows errors as toasts |
+| `src/app/guards` | Route protection by login and role |
+| `src/app/models` | TypeScript types for API data |
+| `src/app/editor-config.ts` | Rich-text editor (Quill) settings |

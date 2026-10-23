@@ -1,93 +1,36 @@
-# Spring Boot Documentation
+# Toghrak X: backend
 
-## Quick Start
-To get started with the Spring Boot application, follow the steps below:
+Spring Boot 3.5 (Java 21) REST API for Toghrak X. See the [main README](../README.md) for the whole project, the configuration variables and deployment.
 
-1. **Database Setup:**
-   - Install MySQL or PostgreSQL.
-   - Create a database for your application.
-   - Update `application.properties` with your database credentials:
-     ```properties
-     spring.datasource.url=jdbc:mysql://localhost:3306/yourDatabase
-     spring.datasource.username=yourUsername
-     spring.datasource.password=yourPassword
-     ```
-   
-2. **Run the Application:**
-   - Use the following command to run your application:
-     ```bash
-     ./mvnw spring-boot:run
-     ```
+## Run
 
-## Project Structure
-The project is structured as follows:
-- `src/main/java`: Contains Java source files.
-- `src/main/resources`: Contains configuration files (application.properties).
-- `src/test/java`: Contains test files for unit and integration testing.
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
 
-## Configuration
-Spring Boot provides a variety of properties to customize your application. Here are some key configurations:
-- **Server Port:**
-  ```properties
-  server.port=8080
-  ```
-- **Logging Level:**
-  ```properties
-  logging.level.root=INFO
-  ```
-- **JPA Configuration:**
-  ```properties
-  spring.jpa.hibernate.ddl-auto=update
-  spring.jpa.show-sql=true
-  ```
+The API listens on `http://localhost:8081/api`. The database settings, `JWT_SECRET` and the other variables are listed in the main README.
 
-## API Documentation
-You can access the API documentation through Swagger by navigating to:
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
+## Database migrations
 
-## Development Workflows
-To contribute to the project, follow these steps:
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/AzizTuprak/toghrak-x.git
-   ```
-2. **Create a New Branch:**
-   ```bash
-   git checkout -b feature-branch
-   ```
-3. **Make Your Changes and Commit:**
-   ```bash
-   git add .
-   git commit -m "Description of changes"
-   ```
-4. **Push your Branch:**
-   ```bash
-   git push origin feature-branch
-   ```
-5. **Open a Pull Request.**
+The schema is managed by Flyway (`src/main/resources/db/migration`) and applied on startup. Hibernate runs with `ddl-auto=validate`: it checks the schema but never changes it. To change the schema, add a new migration `V<n>__description.sql`; never edit one that has already run.
 
-## Testing
-To run tests, use the following command:
+## Tests
+
 ```bash
 ./mvnw test
 ```
 
-## Building and Deployment with Docker
-1. **Build Docker Image:**
-   ```bash
-   docker build -t your-image-name .
-   ```
-2. **Run Docker Container:**
-   ```bash
-   docker run -p 8080:8080 your-image-name
-   ```
+Integration tests use Testcontainers to start a throwaway PostgreSQL in Docker; they are skipped when Docker is not available.
 
-## Troubleshooting
-Common issues:
-- **Database Connection Issue:** Ensure that your database is running and the credentials in `application.properties` are correct.
-- **Port Already in Use:** Change the `server.port` in `application.properties` to avoid port conflicts.
+## Layout
 
-## Additional Resources
-- [Spring Boot Official Documentation](https://spring.io/projects/spring-boot)
-- [Swagger Documentation](https://swagger.io/docs/)
-- [Docker Documentation](https://docs.docker.com/)
+| Package | Contents |
+|---|---|
+| `controller` | REST endpoints; role checks with `@PreAuthorize` |
+| `service` | Business rules and transactions |
+| `repository` | Spring Data JPA repositories |
+| `model` | JPA entities |
+| `dto` | Request and response objects |
+| `security`, `config`, `filter` | JWT, Spring Security, rate limiting |
+| `exception` | Error handling (RFC 9457 `ProblemDetail`) |
+| `db.migration` (in `src/main/java`) | Flyway Java migrations |

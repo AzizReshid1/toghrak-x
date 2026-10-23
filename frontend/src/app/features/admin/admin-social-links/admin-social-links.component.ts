@@ -3,11 +3,12 @@ import { Subject, takeUntil } from 'rxjs';
 import { SocialLinksService } from '../../../services/social-links.service';
 import { SocialLink } from '../../../models/social-link';
 import { UiMessageService } from '../../../services/ui-message.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-admin-social-links',
     templateUrl: './admin-social-links.component.html',
-    standalone: false
+    imports: [FormsModule]
 })
 export class AdminSocialLinksComponent implements OnInit, OnDestroy {
   links: SocialLink[] = [];

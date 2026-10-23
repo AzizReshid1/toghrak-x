@@ -12,21 +12,19 @@ import { QuillModule } from 'ngx-quill';
 import { EDITOR_CONFIG } from './editor-config';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    NotFoundComponent,
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    HttpClientModule,
-    QuillModule.forRoot(EDITOR_CONFIG),
-  ],
-  providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
-  ],
-  bootstrap: [AppComponent],
+    declarations: [AppComponent],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        HttpClientModule,
+        QuillModule.forRoot(EDITOR_CONFIG),
+        NotFoundComponent,
+    ],
+    providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
+    ],
+    bootstrap: [AppComponent],
 })
 export class AppModule {}

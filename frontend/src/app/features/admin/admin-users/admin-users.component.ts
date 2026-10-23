@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { UsersService } from '../../../services/users.service';
 import { User, CreateUserRequest } from '../../../models/user';
 import { UiMessageService } from '../../../services/ui-message.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-admin-users',
     templateUrl: './admin-users.component.html',
-    standalone: false
+    imports: [FormsModule]
 })
 export class AdminUsersComponent implements OnInit {
   users: User[] = [];

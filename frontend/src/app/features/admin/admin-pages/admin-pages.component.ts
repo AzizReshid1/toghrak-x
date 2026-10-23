@@ -5,6 +5,8 @@ import { ImagesService } from '../../../services/images.service';
 import { ContentPage, UpsertContentPageRequest } from '../../../models/content-page';
 import { UiMessageService } from '../../../services/ui-message.service';
 import { editorHtml } from '../../../editor-config';
+import { FormsModule } from '@angular/forms';
+import { QuillEditorComponent } from 'ngx-quill';
 
 // Routes owned by the Angular router — cannot be used as page slugs.
 const RESERVED_SLUGS = new Set([
@@ -14,7 +16,7 @@ const RESERVED_SLUGS = new Set([
 @Component({
     selector: 'app-admin-pages',
     templateUrl: './admin-pages.component.html',
-    standalone: false
+    imports: [FormsModule, QuillEditorComponent]
 })
 export class AdminPagesComponent implements OnInit, OnDestroy {
   pages: ContentPage[] = [];

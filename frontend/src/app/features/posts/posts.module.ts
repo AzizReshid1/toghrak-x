@@ -8,8 +8,7 @@ import { PostDetailComponent } from './post-detail/post-detail.component';
 import { PostFormComponent } from './post-form/post-form.component';
 
 @NgModule({
-  declarations: [PostDetailComponent, PostFormComponent],
-  imports: [CommonModule, ReactiveFormsModule, QuillModule, PostsRoutingModule],
+    imports: [CommonModule, ReactiveFormsModule, QuillModule, PostsRoutingModule, PostDetailComponent, PostFormComponent],
 })
 export class PostsModule {}
 

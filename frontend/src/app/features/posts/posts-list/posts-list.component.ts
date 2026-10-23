@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Observable, Subject, combineLatest, takeUntil } from 'rxjs';
 import { PostsService } from '../../../services/posts.service';
 import { PostSummary } from '../../../models/post';
@@ -9,12 +9,13 @@ import { User } from '../../../models/user';
 import { CategoriesService } from '../../../services/categories.service';
 import { Category } from '../../../models/category';
 import { SessionService } from '../../../services/session.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-posts-list',
     templateUrl: './posts-list.component.html',
     styleUrls: ['./posts-list.component.css'],
-    standalone: false
+    imports: [RouterLink, DatePipe]
 })
 export class PostsListComponent implements OnInit, OnDestroy {
   page?: Page<PostSummary>;

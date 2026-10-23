@@ -23,8 +23,7 @@ describe('PostDetailComponent', () => {
     responses = { first: new Subject(), second: new Subject() };
 
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
-      declarations: [PostDetailComponent],
+      imports: [RouterTestingModule, PostDetailComponent],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         { provide: ActivatedRoute, useValue: { paramMap: params.asObservable() } },

@@ -5,8 +5,7 @@ import { PageViewComponent } from './page-view.component';
 import { PageViewRoutingModule } from './page-view-routing.module';
 
 @NgModule({
-  declarations: [PageViewComponent],
-  imports: [CommonModule, PageViewRoutingModule],
+    imports: [CommonModule, PageViewRoutingModule, PageViewComponent],
 })
 export class PageViewModule {}
 

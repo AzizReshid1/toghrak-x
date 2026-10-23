@@ -6,8 +6,7 @@ import { SearchComponent } from './search.component';
 import { SearchRoutingModule } from './search-routing.module';
 
 @NgModule({
-  declarations: [SearchComponent],
-  imports: [CommonModule, FormsModule, SearchRoutingModule],
+    imports: [CommonModule, FormsModule, SearchRoutingModule, SearchComponent],
 })
 export class SearchModule {}
 

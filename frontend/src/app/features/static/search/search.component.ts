@@ -1,14 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, of, takeUntil, switchMap, catchError } from 'rxjs';
 import { SearchService } from '../../../services/search.service';
 import { SearchResult } from '../../../models/search-result';
+import { FormsModule } from '@angular/forms';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
     selector: 'app-search',
     templateUrl: './search.component.html',
     styleUrls: ['./search.component.css'],
-    standalone: false
+    imports: [FormsModule, NgTemplateOutlet, RouterLink]
 })
 export class SearchComponent implements OnInit, OnDestroy {
   query = '';

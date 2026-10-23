@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { QuillModule } from 'ngx-quill';
+import { QuillEditorComponent, QuillModule } from 'ngx-quill';
 import Quill from 'quill';
 import { EDITOR_CONFIG, editorHtml } from './editor-config';
 
 @Component({
-  standalone: false,
   template: `<quill-editor [formControl]="content" [valueGetter]="editorHtml" (onEditorCreated)="created($event)"></quill-editor>`,
+  imports: [ReactiveFormsModule, QuillEditorComponent],
 })
 class EditorHostComponent {
   readonly editorHtml = editorHtml;
@@ -34,8 +34,7 @@ describe('Rich-text editor (Quill with EDITOR_CONFIG)', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, QuillModule.forRoot(EDITOR_CONFIG)],
-      declarations: [EditorHostComponent],
+      imports: [QuillModule.forRoot(EDITOR_CONFIG), EditorHostComponent],
     }).compileComponents();
     const fixture = TestBed.createComponent(EditorHostComponent);
     host = fixture.componentInstance;

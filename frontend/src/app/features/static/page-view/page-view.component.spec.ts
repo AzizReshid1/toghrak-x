@@ -15,7 +15,7 @@ describe('PageViewComponent', () => {
     responses = { about: new Subject(), faq: new Subject() };
 
     await TestBed.configureTestingModule({
-      declarations: [PageViewComponent],
+      imports: [PageViewComponent],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         { provide: ActivatedRoute, useValue: { paramMap: params.asObservable() } },

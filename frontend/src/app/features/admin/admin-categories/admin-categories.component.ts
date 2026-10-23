@@ -3,11 +3,12 @@ import { Subject, takeUntil } from 'rxjs';
 import { CategoriesService } from '../../../services/categories.service';
 import { Category } from '../../../models/category';
 import { UiMessageService } from '../../../services/ui-message.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-admin-categories',
     templateUrl: './admin-categories.component.html',
-    standalone: false
+    imports: [FormsModule]
 })
 export class AdminCategoriesComponent implements OnInit, OnDestroy {
   categories: Category[] = [];

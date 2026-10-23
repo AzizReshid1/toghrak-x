@@ -12,7 +12,7 @@ describe('ProfileComponent', () => {
 
   function create(): ProfileComponent {
     TestBed.configureTestingModule({
-      declarations: [ProfileComponent],
+      imports: [ProfileComponent],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [{ provide: SessionService, useValue: session }],
     });

@@ -4,12 +4,14 @@ import { PostsService } from '../../../services/posts.service';
 import { PostSummary } from '../../../models/post';
 import { Page } from '../../../models/page';
 import { UiMessageService } from '../../../services/ui-message.service';
+import { RouterLink } from '@angular/router';
+import { DatePipe } from '@angular/common';
 
 /** Every post on the site, from every author, with Edit and Delete for the admin. */
 @Component({
     selector: 'app-admin-posts',
     templateUrl: './admin-posts.component.html',
-    standalone: false
+    imports: [RouterLink, DatePipe]
 })
 export class AdminPostsComponent implements OnInit, OnDestroy {
   page?: Page<PostSummary>;

@@ -12,15 +12,12 @@ import { AdminBrandingComponent } from './admin-branding/admin-branding.componen
 import { AdminUsersComponent } from './admin-users/admin-users.component';
 
 @NgModule({
-  declarations: [
-    AdminUsersComponent,
-    AdminCategoriesComponent,
-    AdminPostsComponent,
-    AdminPagesComponent,
-    AdminSocialLinksComponent,
-    AdminBrandingComponent,
-  ],
-  imports: [CommonModule, FormsModule, QuillModule, AdminRoutingModule],
+    imports: [CommonModule, FormsModule, QuillModule, AdminRoutingModule, AdminUsersComponent,
+        AdminCategoriesComponent,
+        AdminPostsComponent,
+        AdminPagesComponent,
+        AdminSocialLinksComponent,
+        AdminBrandingComponent],
 })
 export class AdminModule {}
 

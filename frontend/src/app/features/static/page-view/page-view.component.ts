@@ -3,12 +3,13 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject, catchError, filter, map, of, switchMap, takeUntil } from 'rxjs';
 import { PagesService } from '../../../services/pages.service';
 import { ContentPage } from '../../../models/content-page';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-page-view',
     templateUrl: './page-view.component.html',
     styleUrls: ['./page-view.component.css'],
-    standalone: false
+    imports: [DatePipe]
 })
 export class PageViewComponent implements OnInit, OnDestroy {
   page?: ContentPage;

@@ -14,7 +14,7 @@ describe('PostsListComponent', () => {
   function openCategory(categoryAnswer: any): PostsListComponent {
     router = jasmine.createSpyObj<Router>('Router', ['navigate']);
     TestBed.configureTestingModule({
-      declarations: [PostsListComponent],
+      imports: [PostsListComponent],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         { provide: Router, useValue: router },

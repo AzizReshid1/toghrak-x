@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { CategoriesService } from '../../../services/categories.service';
@@ -13,12 +13,13 @@ import {
   UpdatePostRequest,
   PostResponse,
 } from '../../../models/post';
+import { QuillEditorComponent } from 'ngx-quill';
 
 @Component({
     selector: 'app-post-form',
     templateUrl: './post-form.component.html',
     styleUrls: ['./post-form.component.css'],
-    standalone: false
+    imports: [ReactiveFormsModule, QuillEditorComponent]
 })
 export class PostFormComponent implements OnInit, OnDestroy {
   isEdit = false;

@@ -5,8 +5,7 @@ import { HomeRoutingModule } from './home-routing.module';
 import { PostsListComponent } from '../posts/posts-list/posts-list.component';
 
 @NgModule({
-  declarations: [PostsListComponent],
-  imports: [CommonModule, HomeRoutingModule],
+    imports: [CommonModule, HomeRoutingModule, PostsListComponent],
 })
 export class HomeModule {}
 

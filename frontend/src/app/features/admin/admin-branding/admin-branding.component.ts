@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { NgForm, FormsModule } from '@angular/forms';
 import { Subject, skip, takeUntil } from 'rxjs';
 import { SiteSettingsService } from '../../../services/site-settings.service';
 import { ImagesService } from '../../../services/images.service';
@@ -10,7 +10,7 @@ import { UiMessageService } from '../../../services/ui-message.service';
     selector: 'app-admin-branding',
     templateUrl: './admin-branding.component.html',
     styleUrls: ['./admin-branding.component.css'],
-    standalone: false
+    imports: [FormsModule]
 })
 export class AdminBrandingComponent implements OnInit, OnDestroy {
   form: Partial<SiteSettings> = {

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Location, DatePipe } from '@angular/common';
 import { PostsService } from '../../../services/posts.service';
 import { PostResponse } from '../../../models/post';
 import { Subject, catchError, filter, map, of, switchMap, takeUntil } from 'rxjs';
@@ -12,7 +12,7 @@ import { NavHighlightService } from '../../../services/nav-highlight.service';
     selector: 'app-post-detail',
     templateUrl: './post-detail.component.html',
     styleUrls: ['./post-detail.component.css'],
-    standalone: false
+    imports: [RouterLink, DatePipe]
 })
 export class PostDetailComponent implements OnInit, OnDestroy {
   post?: PostResponse;

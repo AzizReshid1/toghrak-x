@@ -2,7 +2,7 @@ import { HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
-import { throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { AuthInterceptor } from './auth.interceptor';
 import { AuthService } from '../services/auth.service';
 
@@ -57,6 +57,32 @@ describe('AuthInterceptor', () => {
     httpMock.expectOne('/api/users/me').flush(null, { status: 401, statusText: 'Unauthorized' });
 
     expect(auth.logout).toHaveBeenCalled();
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
+  });
+
+  it('retries a request that got 401 with the token from the refresh', () => {
+    auth.refresh.and.returnValue(of({ token: 'new-token' }));
+
+    http.get('/api/users/me').subscribe();
+    httpMock.expectOne('/api/users/me').flush(null, { status: 401, statusText: 'Unauthorized' });
+
+    const retry = httpMock.expectOne('/api/users/me');
+    expect(retry.request.headers.get('Authorization')).toBe('Bearer new-token');
+    retry.flush({});
+  });
+
+  it('logs out only once when several requests fail and the refresh fails', () => {
+    let token: string | null = 'expired-token';
+    auth.getToken.and.callFake(() => token);
+    auth.logout.and.callFake(() => (token = null));
+    auth.refresh.and.returnValue(throwError(() => new Error('refresh failed')));
+
+    http.get('/api/a').subscribe({ next: () => {}, error: () => {} });
+    http.get('/api/b').subscribe({ next: () => {}, error: () => {} });
+    httpMock.expectOne('/api/a').flush(null, { status: 401, statusText: 'Unauthorized' });
+    httpMock.expectOne('/api/b').flush(null, { status: 401, statusText: 'Unauthorized' });
+
+    expect(auth.logout).toHaveBeenCalledTimes(1);
     expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
   });
 });

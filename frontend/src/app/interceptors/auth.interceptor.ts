@@ -6,15 +6,13 @@ import {
   HttpRequest,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, catchError, throwError, switchMap, shareReplay } from 'rxjs';
+import { Observable, catchError, throwError, switchMap } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { environment } from '../../environments/environment';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  private refresh$?: Observable<any>;
-
   constructor(private auth: AuthService, private router: Router) {}
 
   intercept(
@@ -54,29 +52,20 @@ export class AuthInterceptor implements HttpInterceptor {
     return url === base || url.startsWith(`${base}/`);
   }
 
+  // AuthService.refresh() already shares one refresh request between all callers, so any number
+  // of simultaneous 401s cause a single refresh; each failed request is then retried with the new token.
   private handle401(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (!this.refresh$) {
-      // shareReplay(1) ensures concurrent 401s share a single refresh call.
-      this.refresh$ = this.auth.refresh().pipe(
-        catchError((refreshErr) => {
-          this.refresh$ = undefined;
+    return this.auth.refresh().pipe(
+      catchError((refreshErr) => {
+        // The session cannot be renewed. With several requests failing at once, only the first one
+        // still finds a token, so the logout runs once; navigating to /login again is a no-op.
+        if (this.auth.getToken()) {
           this.auth.logout();
-          this.router.navigateByUrl('/login');
-          return throwError(() => refreshErr);
-        }),
-        shareReplay(1)
-      );
-    }
-
-    return this.refresh$.pipe(
-      switchMap(() => {
-        this.refresh$ = undefined;
-        const newToken = this.auth.getToken();
-        const retryReq = newToken
-          ? req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } })
-          : req;
-        return next.handle(retryReq);
-      })
+        }
+        this.router.navigateByUrl('/login');
+        return throwError(() => refreshErr);
+      }),
+      switchMap((res) => next.handle(req.clone({ setHeaders: { Authorization: `Bearer ${res.token}` } })))
     );
   }
 }

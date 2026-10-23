@@ -22,6 +22,8 @@ export class PostsListComponent implements OnInit, OnDestroy {
   popular: PostSummary[] = [];
   popularLoading = false;
   currentPage = 0;
+  // Matches the layout: 1 lead story + 2 side stories + 6 cards. A bigger page would hide posts.
+  readonly pageSize = 9;
   isLoggedIn$: Observable<boolean>;
   currentUser?: User;
   isAdmin = false;
@@ -87,7 +89,7 @@ export class PostsListComponent implements OnInit, OnDestroy {
     this.currentPage = page;
     this.loading = true;
     this.error = null;
-    this.postsService.list(page, 10, categoryId)
+    this.postsService.list(page, this.pageSize, categoryId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: Page<PostSummary>) => {

@@ -1,0 +1,62 @@
+<div class="container mt-6">
+  <h4>Posts</h4>
+  @if (loading) {
+    <div class="alert alert-info">Loading...</div>
+  }
+  @if (error) {
+    <div class="alert alert-error">{{ error }}</div>
+  }
+  @if (info) {
+    <div class="alert alert-success">{{ info }}</div>
+  }
+
+  <div class="admin-table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Category</th>
+          <th>Created</th>
+          <th>Views</th>
+          <th class="col-actions"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of posts; track p.id) {
+          <tr>
+            <td><a [routerLink]="['/posts', p.slug]">{{ p.title }}</a></td>
+            <td>{{ p.authorUsername }}</td>
+            <td>{{ p.categoryName }}</td>
+            <td>{{ p.createdAt | date: 'MMM d, y' }}</td>
+            <td>{{ p.viewCount ?? 0 }}</td>
+            <td>
+              <div class="flex gap-1">
+                <a class="btn btn-outline btn-sm" [routerLink]="['/posts', p.id, 'edit']">Edit</a>
+                <button class="btn btn-danger btn-sm" (click)="remove(p)">Delete</button>
+              </div>
+            </td>
+          </tr>
+        }
+        @if (!loading && !posts.length) {
+          <tr>
+            <td colspan="6" class="text-gray-500 text-center">No posts yet.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (page && page.page.totalPages > 1) {
+    <div class="flex items-center gap-2 mt-4">
+      <button class="btn btn-outline btn-sm" (click)="fetch(pageIndex - 1)" [disabled]="pageIndex === 0">
+        ← Previous
+      </button>
+      <span class="text-sm text-gray-500">Page {{ pageIndex + 1 }} of {{ page.page.totalPages }}</span>
+      <button class="btn btn-outline btn-sm" (click)="fetch(pageIndex + 1)"
+        [disabled]="pageIndex + 1 >= page.page.totalPages">
+        Next →
+      </button>
+    </div>
+  }
+</div>

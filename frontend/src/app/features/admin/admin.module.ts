@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { AdminRoutingModule } from './admin-routing.module';
 import { AdminCategoriesComponent } from './admin-categories/admin-categories.component';
+import { AdminPostsComponent } from './admin-posts/admin-posts.component';
 import { AdminPagesComponent } from './admin-pages/admin-pages.component';
 import { AdminSocialLinksComponent } from './admin-social-links/admin-social-links.component';
 import { AdminBrandingComponent } from './admin-branding/admin-branding.component';
@@ -13,6 +14,7 @@ import { AdminUsersComponent } from '../user/admin/admin-users/admin-users.compo
   declarations: [
     AdminUsersComponent,
     AdminCategoriesComponent,
+    AdminPostsComponent,
     AdminPagesComponent,
     AdminSocialLinksComponent,
     AdminBrandingComponent,

@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { RoleGuard } from '../../guards/role.guard';
 import { AdminUsersComponent } from '../user/admin/admin-users/admin-users.component';
 import { AdminCategoriesComponent } from './admin-categories/admin-categories.component';
+import { AdminPostsComponent } from './admin-posts/admin-posts.component';
 import { AdminPagesComponent } from './admin-pages/admin-pages.component';
 import { AdminSocialLinksComponent } from './admin-social-links/admin-social-links.component';
 import { AdminBrandingComponent } from './admin-branding/admin-branding.component';
@@ -11,6 +12,12 @@ const routes: Routes = [
   {
     path: 'users',
     component: AdminUsersComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['ADMIN'] },
+  },
+  {
+    path: 'posts',
+    component: AdminPostsComponent,
     canActivate: [RoleGuard],
     data: { roles: ['ADMIN'] },
   },

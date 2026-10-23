@@ -7,6 +7,7 @@ import com.toghrakx.backend.model.Category;
 import com.toghrakx.backend.model.Post;
 import com.toghrakx.backend.model.User;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +71,25 @@ class PostServiceTest {
         assertThatThrownBy(() -> userService.deleteUser(author.getId()))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("still own 1 post(s)");
+    }
+
+    @Test
+    void adminCanEditAndDeleteAnyPostButOtherEditorsCannot() {
+        User author = userService.createUser("editor1", "editor1@example.com", "password", "EDITOR");
+        User otherEditor = userService.createUser("editor2", "editor2@example.com", "password", "EDITOR");
+        User admin = userService.createUser("admin1", "admin1@example.com", "password", "ADMIN");
+        Category category = categoryService.createCategory("News", null);
+        Post post = postService.createPost(author.getId(), createRequest("Title", category));
+
+        assertThatThrownBy(() -> postService.updatePost(post.getId(), otherEditor.getId(), false,
+                updateRequest("Hijacked", category)))
+                .isInstanceOf(AccessDeniedException.class);
+
+        Post edited = postService.updatePost(post.getId(), admin.getId(), true, updateRequest("Fixed by admin", category));
+        assertThat(edited.getTitle()).isEqualTo("Fixed by admin");
+        assertThat(edited.getAuthor().getId()).isEqualTo(author.getId()); // the author stays the same
+
+        postService.deletePost(post.getId(), admin.getId(), true);
     }
 
     private static UpdatePostRequest updateRequest(String title, Category category) {

@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CategoriesService } from '../../../services/categories.service';
 import { Category } from '../../../models/category';
+import { UiMessageService } from '../../../services/ui-message.service';
 
 @Component({
     selector: 'app-admin-categories',
@@ -13,7 +14,6 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
   loading = false;
   saving = false;
   error: string | null = null;
-  info: string | null = null;
 
   form: { name: string; description: string } = {
     name: '',
@@ -23,7 +23,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(private categoriesService: CategoriesService) {}
+  constructor(private categoriesService: CategoriesService, private ui: UiMessageService) {}
 
   ngOnInit(): void {
     this.fetch();
@@ -54,8 +54,6 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
   save(): void {
     if (this.saving || !this.form.name.trim()) return;
     this.saving = true;
-    this.error = null;
-    this.info = null;
     const payload = {
       name: this.form.name.trim(),
       description: this.form.description.trim(),
@@ -73,31 +71,25 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
         this.editingId = null;
         this.fetch();
         this.saving = false;
-        this.info = isEditing ? 'Category updated.' : 'Category created.';
+        this.ui.success(isEditing ? 'Category updated.' : 'Category created.');
       },
-      error: () => {
-        this.error = isEditing ? 'Failed to update category.' : 'Failed to create category.';
-        this.saving = false;
-      },
+      // The reason (e.g. name already taken) is shown as a toast by HttpErrorInterceptor
+      error: () => (this.saving = false),
     });
   }
 
   remove(id: number): void {
     if (!confirm('Delete this category?')) return;
-    this.error = null;
-    this.info = null;
     // delete calls refresh() internally via tap — no manual refresh needed.
     this.categoriesService.delete(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.fetch();
-          this.info = 'Category deleted.';
+          this.ui.success('Category deleted.');
         },
-        error: (err) => {
-          // Surface backend message (e.g., if posts still exist under this category).
-          this.error = err?.error?.detail || 'Failed to delete category.';
-        },
+        // The reason (e.g. posts still use this category) is shown as a toast by HttpErrorInterceptor
+        error: () => {},
       });
   }
 

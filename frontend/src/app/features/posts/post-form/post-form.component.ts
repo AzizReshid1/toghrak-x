@@ -6,6 +6,7 @@ import { CategoriesService } from '../../../services/categories.service';
 import { PostsService } from '../../../services/posts.service';
 import { ImagesService } from '../../../services/images.service';
 import { Category } from '../../../models/category';
+import { UiMessageService } from '../../../services/ui-message.service';
 import {
   CreatePostRequest,
   UpdatePostRequest,
@@ -24,9 +25,7 @@ export class PostFormComponent implements OnInit, OnDestroy {
   categories: Category[] = [];
   loading = false;
   saving = false;
-  success: string | null = null;
-  error: string | null = null;
-  uploadError: string | null = null;
+  error: string | null = null; // only for a post or categories that could not be loaded
   imageUrls: string[] = [];
   uploadingGallery = false;
 
@@ -45,7 +44,8 @@ export class PostFormComponent implements OnInit, OnDestroy {
     private router: Router,
     private categoriesService: CategoriesService,
     private postsService: PostsService,
-    private imagesService: ImagesService
+    private imagesService: ImagesService,
+    private ui: UiMessageService
   ) {}
 
   ngOnInit(): void {
@@ -96,9 +96,8 @@ export class PostFormComponent implements OnInit, OnDestroy {
 
   submit(): void {
     if (this.saving) return;
-    this.error = null;
     if (this.form.invalid) {
-      this.error = 'Please fill in title, content, and choose a category.';
+      this.ui.error('Please fill in title, content, and choose a category.');
       this.form.markAllAsTouched();
       return;
     }
@@ -122,14 +121,13 @@ export class PostFormComponent implements OnInit, OnDestroy {
 
     request$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
-        this.success = this.isEdit ? 'Post updated successfully.' : 'Post published successfully.';
+        // The toast stays visible on the next page, so there is no need to wait before navigating
+        this.ui.success(this.isEdit ? 'Post updated successfully.' : 'Post published successfully.');
         this.saving = false;
-        setTimeout(() => this.router.navigate(['/posts', res.slug]), 1500);
+        this.router.navigate(['/posts', res.slug]);
       },
-      error: () => {
-        this.error = 'Failed to save post.';
-        this.saving = false;
-      },
+      // The reason (e.g. title too long) is shown as a toast by HttpErrorInterceptor
+      error: () => (this.saving = false),
     });
   }
 
@@ -137,12 +135,12 @@ export class PostFormComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
-    this.uploadError = null;
     this.imagesService.upload(file)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (resp) => this.form.patchValue({ coverImage: resp.imageUrl }),
-        error: () => (this.uploadError = 'Upload failed.'),
+        // The reason (e.g. not a valid image, too large) is shown as a toast by HttpErrorInterceptor
+        error: () => {},
       });
   }
 
@@ -151,7 +149,6 @@ export class PostFormComponent implements OnInit, OnDestroy {
     if (!input.files || input.files.length === 0) return;
     const files = Array.from(input.files);
     this.uploadingGallery = true;
-    this.uploadError = null;
 
     // forkJoin runs all uploads in parallel and emits once all complete,
     // or errors immediately if any single upload fails — no counter race condition.
@@ -162,10 +159,8 @@ export class PostFormComponent implements OnInit, OnDestroy {
           this.imageUrls = [...this.imageUrls, ...responses.map((r) => r.imageUrl)];
           this.uploadingGallery = false;
         },
-        error: () => {
-          this.uploadError = 'One or more gallery uploads failed.';
-          this.uploadingGallery = false;
-        },
+        // The reason is shown as a toast by HttpErrorInterceptor
+        error: () => (this.uploadingGallery = false),
       });
   }
 

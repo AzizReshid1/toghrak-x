@@ -11,7 +11,6 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class LoginComponent {
   loading = false;
-  error: string | null = null;
 
   form = this.fb.group({
     username: ['', Validators.required],
@@ -28,7 +27,6 @@ export class LoginComponent {
   submit() {
     if (this.form.invalid || this.loading) return;
     this.loading = true;
-    this.error = null;
 
     const raw = this.form.getRawValue();
     const payload = { username: raw.username ?? '', password: raw.password ?? '' };
@@ -36,11 +34,8 @@ export class LoginComponent {
 
     this.auth.login(payload).subscribe({
       next: () => this.router.navigateByUrl(returnUrl),
-      error: (err) => {
-        this.error =
-          err?.error?.detail || 'Login failed. Check your credentials.';
-        this.loading = false;
-      },
+      // "Wrong username or password" (or "too many attempts") is shown as a toast by HttpErrorInterceptor
+      error: () => (this.loading = false),
     });
   }
 }

@@ -12,7 +12,7 @@ import { CategoriesService } from './services/categories.service';
 import { PagesService } from './services/pages.service';
 import { SocialLinksService } from './services/social-links.service';
 import { SiteSettingsService } from './services/site-settings.service';
-import { UiMessage, UiMessageService } from './services/ui-message.service';
+import { Toast, UiMessageService } from './services/ui-message.service';
 import { NavHighlightService } from './services/nav-highlight.service';
 import { Category } from './models/category';
 import { User } from './models/user';
@@ -30,21 +30,23 @@ describe('AppComponent', () => {
     { id: 2, name: 'News', slug: 'news' },
   ];
 
-  let messageSubject: BehaviorSubject<UiMessage | null>;
+  let toastsSubject: BehaviorSubject<Toast[]>;
   let userSubject: BehaviorSubject<User | null>;
   let loggedInSubject: BehaviorSubject<boolean>;
-  let uiService: { message$: any; clear: jasmine.Spy };
+  let uiService: { toasts$: any; dismiss: jasmine.Spy };
 
   beforeEach(async () => {
     document.body.style.overflow = '';
 
-    messageSubject = new BehaviorSubject<UiMessage | null>(null);
+    toastsSubject = new BehaviorSubject<Toast[]>([]);
     userSubject = new BehaviorSubject<User | null>(user);
     loggedInSubject = new BehaviorSubject<boolean>(true);
 
     uiService = {
-      message$: messageSubject.asObservable(),
-      clear: jasmine.createSpy('clear').and.callFake(() => messageSubject.next(null)),
+      toasts$: toastsSubject.asObservable(),
+      dismiss: jasmine
+        .createSpy('dismiss')
+        .and.callFake((id: number) => toastsSubject.next(toastsSubject.value.filter((t) => t.id !== id))),
     };
 
     await TestBed.configureTestingModule({
@@ -139,19 +141,24 @@ describe('AppComponent', () => {
     expect(document.body.style.overflow).toBe('');
   });
 
-  it('dismisses the global banner by clearing the UI message', () => {
+  it('shows toasts and closes only the one whose close button is clicked', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    messageSubject.next({ kind: 'error', text: 'Boom' });
+    toastsSubject.next([
+      { id: 1, kind: 'error', text: 'Boom' },
+      { id: 2, kind: 'success', text: 'Saved.' },
+    ]);
     fixture.detectChanges();
 
-    const banner = fixture.nativeElement.querySelector('.global-banner') as HTMLElement;
-    expect(banner).toBeTruthy();
+    const toasts = fixture.nativeElement.querySelectorAll('.toast');
+    expect(toasts.length).toBe(2);
+    expect(toasts[0].getAttribute('role')).toBe('alert');
 
-    const closeBtn = fixture.nativeElement.querySelector('.global-banner .close') as HTMLButtonElement;
-    closeBtn.click();
+    (toasts[0].querySelector('.toast-close') as HTMLButtonElement).click();
     fixture.detectChanges();
 
-    expect(uiService.clear).toHaveBeenCalledTimes(1);
-    expect(fixture.nativeElement.querySelector('.global-banner')).toBeFalsy();
+    expect(uiService.dismiss).toHaveBeenCalledOnceWith(1);
+    const remaining = fixture.nativeElement.querySelectorAll('.toast');
+    expect(remaining.length).toBe(1);
+    expect(remaining[0].textContent).toContain('Saved.');
   });
 });

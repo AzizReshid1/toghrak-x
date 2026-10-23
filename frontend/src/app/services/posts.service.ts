@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Page } from '../models/page';
+import { SKIP_ERROR_TOAST } from '../interceptors/http-error.interceptor';
 import {
   PostResponse,
   PostSummary,
@@ -34,7 +35,10 @@ export class PostsService {
 
   /** Counts one view of a post. Kept separate from getBySlug so that GET requests never change data. */
   recordView(id: number): Observable<void> {
-    return this.http.post<void>(`${this.base}/${id}/view`, null);
+    // Background call: a failed view count is never shown to the reader
+    return this.http.post<void>(`${this.base}/${id}/view`, null, {
+      context: new HttpContext().set(SKIP_ERROR_TOAST, true),
+    });
   }
 
   popular(limit = 6): Observable<PostSummary[]> {

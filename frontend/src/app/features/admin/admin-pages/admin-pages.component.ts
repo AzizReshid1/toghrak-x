@@ -3,6 +3,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { PagesService } from '../../../services/pages.service';
 import { ImagesService } from '../../../services/images.service';
 import { ContentPage, UpsertContentPageRequest } from '../../../models/content-page';
+import { UiMessageService } from '../../../services/ui-message.service';
 
 // Routes owned by the Angular router — cannot be used as page slugs.
 const RESERVED_SLUGS = new Set([
@@ -19,7 +20,6 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
   loading = false;
   saving = false;
   error: string | null = null;
-  info: string | null = null;
 
   current: UpsertContentPageRequest = {
     slug: '',
@@ -27,12 +27,15 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
     content: '',
     images: [],
   };
-  uploadError: string | null = null;
   uploading = false;
 
   private destroy$ = new Subject<void>();
 
-  constructor(private pageService: PagesService, private imagesService: ImagesService) {}
+  constructor(
+    private pageService: PagesService,
+    private imagesService: ImagesService,
+    private ui: UiMessageService
+  ) {}
 
   ngOnInit(): void {
     this.fetch();
@@ -64,14 +67,11 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
 
   edit(page: ContentPage): void {
     this.current = { slug: page.slug, title: page.title, content: page.content, images: page.images || [] };
-    this.info = null;
-    this.error = null;
   }
 
   newPage(): void {
     this.current = { slug: '', title: '', content: '', images: [] };
-    this.info = 'Drafting a new page. Set slug/title/content, then click Save.';
-    this.error = null;
+    this.ui.info('Drafting a new page. Set slug/title/content, then click Save.');
   }
 
   onSlugBlur(): void {
@@ -88,17 +88,15 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
     if (this.saving) return;
     const normalized = this.normalizeSlug(this.current.slug);
     if (!normalized || !this.current.title.trim()) {
-      this.error = 'Slug and title are required.';
+      this.ui.error('Slug and title are required.');
       return;
     }
     if (RESERVED_SLUGS.has(normalized)) {
-      this.error = `"${normalized}" is a reserved route and cannot be used as a page slug.`;
+      this.ui.error(`"${normalized}" is a reserved route and cannot be used as a page slug.`);
       return;
     }
     this.current.slug = normalized;
-    this.info = null;
     this.saving = true;
-    this.error = null;
     const exists = this.pages.find((p) => p.slug === normalized);
     const req$ = exists
       ? this.pageService.update(exists.slug, this.current)
@@ -107,12 +105,10 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
       next: () => {
         this.saving = false;
         this.fetch();
-        this.info = exists ? 'Page updated.' : 'Page created.';
+        this.ui.success(exists ? 'Page updated.' : 'Page created.');
       },
-      error: () => {
-        this.error = 'Failed to save page.';
-        this.saving = false;
-      },
+      // The reason is shown as a toast by HttpErrorInterceptor
+      error: () => (this.saving = false),
     });
   }
 
@@ -122,10 +118,10 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.info = 'Page deleted.';
+          this.ui.success('Page deleted.');
           this.fetch();
         },
-        error: () => (this.error = 'Failed to delete page.'),
+        error: () => {}, // shown as a toast by HttpErrorInterceptor
       });
   }
 
@@ -146,7 +142,6 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
-    this.uploadError = null;
     this.uploading = true;
     this.imagesService.upload(file)
       .pipe(takeUntil(this.destroy$))
@@ -155,10 +150,8 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
           this.addImageUrl(resp.imageUrl);
           this.uploading = false;
         },
-        error: () => {
-          this.uploadError = 'Upload failed.';
-          this.uploading = false;
-        },
+        // The reason (e.g. not a valid image, too large) is shown as a toast by HttpErrorInterceptor
+        error: () => (this.uploading = false),
       });
   }
 }

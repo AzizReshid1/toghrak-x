@@ -29,9 +29,6 @@
             placeholder="••••••••"
             />
         </div>
-        @if (error) {
-          <div class="alert alert-error">{{ error }}</div>
-        }
         <button class="btn btn-brand w-full" type="submit" [disabled]="loading">
           {{ loading ? "Signing in…" : "Sign in" }}
         </button>

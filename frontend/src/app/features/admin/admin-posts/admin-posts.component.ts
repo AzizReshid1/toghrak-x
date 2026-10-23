@@ -3,6 +3,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { PostsService } from '../../../services/posts.service';
 import { PostSummary } from '../../../models/post';
 import { Page } from '../../../models/page';
+import { UiMessageService } from '../../../services/ui-message.service';
 
 /** Every post on the site, from every author, with Edit and Delete for the admin. */
 @Component({
@@ -16,11 +17,10 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   readonly pageSize = 20;
   loading = false;
   error: string | null = null;
-  info: string | null = null;
 
   private destroy$ = new Subject<void>();
 
-  constructor(private postsService: PostsService) {}
+  constructor(private postsService: PostsService, private ui: UiMessageService) {}
 
   ngOnInit(): void {
     this.fetch(0);
@@ -54,18 +54,16 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
 
   remove(post: PostSummary): void {
     if (!confirm(`Delete the post "${post.title}"?`)) return;
-    this.error = null;
-    this.info = null;
     this.postsService.delete(post.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.info = 'Post deleted.';
+          this.ui.success('Post deleted.');
           // Stay on the same page unless it just became empty
           const lastOnPage = this.posts.length === 1 && this.pageIndex > 0;
           this.fetch(lastOnPage ? this.pageIndex - 1 : this.pageIndex);
         },
-        error: () => (this.error = 'Failed to delete post.'),
+        error: () => {}, // shown as a toast by HttpErrorInterceptor
       });
   }
 }

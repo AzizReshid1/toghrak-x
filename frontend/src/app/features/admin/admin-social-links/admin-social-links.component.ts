@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { SocialLinksService } from '../../../services/social-links.service';
 import { SocialLink } from '../../../models/social-link';
+import { UiMessageService } from '../../../services/ui-message.service';
 
 @Component({
     selector: 'app-admin-social-links',
@@ -11,11 +12,9 @@ import { SocialLink } from '../../../models/social-link';
 export class AdminSocialLinksComponent implements OnInit, OnDestroy {
   links: SocialLink[] = [];
   saving = false;
-  error: string | null = null;
-  info: string | null = null;
   private destroy$ = new Subject<void>();
 
-  constructor(private socialLinks: SocialLinksService) {}
+  constructor(private socialLinks: SocialLinksService, private ui: UiMessageService) {}
 
   ngOnInit(): void {
     this.socialLinks.links$
@@ -35,11 +34,9 @@ export class AdminSocialLinksComponent implements OnInit, OnDestroy {
 
   save(link: SocialLink) {
     if (!link.url || !link.label) {
-      this.error = 'Label and URL are required.';
+      this.ui.error('Label and URL are required.');
       return;
     }
-    this.error = null;
-    this.info = null;
     this.saving = true;
     const req$ = link.id
       ? this.socialLinks.update(link.id, link)
@@ -47,26 +44,22 @@ export class AdminSocialLinksComponent implements OnInit, OnDestroy {
     req$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.saving = false;
-        this.info = 'Link saved.';
+        this.ui.success('Link saved.');
       },
-      error: () => {
-        this.error = 'Failed to save link.';
-        this.saving = false;
-      },
+      // The reason is shown as a toast by HttpErrorInterceptor
+      error: () => (this.saving = false),
     });
   }
 
   remove(link: SocialLink) {
-    this.info = null;
-    this.error = null;
     if (!confirm('Delete this link?')) return;
     if (!link.id) {
       this.links = this.links.filter((l) => l !== link);
       return;
     }
     this.socialLinks.delete(link.id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => (this.info = 'Link deleted.'),
-      error: () => (this.error = 'Failed to delete link.'),
+      next: () => this.ui.success('Link deleted.'),
+      error: () => {}, // shown as a toast by HttpErrorInterceptor
     });
   }
 }

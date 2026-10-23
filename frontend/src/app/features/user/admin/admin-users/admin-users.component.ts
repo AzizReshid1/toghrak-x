@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UsersService } from '../../../../services/users.service';
 import { User, CreateUserRequest } from '../../../../models/user';
+import { UiMessageService } from '../../../../services/ui-message.service';
 
 @Component({
     selector: 'app-admin-users',
@@ -20,7 +21,7 @@ export class AdminUsersComponent implements OnInit {
   };
   saving = false;
 
-  constructor(private userService: UsersService) {}
+  constructor(private userService: UsersService, private ui: UiMessageService) {}
 
   ngOnInit(): void {
     this.fetch();
@@ -43,7 +44,6 @@ export class AdminUsersComponent implements OnInit {
   create() {
     if (this.saving) return;
     this.saving = true;
-    this.error = null;
     this.userService.create(this.form).subscribe({
       next: () => {
         this.form = {
@@ -54,19 +54,22 @@ export class AdminUsersComponent implements OnInit {
         };
         this.fetch();
         this.saving = false;
+        this.ui.success('User created.');
       },
-      error: () => {
-        this.error = 'Failed to create user.';
-        this.saving = false;
-      },
+      // The reason (e.g. username taken, password too short) is shown as a toast by HttpErrorInterceptor
+      error: () => (this.saving = false),
     });
   }
 
   delete(id: number) {
     if (!confirm('Delete user?')) return;
     this.userService.delete(id).subscribe({
-      next: () => this.fetch(),
-      error: () => (this.error = 'Failed to delete user.'),
+      next: () => {
+        this.fetch();
+        this.ui.success('User deleted.');
+      },
+      // The reason (e.g. the user still owns posts) is shown as a toast by HttpErrorInterceptor
+      error: () => {},
     });
   }
 }

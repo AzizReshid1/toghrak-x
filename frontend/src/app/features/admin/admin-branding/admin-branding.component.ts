@@ -4,6 +4,7 @@ import { Subject, skip, takeUntil } from 'rxjs';
 import { SiteSettingsService } from '../../../services/site-settings.service';
 import { ImagesService } from '../../../services/images.service';
 import { SiteSettings } from '../../../models/site-settings';
+import { UiMessageService } from '../../../services/ui-message.service';
 
 @Component({
     selector: 'app-admin-branding',
@@ -19,13 +20,13 @@ export class AdminBrandingComponent implements OnInit, OnDestroy {
   };
   loading = false;
   saving = false;
-  success?: string;
   error?: string;
   private destroy$ = new Subject<void>();
 
   constructor(
     private settings: SiteSettingsService,
-    private images: ImagesService
+    private images: ImagesService,
+    private ui: UiMessageService
   ) {}
 
   ngOnInit(): void {
@@ -58,34 +59,27 @@ export class AdminBrandingComponent implements OnInit, OnDestroy {
     const file = input.files?.[0];
     if (!file) return;
     this.saving = true;
-    this.error = undefined;
     this.images.upload(file).subscribe({
       next: (res) => {
         this.form.logoUrl = res.imageUrl;
-        this.success = 'Logo uploaded. Remember to save changes.';
+        this.ui.success('Logo uploaded. Remember to save changes.');
         this.saving = false;
       },
-      error: () => {
-        this.error = 'Upload failed. Please try again.';
-        this.saving = false;
-      },
+      // The reason (e.g. not a valid image, too large) is shown as a toast by HttpErrorInterceptor
+      error: () => (this.saving = false),
     });
   }
 
   save(formRef: NgForm) {
     if (formRef.invalid) return;
     this.saving = true;
-    this.error = undefined;
-    this.success = undefined;
     this.settings.update(this.form).subscribe({
       next: () => {
-        this.success = 'Branding updated.';
+        this.ui.success('Branding updated.');
         this.saving = false;
       },
-      error: () => {
-        this.error = 'Could not save. Please try again.';
-        this.saving = false;
-      },
+      // The reason is shown as a toast by HttpErrorInterceptor
+      error: () => (this.saving = false),
     });
   }
 }

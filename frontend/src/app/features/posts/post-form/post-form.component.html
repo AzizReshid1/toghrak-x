@@ -39,9 +39,6 @@
         <span>or upload a file</span>
       </div>
       <input type="file" class="input" (change)="onCoverSelected($event)" />
-      @if (uploadError) {
-        <div class="text-red-700 text-sm">{{ uploadError }}</div>
-      }
     </div>
 
     <div class="mb-4">
@@ -68,9 +65,6 @@
       <button class="btn btn-brand" type="submit" [disabled]="saving">
         {{ saving ? "Saving..." : "Save" }}
       </button>
-      @if (success) {
-        <span class="text-green-700 font-medium">{{ success }}</span>
-      }
       @if (error) {
         <span class="text-red-700 font-medium">{{ error }}</span>
       }

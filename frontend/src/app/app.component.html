@@ -1,11 +1,15 @@
 <header class="app-header">
 
-  @if (uiMessage$ | async; as msg) {
-    <div class="global-banner" [class.error]="msg.kind === 'error'">
-      <span>{{ msg.text }}</span>
-      <button type="button" class="close" aria-label="Dismiss message" (click)="dismissMessage()">×</button>
-    </div>
-  }
+  <!-- Toast notifications: fixed in the corner, close themselves, announced to screen readers -->
+  <div class="toast-stack" aria-live="polite" aria-atomic="false">
+    @for (toast of toasts$ | async; track toast.id) {
+      <div class="toast" [class.toast-error]="toast.kind === 'error'" [class.toast-success]="toast.kind === 'success'"
+        [attr.role]="toast.kind === 'error' ? 'alert' : 'status'">
+        <span class="toast-text">{{ toast.text }}</span>
+        <button type="button" class="toast-close" aria-label="Close message" (click)="dismissToast(toast.id)">×</button>
+      </div>
+    }
+  </div>
 
   <!-- ── Primary bar: logo · nav · actions ──────────────────────────── -->
   <div class="header-bar">

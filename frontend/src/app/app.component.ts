@@ -15,7 +15,7 @@ import { Category } from './models/category';
 import { ContentPage } from './models/content-page';
 import { SiteSettingsService } from './services/site-settings.service';
 import { SessionService } from './services/session.service';
-import { UiMessage, UiMessageService } from './services/ui-message.service';
+import { Toast, UiMessageService } from './services/ui-message.service';
 
 @Component({
     selector: 'app-root',
@@ -39,7 +39,7 @@ export class AppComponent implements OnInit, OnDestroy {
   isAccountMenuOpen = false;
   activeCategorySlug: string | null = null;
   isHomeActive = true;
-  uiMessage$: Observable<UiMessage | null>;
+  toasts$: Observable<Toast[]>;
   private destroy$ = new Subject<void>();
   private navHighlightCategory: NavHighlightCategory | null = null;
 
@@ -55,7 +55,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.isLoggedIn$ = this.session.isLoggedIn$;
-    this.uiMessage$ = this.ui.message$;
+    this.toasts$ = this.ui.toasts$;
   }
 
   ngOnInit(): void {
@@ -128,8 +128,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.closeAllMenus();
   }
 
-  dismissMessage() {
-    this.ui.clear();
+  dismissToast(id: number) {
+    this.ui.dismiss(id);
   }
 
   goToCategory(cat?: Category) {

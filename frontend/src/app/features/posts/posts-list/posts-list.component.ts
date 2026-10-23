@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subject, combineLatest, takeUntil } from 'rxjs';
 import { PostsService } from '../../../services/posts.service';
@@ -145,11 +146,14 @@ export class PostsListComponent implements OnInit, OnDestroy {
         this.currentPage = pageNum;
         this.load(pageNum, cat.id);
       },
-      error: () => {
-        this.error = null;
+      error: (err: HttpErrorResponse) => {
         this.page = undefined;
-        // Unknown slug: fall back to home with no filter
-        this.router.navigate(['/'], { queryParams: { page: 0 } });
+        if (err.status === 404) {
+          // Unknown category: show the 404 page but keep the address, so the broken link stays visible
+          this.router.navigate(['/not-found'], { skipLocationChange: true });
+        } else {
+          this.error = 'Failed to load posts.';
+        }
       },
     });
   }

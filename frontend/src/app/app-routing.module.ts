@@ -24,6 +24,9 @@ const routes: Routes = [
       import('./features/admin/admin.module').then((m) => m.AdminModule),
   },
   { path: 'home', redirectTo: '', pathMatch: 'full' },
+  // Named 404 page that screens can show for content that does not exist (a single word like /404
+  // would be taken for an old category address and redirected to /category/404).
+  { path: 'not-found', component: NotFoundComponent },
   {
     path: 'search',
     loadChildren: () =>

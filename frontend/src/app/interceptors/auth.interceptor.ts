@@ -9,6 +9,7 @@ import {
 import { Observable, catchError, throwError, switchMap, shareReplay } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -20,6 +21,11 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
+    // The token is only for our own API. Any other URL (another site, a CDN) must never receive it.
+    if (!this.isApiRequest(req.url)) {
+      return next.handle(req);
+    }
+
     // Skip auth endpoints from refresh handling
     const isAuthEndpoint =
       req.url.includes('/auth/login') ||
@@ -41,6 +47,11 @@ export class AuthInterceptor implements HttpInterceptor {
         return throwError(() => err);
       })
     );
+  }
+
+  private isApiRequest(url: string): boolean {
+    const base = environment.apiBaseUrl;
+    return url === base || url.startsWith(`${base}/`);
   }
 
   private handle401(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {

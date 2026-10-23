@@ -31,6 +31,17 @@ describe('AuthInterceptor', () => {
 
   afterEach(() => httpMock.verify());
 
+  it('sends the token only to our own API, never to other sites', () => {
+    http.get('/api/posts').subscribe();
+    expect(httpMock.expectOne('/api/posts').request.headers.get('Authorization')).toBe('Bearer token');
+
+    http.get('https://other-site.example/data').subscribe();
+    expect(httpMock.expectOne('https://other-site.example/data').request.headers.has('Authorization')).toBeFalse();
+
+    http.get('/apiary').subscribe(); // only the /api prefix itself, not URLs that merely start alike
+    expect(httpMock.expectOne('/apiary').request.headers.has('Authorization')).toBeFalse();
+  });
+
   it('keeps the session on 403 (not allowed is not logged out)', () => {
     http.put('/api/posts/1', {}).subscribe({ next: () => {}, error: () => {} });
     httpMock.expectOne('/api/posts/1').flush(null, { status: 403, statusText: 'Forbidden' });

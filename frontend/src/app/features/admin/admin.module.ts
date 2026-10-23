@@ -9,7 +9,7 @@ import { AdminPostsComponent } from './admin-posts/admin-posts.component';
 import { AdminPagesComponent } from './admin-pages/admin-pages.component';
 import { AdminSocialLinksComponent } from './admin-social-links/admin-social-links.component';
 import { AdminBrandingComponent } from './admin-branding/admin-branding.component';
-import { AdminUsersComponent } from '../user/admin/admin-users/admin-users.component';
+import { AdminUsersComponent } from './admin-users/admin-users.component';
 
 @NgModule({
   declarations: [

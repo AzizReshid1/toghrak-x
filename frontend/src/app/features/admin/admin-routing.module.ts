@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RoleGuard } from '../../guards/role.guard';
-import { AdminUsersComponent } from '../user/admin/admin-users/admin-users.component';
+import { AdminUsersComponent } from './admin-users/admin-users.component';
 import { AdminCategoriesComponent } from './admin-categories/admin-categories.component';
 import { AdminPostsComponent } from './admin-posts/admin-posts.component';
 import { AdminPagesComponent } from './admin-pages/admin-pages.component';

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { UsersService } from '../../../../services/users.service';
-import { User, CreateUserRequest } from '../../../../models/user';
-import { UiMessageService } from '../../../../services/ui-message.service';
+import { UsersService } from '../../../services/users.service';
+import { User, CreateUserRequest } from '../../../models/user';
+import { UiMessageService } from '../../../services/ui-message.service';
 
 @Component({
     selector: 'app-admin-users',

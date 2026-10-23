@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, of, switchMap, take, takeUntil } from 'rxjs';
+import { Subject, catchError, of, switchMap, takeUntil } from 'rxjs';
 import { User } from '../../../models/user';
 import { SessionService } from '../../../services/session.service';
 
@@ -19,30 +19,17 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loading = true;
-    this.session.user$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((u) => {
-        if (u) {
-          this.user = u;
-          this.loading = false;
-        }
-      });
-
+    // One stream: the signed-in user from the session, fetched from the server if the session does
+    // not have it yet (refreshUser() also stores it in user$, which then emits it here).
     this.session.user$
       .pipe(
-        take(1),
-        switchMap((u) => (u ? of(u) : this.session.refreshUser())),
+        switchMap((u) => (u ? of(u) : this.session.refreshUser().pipe(catchError(() => of(null))))),
         takeUntil(this.destroy$)
       )
-      .subscribe({
-        next: (u) => {
-          this.user = u;
-          this.loading = false;
-        },
-        error: () => {
-          this.error = 'Failed to load profile.';
-          this.loading = false;
-        },
+      .subscribe((u) => {
+        this.user = u ?? undefined;
+        this.error = u ? null : 'Failed to load profile.';
+        this.loading = false;
       });
   }
 

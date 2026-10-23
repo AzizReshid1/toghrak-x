@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8081/api',
+  // Same relative URL as production; `ng serve` forwards /api to Spring Boot (see proxy.conf.json).
+  apiBaseUrl: '/api',
 };
 
 /*

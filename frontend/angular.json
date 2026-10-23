@@ -64,7 +64,8 @@
               "buildTarget": "toghrak-x:build:production"
             },
             "development": {
-              "buildTarget": "toghrak-x:build:development"
+              "buildTarget": "toghrak-x:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

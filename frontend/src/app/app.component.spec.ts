@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject, of } from 'rxjs';
 import { AppComponent } from './app.component';
@@ -99,6 +100,22 @@ describe('AppComponent', () => {
 
     expect(fixture.componentInstance.isMenuOpen).toBeFalse();
     expect(document.body.style.overflow).toBe('');
+  });
+
+  it('highlights the category from a /category/:slug address and nothing on other pages', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+
+    await router.navigateByUrl('/category/news');
+    expect(fixture.componentInstance.activeCategorySlug).toBe('news');
+    expect(fixture.componentInstance.isHomeActive).toBeFalse();
+
+    await router.navigateByUrl('/search');
+    expect(fixture.componentInstance.activeCategorySlug).toBeNull();
+
+    await router.navigateByUrl('/');
+    expect(fixture.componentInstance.isHomeActive).toBeTrue();
   });
 
   it('closes the account menu on a click outside it or Escape, but not on a click inside', () => {

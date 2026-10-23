@@ -137,7 +137,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (!cat) {
       this.router.navigate(['/'], { queryParams: { page: 0 } });
     } else {
-      this.router.navigate(['/', cat.slug], { queryParams: { page: 0 } });
+      this.router.navigate(['/category', cat.slug], { queryParams: { page: 0 } });
     }
     this.closeAllMenus();
   }
@@ -203,28 +203,15 @@ export class AppComponent implements OnInit, OnDestroy {
     const parts = clean.split('/');
     const first = parts[0] ?? '';
     const second = parts[1] ?? '';
-    const reserved = new Set([
-      'posts',
-      'login',
-      'profile',
-      'admin',
-      'page',
-      'search',
-      'home',
-    ]);
-
-    if (reserved.has(first)) {
-      this.isHomeActive = false;
-      if (first === 'posts' && /^\d+$/.test(second)) {
-        this.activeCategorySlug = this.resolveHighlightedCategorySlug();
-      } else {
-        this.activeCategorySlug = null;
-      }
-      return;
-    }
-
     this.isHomeActive = false;
-    this.activeCategorySlug = first;
+
+    if (first === 'category') {
+      this.activeCategorySlug = second || null;
+    } else if (first === 'posts' && /^\d+$/.test(second)) {
+      this.activeCategorySlug = this.resolveHighlightedCategorySlug();
+    } else {
+      this.activeCategorySlug = null;
+    }
   }
 
   private resolveHighlightedCategorySlug(): string | null {

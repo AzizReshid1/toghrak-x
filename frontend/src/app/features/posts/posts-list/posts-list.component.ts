@@ -109,7 +109,7 @@ export class PostsListComponent implements OnInit, OnDestroy {
 
   goToPage(page: number) {
     if (this.currentCategorySlug) {
-      this.router.navigate(['/', this.currentCategorySlug], {
+      this.router.navigate(['/category', this.currentCategorySlug], {
         queryParams: { page },
       });
     } else {

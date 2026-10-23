@@ -57,7 +57,7 @@
               class="menu-item"
               [class.active]="activeCategorySlug === c.slug"
               [attr.aria-current]="activeCategorySlug === c.slug ? 'page' : null"
-              [routerLink]="['/', c.slug]"
+              [routerLink]="['/category', c.slug]"
               [queryParams]="{ page: 0 }"
               (click)="closeAllMenus()">
               {{ c.name }}

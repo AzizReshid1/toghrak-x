@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { PostsService } from '../../../services/posts.service';
 import { PostResponse } from '../../../models/post';
 import { Subject, takeUntil } from 'rxjs';
@@ -17,9 +16,9 @@ import { NavHighlightService } from '../../../services/nav-highlight.service';
 })
 export class PostDetailComponent implements OnInit, OnDestroy {
   post?: PostResponse;
-  /** Trusted HTML produced from post.content — bypasses Angular's redundant
-   *  sanitizer because the content is already sanitized server-side by Jsoup. */
-  safeContent!: SafeHtml;
+  /** Post body as HTML, bound with [innerHTML] so Angular sanitizes it in the browser too.
+   *  The backend already cleans it with Jsoup; two independent locks are safer than one. */
+  contentHtml = '';
   loading = false;
   error: string | null = null;
   deleting = false;
@@ -32,7 +31,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
-    private sanitizer: DomSanitizer,
     private posts: PostsService,
     private session: SessionService,
     private navHighlight: NavHighlightService
@@ -71,9 +69,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
         this.post = res;
         // Fire-and-forget: a failed view count must never affect reading the post.
         this.posts.recordView(res.id).subscribe({ error: () => {} });
-        this.safeContent = this.sanitizer.bypassSecurityTrustHtml(
-          this.formatContent(res.content ?? '')
-        );
+        this.contentHtml = this.formatContent(res.content ?? '');
         this.loading = false;
         this.navHighlight.setCategory({
           id: res.categoryId ?? null,

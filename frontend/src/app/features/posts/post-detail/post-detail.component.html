@@ -25,7 +25,7 @@
           <img [src]="post.coverImage" [alt]="post.title" loading="lazy" />
         </div>
       }
-      <div class="post-body post-content" [innerHTML]="safeContent"></div>
+      <div class="post-body post-content" [innerHTML]="contentHtml"></div>
       @if (post.imageUrls.length) {
         <div class="post-gallery">
           <h5>Gallery</h5>

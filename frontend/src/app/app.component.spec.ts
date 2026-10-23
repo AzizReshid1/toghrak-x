@@ -101,6 +101,31 @@ describe('AppComponent', () => {
     expect(document.body.style.overflow).toBe('');
   });
 
+  it('closes the account menu on a click outside it or Escape, but not on a click inside', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const details = fixture.nativeElement.querySelector('details.account-menu') as HTMLDetailsElement;
+    const open = () => {
+      details.open = true;
+      details.dispatchEvent(new Event('toggle'));
+      fixture.detectChanges();
+    };
+
+    open();
+    details.querySelector('.account-panel')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(fixture.componentInstance.isAccountMenuOpen).toBeTrue();
+
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.isAccountMenuOpen).toBeFalse();
+    expect(details.open).toBeFalse();
+
+    open();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.isAccountMenuOpen).toBeFalse();
+  });
+
   it('tracks account menu open/close via details toggle', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();

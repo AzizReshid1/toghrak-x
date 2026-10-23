@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Observable, Subject, filter, takeUntil } from 'rxjs';
 import { AuthService } from './services/auth.service';
@@ -37,6 +37,7 @@ export class AppComponent implements OnInit, OnDestroy {
   brandTagline = 'Stories that matter, in one place.';
   isMenuOpen = false;
   isAccountMenuOpen = false;
+  @ViewChild('accountMenu') accountMenu?: ElementRef<HTMLDetailsElement>;
   activeCategorySlug: string | null = null;
   isHomeActive = true;
   toasts$: Observable<Toast[]>;
@@ -173,6 +174,20 @@ export class AppComponent implements OnInit, OnDestroy {
   onAccountMenuToggle(event: Event) {
     const details = event.target as HTMLDetailsElement | null;
     this.isAccountMenuOpen = !!details?.open;
+  }
+
+  // A <details> menu only closes from its own button. Like any dropdown, it should also close
+  // when the user clicks anywhere outside it or presses Escape.
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (this.isAccountMenuOpen && !this.accountMenu?.nativeElement.contains(event.target as Node)) {
+      this.isAccountMenuOpen = false;
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey() {
+    this.isAccountMenuOpen = false;
   }
 
   private updateActiveSectionFromUrl(url: string) {

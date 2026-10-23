@@ -78,7 +78,7 @@
           </form>
 
           @if (isLoggedIn$ | async) {
-            <details class="account-menu" [open]="isAccountMenuOpen" (toggle)="onAccountMenuToggle($event)">
+            <details #accountMenu class="account-menu" [open]="isAccountMenuOpen" (toggle)="onAccountMenuToggle($event)">
               <summary class="account-trigger" aria-label="Account menu">
                 <span class="account-name">{{ currentUser?.username || 'Account' }}</span>
                 <span class="account-caret" aria-hidden="true">⚙</span>

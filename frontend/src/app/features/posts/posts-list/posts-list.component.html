@@ -93,7 +93,7 @@
               <div class="section-rule"></div>
             </div>
             <div class="latest-grid">
-              @for (p of posts.slice(3); track p) {
+              @for (p of posts.slice(3); track p.id) {
                 <div class="story-card">
                   <a class="story-card-link" [routerLink]="['/posts', p.slug]" aria-label="{{ p.title }}">
                     @if (p.coverImage) {

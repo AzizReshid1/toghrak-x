@@ -10,7 +10,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (link of links; track link) {
+      @for (link of links; track link.id ?? $index) {
         <tr>
           <td><input class="input input-sm" [(ngModel)]="link.label" /></td>
           <td><input class="input input-sm" [(ngModel)]="link.url" /></td>

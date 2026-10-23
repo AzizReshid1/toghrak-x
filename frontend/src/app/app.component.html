@@ -52,7 +52,7 @@
             (click)="closeAllMenus()">
             Home
           </a>
-          @for (c of categories; track c) {
+          @for (c of categories; track c.id) {
             <a
               class="menu-item"
               [class.active]="activeCategorySlug === c.slug"
@@ -138,7 +138,7 @@
       <div class="footer-contact">
         <div>Contact with us</div>
         <div class="socials">
-          @for (s of socialLinks; track s) {
+          @for (s of socialLinks; track s.id) {
             <a
               [href]="s.url"
               target="_blank"
@@ -153,7 +153,7 @@
     </div>
     @if (footerPages.length) {
       <div class="footer-links">
-        @for (p of footerPages; track p) {
+        @for (p of footerPages; track p.slug) {
           <a [routerLink]="['/page', p.slug]">{{ p.title }}</a>
         }
       </div>

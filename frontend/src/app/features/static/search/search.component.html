@@ -23,7 +23,7 @@
 
   @if (results.length) {
     <div class="item-list">
-      @for (r of results; track r) {
+      @for (r of results; track r.url) {
         <!-- Social links leave the site (plain href in a new tab); posts and pages use the router.
              One <a> cannot use both: routerLink writes its own href and would replace the external URL. -->
         @if (r.type === 'SOCIAL') {

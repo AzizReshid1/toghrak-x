@@ -26,7 +26,7 @@
       <label class="field-label" for="post-category">Category</label>
       <select id="post-category" class="form-select" formControlName="categoryId">
         <option [ngValue]="null">Select a category</option>
-        @for (c of categories; track c) {
+        @for (c of categories; track c.id) {
           <option [ngValue]="c.id">{{ c.name }}</option>
         }
       </select>

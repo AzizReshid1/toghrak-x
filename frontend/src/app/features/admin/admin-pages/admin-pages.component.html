@@ -59,7 +59,7 @@
   <div class="mt-4">
     <h6>Existing pages</h6>
     <ul class="item-list">
-      @for (p of pages; track p) {
+      @for (p of pages; track p.slug) {
         <li class="item-row flex justify-between items-center">
           <span>{{ p.title }} ({{ p.slug }})</span>
           <div class="flex gap-2">

@@ -61,7 +61,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (u of users; track u) {
+      @for (u of users; track u.id) {
         <tr>
           <td>{{ u.username }}</td>
           <td>{{ u.email }}</td>

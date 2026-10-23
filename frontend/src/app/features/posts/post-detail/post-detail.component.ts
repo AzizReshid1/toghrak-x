@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { PostsService } from '../../../services/posts.service';
 import { PostResponse } from '../../../models/post';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, catchError, filter, map, of, switchMap, takeUntil } from 'rxjs';
 import { User } from '../../../models/user';
 import { SessionService } from '../../../services/session.service';
 import { NavHighlightService } from '../../../services/nav-highlight.service';
@@ -43,12 +43,21 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     });
     this.session.isAdmin$.pipe(takeUntil(this.destroy$)).subscribe((isAdmin) => (this.isAdmin = isAdmin));
 
-    const slug = this.route.snapshot.paramMap.get('slug');
-    if (!slug) {
-      this.router.navigateByUrl('/');
-      return;
-    }
-    this.fetch(slug);
+    // React to every slug, not just the first one: Angular reuses this component when only the
+    // slug changes (e.g. a link from one post to another). switchMap cancels the previous request,
+    // so a slow response can never replace the post that is now on screen.
+    this.route.paramMap
+      .pipe(
+        map((params) => params.get('slug')),
+        filter((slug): slug is string => !!slug),
+        switchMap((slug) => {
+          this.loading = true;
+          this.error = null;
+          return this.posts.getBySlug(slug).pipe(catchError(() => of(null)));
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((post) => (post ? this.show(post) : this.showNotFound()));
   }
 
   ngOnDestroy(): void {
@@ -61,28 +70,24 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.location.back();
   }
 
-  fetch(slug: string): void {
-    this.loading = true;
-    this.error = null;
-    this.posts.getBySlug(slug).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res) => {
-        this.post = res;
-        // Fire-and-forget: a failed view count must never affect reading the post.
-        this.posts.recordView(res.id).subscribe({ error: () => {} });
-        this.contentHtml = this.formatContent(res.content ?? '');
-        this.loading = false;
-        this.navHighlight.setCategory({
-          id: res.categoryId ?? null,
-          name: res.categoryName ?? null,
-        });
-        this.updateOwnershipFlag();
-      },
-      error: () => {
-        this.error = 'Post not found.';
-        this.loading = false;
-        this.navHighlight.clear();
-      },
+  private show(res: PostResponse): void {
+    this.post = res;
+    // Fire-and-forget: a failed view count must never affect reading the post.
+    this.posts.recordView(res.id).subscribe({ error: () => {} });
+    this.contentHtml = this.formatContent(res.content ?? '');
+    this.loading = false;
+    this.navHighlight.setCategory({
+      id: res.categoryId ?? null,
+      name: res.categoryName ?? null,
     });
+    this.updateOwnershipFlag();
+  }
+
+  private showNotFound(): void {
+    this.post = undefined;
+    this.error = 'Post not found.';
+    this.loading = false;
+    this.navHighlight.clear();
   }
 
   deletePost(): void {

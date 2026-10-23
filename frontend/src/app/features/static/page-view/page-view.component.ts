@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, catchError, filter, map, of, switchMap, takeUntil } from 'rxjs';
 import { PagesService } from '../../../services/pages.service';
 import { ContentPage } from '../../../models/content-page';
 
@@ -19,33 +19,28 @@ export class PageViewComponent implements OnInit, OnDestroy {
   constructor(private route: ActivatedRoute, private pageService: PagesService) {}
 
   ngOnInit(): void {
+    // switchMap cancels the previous request when the reader moves to another page, so a slow
+    // response can never replace the page that is now on screen.
     this.route.paramMap
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((params) => {
-        const slug = params.get('slug');
-        if (slug) {
-          this.fetch(slug);
-        }
+      .pipe(
+        map((params) => params.get('slug')),
+        filter((slug): slug is string => !!slug),
+        switchMap((slug) => {
+          this.loading = true;
+          this.error = null;
+          return this.pageService.get(slug).pipe(catchError(() => of(null)));
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((page) => {
+        this.page = page ?? undefined;
+        this.error = page ? null : 'Page not found.';
+        this.loading = false;
       });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private fetch(slug: string) {
-    this.loading = true;
-    this.error = null;
-    this.pageService.get(slug).subscribe({
-      next: (p) => {
-        this.page = p;
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Page not found.';
-        this.loading = false;
-      },
-    });
   }
 }

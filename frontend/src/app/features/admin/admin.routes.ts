@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { RoleGuard } from '../../guards/role.guard';
+import { roleGuard } from '../../guards/role.guard';
 import { AdminUsersComponent } from './admin-users/admin-users.component';
 import { AdminCategoriesComponent } from './admin-categories/admin-categories.component';
 import { AdminPostsComponent } from './admin-posts/admin-posts.component';
@@ -11,37 +11,37 @@ export const ADMIN_ROUTES: Routes = [
   {
     path: 'users',
     component: AdminUsersComponent,
-    canActivate: [RoleGuard],
+    canActivate: [roleGuard],
     data: { roles: ['ADMIN'] },
   },
   {
     path: 'posts',
     component: AdminPostsComponent,
-    canActivate: [RoleGuard],
+    canActivate: [roleGuard],
     data: { roles: ['ADMIN'] },
   },
   {
     path: 'categories',
     component: AdminCategoriesComponent,
-    canActivate: [RoleGuard],
+    canActivate: [roleGuard],
     data: { roles: ['ADMIN'] },
   },
   {
     path: 'pages',
     component: AdminPagesComponent,
-    canActivate: [RoleGuard],
+    canActivate: [roleGuard],
     data: { roles: ['ADMIN'] },
   },
   {
     path: 'social-links',
     component: AdminSocialLinksComponent,
-    canActivate: [RoleGuard],
+    canActivate: [roleGuard],
     data: { roles: ['ADMIN'] },
   },
   {
     path: 'branding',
     component: AdminBrandingComponent,
-    canActivate: [RoleGuard],
+    canActivate: [roleGuard],
     data: { roles: ['ADMIN'] },
   },
   { path: '', redirectTo: 'users', pathMatch: 'full' },

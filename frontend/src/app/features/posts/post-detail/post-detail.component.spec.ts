@@ -1,7 +1,6 @@
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, ParamMap } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute, convertToParamMap, ParamMap, provideRouter } from '@angular/router';
 import { BehaviorSubject, EMPTY, Subject, of } from 'rxjs';
 import { PostDetailComponent } from './post-detail.component';
 import { PostsService } from '../../../services/posts.service';
@@ -23,9 +22,10 @@ describe('PostDetailComponent', () => {
     responses = { first: new Subject(), second: new Subject() };
 
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, PostDetailComponent],
+      imports: [PostDetailComponent],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
+        provideRouter([]),
         { provide: ActivatedRoute, useValue: { paramMap: params.asObservable() } },
         {
           provide: PostsService,

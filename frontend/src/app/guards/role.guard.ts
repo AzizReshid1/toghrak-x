@@ -1,29 +1,21 @@
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
-import { Observable, catchError, map, of, switchMap, take } from 'rxjs';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { catchError, map, of, switchMap, take } from 'rxjs';
 import { SessionService } from '../services/session.service';
 
-@Injectable({ providedIn: 'root' })
-export class RoleGuard  {
-  constructor(private session: SessionService, private router: Router) {}
-
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
-    const requiredRoles = route.data['roles'] as string[] | undefined;
-    if (!requiredRoles || requiredRoles.length === 0) {
-      return of(true);
-    }
-
-    return this.session.user$.pipe(
-      take(1),
-      switchMap((user) => (user ? of(user) : this.session.refreshUser())),
-      map((user) => {
-        const role = user.roleName;
-        if (role && requiredRoles.includes(role)) {
-          return true;
-        }
-        return this.router.createUrlTree(['/']);
-      }),
-      catchError(() => of(this.router.createUrlTree(['/login'])))
-    );
+/** Only users whose role is in the route's `data.roles`; others go to the home page. */
+export const roleGuard: CanActivateFn = (route) => {
+  const requiredRoles = route.data['roles'] as string[] | undefined;
+  if (!requiredRoles || requiredRoles.length === 0) {
+    return true;
   }
-}
+
+  const session = inject(SessionService);
+  const router = inject(Router);
+  return session.user$.pipe(
+    take(1),
+    switchMap((user) => (user ? of(user) : session.refreshUser())),
+    map((user) => (user.roleName && requiredRoles.includes(user.roleName) ? true : router.createUrlTree(['/']))),
+    catchError(() => of(router.createUrlTree(['/login'])))
+  );
+};

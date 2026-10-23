@@ -1,26 +1,18 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { Observable, catchError, map, of } from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
-export class AlreadyAuthGuard  {
-  constructor(private auth: AuthService, private router: Router) {}
+/** Keeps logged-in users away from the login page by sending them home. */
+export const alreadyAuthGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const home = inject(Router).createUrlTree(['/']);
 
-  canActivate(): Observable<boolean> {
-    const token = this.auth.getToken();
-    if (token) {
-      this.router.navigateByUrl('/');
-      return of(false);
-    }
-
-    return this.auth.ensureToken().pipe(
-      map((t) => {
-        if (!t) return true;
-        this.router.navigateByUrl('/');
-        return false;
-      }),
-      catchError(() => of(true))
-    );
+  if (auth.getToken()) {
+    return home;
   }
-}
+  return auth.ensureToken().pipe(
+    map((token) => (token ? home : true)),
+    catchError(() => of(true))
+  );
+};

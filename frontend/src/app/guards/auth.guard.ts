@@ -1,30 +1,16 @@
-import { Injectable } from '@angular/core';
-import { Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { Observable, catchError, map, of } from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
-export class AuthGuard  {
-  constructor(private auth: AuthService, private router: Router) {}
+/** Logged-in users only; others are sent to /login and come back here after logging in. */
+export const authGuard: CanActivateFn = (_route, state) => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  const toLogin = router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): Observable<boolean | UrlTree> {
-    return this.auth.ensureToken().pipe(
-      map((token) => {
-        if (token) return true;
-        return this.router.createUrlTree(['/login'], {
-          queryParams: { returnUrl: state.url },
-        });
-      }),
-      catchError(() =>
-        of(
-          this.router.createUrlTree(['/login'], {
-            queryParams: { returnUrl: state.url },
-          })
-        )
-      )
-    );
-  }
-}
+  return auth.ensureToken().pipe(
+    map((token) => (token ? true : toLogin)),
+    catchError(() => of(toLogin))
+  );
+};

@@ -1,10 +1,7 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { Router, provideRouter } from '@angular/router';
 import { BehaviorSubject, map, of } from 'rxjs';
 import { AppComponent } from './app.component';
 import { AuthService } from './services/auth.service';
@@ -18,10 +15,7 @@ import { NavHighlightCategory, NavHighlightService } from './services/nav-highli
 import { Category } from './models/category';
 import { User } from './models/user';
 
-@Component({
-    template: '',
-    standalone: false
-})
+@Component({ template: '' })
 class DummyComponent {}
 
 describe('AppComponent', () => {
@@ -53,16 +47,12 @@ describe('AppComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [
-        CommonModule,
-        FormsModule,
-        RouterTestingModule.withRoutes([
+      imports: [AppComponent],
+      providers: [
+        provideRouter([
           { path: '', component: DummyComponent },
           { path: '**', component: DummyComponent },
         ]),
-        AppComponent,
-      ],
-      providers: [
         { provide: AuthService, useValue: { logout: () => {} } },
         {
           provide: SessionService,

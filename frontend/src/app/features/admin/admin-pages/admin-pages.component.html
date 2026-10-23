@@ -27,7 +27,9 @@
 
   <div class="mt-4">
     <label class="field-label">Content</label>
-    <textarea class="input resize-y" rows="10" [(ngModel)]="current.content" placeholder="Page content"></textarea>
+    <!-- Rich-text editor: shows formatting, reads and writes HTML (no visible <p> tags) -->
+    <quill-editor class="content-editor" [(ngModel)]="current.content" name="content" [valueGetter]="editorHtml"
+      placeholder="Page content"></quill-editor>
   </div>
 
   <div class="mt-4">

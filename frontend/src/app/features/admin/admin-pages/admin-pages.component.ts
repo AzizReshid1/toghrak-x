@@ -4,6 +4,7 @@ import { PagesService } from '../../../services/pages.service';
 import { ImagesService } from '../../../services/images.service';
 import { ContentPage, UpsertContentPageRequest } from '../../../models/content-page';
 import { UiMessageService } from '../../../services/ui-message.service';
+import { editorHtml } from '../../../editor-config';
 
 // Routes owned by the Angular router — cannot be used as page slugs.
 const RESERVED_SLUGS = new Set([
@@ -28,6 +29,7 @@ export class AdminPagesComponent implements OnInit, OnDestroy {
     images: [],
   };
   uploading = false;
+  readonly editorHtml = editorHtml;
   // Slug of the page opened for editing (null while drafting a new one). Saving always updates
   // this page, even when its slug is being renamed; looking it up by the new slug would create a copy.
   editingSlug: string | null = null;

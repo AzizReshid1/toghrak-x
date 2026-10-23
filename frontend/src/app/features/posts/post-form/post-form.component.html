@@ -14,8 +14,10 @@
       }
     </div>
     <div class="mb-4">
-      <label class="field-label" for="post-content">Content</label>
-      <textarea id="post-content" class="input resize-y" rows="8" formControlName="content"></textarea>
+      <label class="field-label">Content</label>
+      <!-- Rich-text editor: shows formatting, reads and writes HTML (no visible <p> tags) -->
+      <quill-editor class="content-editor" formControlName="content" [valueGetter]="editorHtml"
+        placeholder="Write your post..."></quill-editor>
       @if (form.controls.content.invalid && form.controls.content.touched) {
         <div class="text-red-700 text-sm">Content is required.</div>
       }

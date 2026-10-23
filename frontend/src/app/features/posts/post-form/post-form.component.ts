@@ -7,6 +7,7 @@ import { PostsService } from '../../../services/posts.service';
 import { ImagesService } from '../../../services/images.service';
 import { Category } from '../../../models/category';
 import { UiMessageService } from '../../../services/ui-message.service';
+import { editorHtml } from '../../../editor-config';
 import {
   CreatePostRequest,
   UpdatePostRequest,
@@ -27,6 +28,7 @@ export class PostFormComponent implements OnInit, OnDestroy {
   saving = false;
   error: string | null = null; // only for a post or categories that could not be loaded
   imageUrls: string[] = [];
+  readonly editorHtml = editorHtml;
   uploadingGallery = false;
 
   form = this.fb.group({

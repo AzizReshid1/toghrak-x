@@ -427,3 +427,25 @@ footer {
     animation: none;
   }
 }
+
+/* ── Rich-text editor (Quill) ────────────────────────────────────────────── */
+.content-editor {
+  display: block;
+  background: #fff;
+}
+
+.content-editor .ql-container {
+  font-size: 16px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.content-editor .ql-toolbar {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.content-editor .ql-editor {
+  min-height: 260px;
+  line-height: 1.7;
+}

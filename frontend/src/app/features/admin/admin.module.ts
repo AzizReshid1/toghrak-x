@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { QuillModule } from 'ngx-quill';
 
 import { AdminRoutingModule } from './admin-routing.module';
 import { AdminCategoriesComponent } from './admin-categories/admin-categories.component';
@@ -19,7 +20,7 @@ import { AdminUsersComponent } from '../user/admin/admin-users/admin-users.compo
     AdminSocialLinksComponent,
     AdminBrandingComponent,
   ],
-  imports: [CommonModule, FormsModule, AdminRoutingModule],
+  imports: [CommonModule, FormsModule, QuillModule, AdminRoutingModule],
 })
 export class AdminModule {}
 

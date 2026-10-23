@@ -148,10 +148,16 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
 
-    fixture.componentInstance.isMenuOpen = true;
-    fixture.componentInstance.isAccountMenuOpen = true;
-    document.body.style.overflow = 'hidden';
+    // Open both menus the way a user does (writing the fields directly bypasses Angular's
+    // normal update path and trips its development-mode check, NG0100)
+    (fixture.nativeElement.querySelector('button.menu-toggle') as HTMLButtonElement).click();
+    const details = fixture.nativeElement.querySelector('details.account-menu') as HTMLDetailsElement;
+    details.open = true;
+    details.dispatchEvent(new Event('toggle'));
     fixture.detectChanges();
+    expect(fixture.componentInstance.isMenuOpen).toBeTrue();
+    expect(fixture.componentInstance.isAccountMenuOpen).toBeTrue();
+    expect(document.body.style.overflow).toBe('hidden');
 
     const homeLink = fixture.debugElement
       .queryAll(By.css('a.menu-item'))

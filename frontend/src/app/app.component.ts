@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { Observable, Subject, filter, takeUntil } from 'rxjs';
 import { AuthService } from './services/auth.service';
 import { CategoriesService } from './services/categories.service';
@@ -16,12 +16,14 @@ import { ContentPage } from './models/content-page';
 import { SiteSettingsService } from './services/site-settings.service';
 import { SessionService } from './services/session.service';
 import { Toast, UiMessageService } from './services/ui-message.service';
+import { FormsModule } from '@angular/forms';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css'],
-    standalone: false
+    imports: [RouterLink, FormsModule, RouterOutlet, AsyncPipe]
 })
 export class AppComponent implements OnInit, OnDestroy {
   isLoggedIn$: Observable<boolean>;

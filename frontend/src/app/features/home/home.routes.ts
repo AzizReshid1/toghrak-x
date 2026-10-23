@@ -1,8 +1,7 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { PostsListComponent } from '../posts/posts-list/posts-list.component';
 
-const routes: Routes = [
+export const HOME_ROUTES: Routes = [
   { path: '', component: PostsListComponent }, // Home
   // Categories live under their own prefix (e.g. /category/events), so a category can never
   // collide with an app route such as /search or /page.
@@ -10,9 +9,3 @@ const routes: Routes = [
   // Old category URLs (/events) from before the prefix keep working for bookmarks and shared links
   { path: ':slug', redirectTo: 'category/:slug' },
 ];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
-})
-export class HomeRoutingModule {}

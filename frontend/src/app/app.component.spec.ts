@@ -60,8 +60,8 @@ describe('AppComponent', () => {
           { path: '', component: DummyComponent },
           { path: '**', component: DummyComponent },
         ]),
+        AppComponent,
       ],
-      declarations: [AppComponent],
       providers: [
         { provide: AuthService, useValue: { logout: () => {} } },
         {

@@ -1,27 +1,26 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { NotFoundComponent } from './features/static/not-found/not-found.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: 'posts',
     loadChildren: () =>
-      import('./features/posts/posts.module').then((m) => m.PostsModule),
+      import('./features/posts/posts.routes').then((m) => m.POSTS_ROUTES),
   },
   {
     path: 'login',
     loadChildren: () =>
-      import('./features/auth/auth.module').then((m) => m.AuthModule),
+      import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
     path: 'profile',
     loadChildren: () =>
-      import('./features/user/user.module').then((m) => m.UserModule),
+      import('./features/user/user.routes').then((m) => m.USER_ROUTES),
   },
   {
     path: 'admin',
     loadChildren: () =>
-      import('./features/admin/admin.module').then((m) => m.AdminModule),
+      import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
   { path: 'home', redirectTo: '', pathMatch: 'full' },
   // Named 404 page that screens can show for content that does not exist (a single word like /404
@@ -30,23 +29,17 @@ const routes: Routes = [
   {
     path: 'search',
     loadChildren: () =>
-      import('./features/static/search/search.module').then((m) => m.SearchModule),
+      import('./features/static/search/search.routes').then((m) => m.SEARCH_ROUTES),
   },
   {
     path: 'page',
     loadChildren: () =>
-      import('./features/static/page-view/page-view.module').then((m) => m.PageViewModule),
+      import('./features/static/page-view/page-view.routes').then((m) => m.PAGE_VIEW_ROUTES),
   },
   {
     path: '',
     loadChildren: () =>
-      import('./features/home/home.module').then((m) => m.HomeModule),
+      import('./features/home/home.routes').then((m) => m.HOME_ROUTES),
   },
   { path: '**', component: NotFoundComponent },
 ];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes, { onSameUrlNavigation: 'reload' })],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {}

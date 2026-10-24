@@ -1,5 +1,7 @@
 # Toghrak X
 
+[![CI](https://github.com/AzizReshid1/toghrak-x/actions/workflows/ci.yml/badge.svg)](https://github.com/AzizReshid1/toghrak-x/actions/workflows/ci.yml)
+
 A full-stack publishing platform: posts in categories, static pages, a rich-text editor, global search and an admin panel.
 
 **Stack:** Angular 21 · Spring Boot 3.5 (Java 21) · PostgreSQL · JWT authentication

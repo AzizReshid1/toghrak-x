@@ -130,6 +130,8 @@ Swagger UI is at `http://localhost:8081/swagger-ui/index.html`. It is admin-only
 
 ## Tests
 
+[CI](.github/workflows/ci.yml) runs both test suites on every push to `main` and on every pull request.
+
 ### Backend
 ```bash
 cd backend

@@ -7,6 +7,7 @@ A full-stack publishing platform: posts in categories, static pages, a rich-text
 **Stack:** Angular 21 · Spring Boot 3.5 (Java 21) · PostgreSQL · JWT authentication
 
 ---
+<img width="1502" height="962" alt="ToghrakX" src="https://github.com/user-attachments/assets/b899497e-69da-4f01-903d-55cd3dffe477" />
 
 ## Contents
 
